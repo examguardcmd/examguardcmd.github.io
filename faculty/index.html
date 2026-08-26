@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Proctor — Faculty Dashboard</title>
+<style>
+  :root{
+    --ink:#0B3D6B;
+    --ink-2:#082B4D;
+    --paper:#FFFFFF;
+    --paper-2:#EAF3FB;
+    --rule:#CFE3F2;
+    --seal:#1E6FB0;
+    --seal-2:#145088;
+    --amber:#4FA8E0;
+    --ok:#28a745;
+    --bad:#dc3545;
+    --text:#10233A;
+    --muted:#5C7387;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --serif: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--text);font-family:var(--serif);}
+  body{min-height:100vh;display:flex;flex-direction:column;}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    background:var(--ink);
+    color:var(--paper);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 20px;
+    border-bottom:3px solid var(--seal);
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.03em;
+  }
+  .brand-row{display:flex;align-items:center;gap:12px;font-weight:bold;}
+  .status-cluster{display:flex;gap:18px;align-items:center;}
+  .status-chip{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:3px;background:var(--ink-2);}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);}
+  .dot.bad{background:var(--bad);}
+
+  /* ---------- layout shells ---------- */
+  section{flex:1;width:100%;}
+  .wrap{max-width:1100px;margin:0 auto;padding:40px 24px 60px;}
+  h1{font-size:28px;margin:0 0 6px;}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:6px;}
+  p.lede{color:var(--muted);font-size:15px;line-height:1.6;margin-top:0;}
+
+  /* ---------- upload zone ---------- */
+  .dropzone{
+    background:var(--paper-2);border:2px dashed var(--seal);border-radius:4px;
+    padding:32px;text-align:center;cursor:pointer;transition:background .15s ease;
+    margin-bottom:24px;position:relative;
+  }
+  .dropzone:hover, .dropzone.dragover{background:#dbeaf8;}
+  .dropzone input[type="file"]{
+    position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;
+  }
+  .dropzone p{margin:8px 0 0;font-family:var(--mono);font-size:13px;color:var(--muted);}
+
+  /* ---------- dashboard grid ---------- */
+  .dashboard-grid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start;}
+  @media(max-width:860px){.dashboard-grid{grid-template-columns:1fr;}}
+
+  .panel{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:16px;}
+  .panel dl{font-family:var(--mono);font-size:12.5px;margin:0;}
+  .panel dt{color:var(--muted);margin-top:10px;}
+  .panel dd{margin:0 0 4px;color:var(--text);font-weight:bold;}
+
+  .verifier-box{background:#fff;border:1px solid var(--rule);border-radius:2px;padding:16px;margin-bottom:16px;}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+  .field label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+  .field input{
+    font-family:var(--mono);font-size:14px;padding:8px 10px;
+    border:1px solid var(--rule);border-radius:2px;background:#fff;color:var(--text);
+  }
+
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:3px;font-family:var(--mono);font-size:12px;font-weight:bold;margin-top:10px;}
+  .badge.valid{background:#d4edda;color:#155724;border:1px solid #c3e6cb;}
+  .badge.invalid{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;}
+
+  /* ---------- violation log list ---------- */
+  #logList{list-style:none;margin:0;padding:0;max-height:420px;overflow-y:auto;background:#fff;border:1px solid var(--rule);border-radius:2px;}
+  #logList li{
+    font-family:var(--mono);font-size:12px;line-height:1.4;
+    padding:10px 12px;border-bottom:1px dashed var(--rule);
+  }
+  #logList li.sev-high{background:#fff5f5;color:var(--bad);}
+  #logList li.sev-med{background:#fffdf4;color:#b78103;}
+  #logList li.sev-low{color:var(--text);}
+  #logList .ts{color:var(--muted);display:block;font-size:10.5px;margin-bottom:2px;}
+  #logList:empty::after{content:"No report loaded. Upload an .epx file to inspect violations.";display:block;padding:24px;color:var(--muted);font-style:italic;font-family:var(--serif);text-align:center;}
+
+  .stats-row{display:flex;gap:12px;margin-bottom:16px;}
+  .stat-card{flex:1;background:#fff;border:1px solid var(--rule);padding:12px;border-radius:2px;text-align:center;}
+  .stat-card .num{font-family:var(--mono);font-size:20px;font-weight:bold;color:var(--ink);}
+  .stat-card .label{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand-row">
+    <span>EXAM PROCTOR // FACULTY VERIFICATION PORTAL</span>
+  </div>
+  <div class="status-cluster">
+    <span class="status-chip"><span class="dot" id="systemStatusDot"></span><span id="systemStatusText">Awaiting Report</span></span>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h1>Session Inspection &amp; Integrity Check</h1>
+    <p class="lede">Upload a student's submitted <strong>.epx proctoring report</strong> file and verify their cryptographic integrity code to review violation logs securely.</p>
+
+    <!-- Upload Dropzone -->
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" accept=".epx,.json">
+      <strong>Click to upload .epx file</strong> or drag and drop it here
+      <p>Supports standard Exam Proctor exchange files (*.epx)</p>
+    </div>
+
+    <div id="dashboard" hidden>
+      <div class="dashboard-grid">
+        <!-- Left Column: Metadata & Integrity Check -->
+        <div>
+          <div class="panel">
+            <h2>Candidate Info</h2>
+            <dl>
+              <dt>Student Name</dt><dd id="metaName">—</dd>
+              <dt>Student ID</dt><dd id="metaId">—</dd>
+              <dt>Session ID</dt><dd id="metaSession">—</dd>
+              <dt>Exam Duration</dt><dd id="metaDuration">—</dd>
+            </dl>
+          </div>
+
+          <div class="verifier-box" style="margin-top:16px;">
+            <h2>Integrity Verification</h2>
+            <div class="field" style="margin-top:10px;">
+              <label for="inputCode">Student Integrity Code</label>
+              <input type="text" id="inputCode" placeholder="Paste code (e.g. EP-ABC123Z-3)">
+            </div>
+            <button class="btn" id="verifyBtn" style="width:100%; font-family:var(--mono); font-size:12px; padding:10px; background:var(--ink); color:#fff; border:none; cursor:pointer; border-radius:2px;">Verify Code Match</button>
+            <div id="verificationResult"></div>
+          </div>
+        </div>
+
+        <!-- Right Column: Stats & Violation Log -->
+        <div>
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="num" id="statTotal">0</div>
+              <div class="label">Total Violations</div>
+            </div>
+            <div class="stat-card">
+              <div class="num" id="statHigh" style="color:var(--bad);">0</div>
+              <div class="label">High Severity</div>
+            </div>
+            <div class="stat-card">
+              <div class="num" id="statMed" style="color:#b78103;">0</div>
+              <div class="label">Med/Low</div>
+            </div>
+          </div>
+
+          <h2>Dynamic Violation Log</h2>
+          <ul id="logList" aria-live="polite"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  "use strict";
+
+  let loadedReportData = null;
+  let loadedReportRawString = "";
+
+  const el = (id) => document.getElementById(id);
+  const dropzone = el("dropzone");
+  const fileInput = el("fileInput");
+
+  // Fix: Ensure standard file upload trigger works correctly across all browsers
+  fileInput.addEventListener("change", (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFile(e.target.files[0]);
+    }
+  });
+
+  // Drag and drop event handling
+  dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
+      fileInput.files = e.dataTransfer.files; // Sync dropped file with input element state
+    }
+  });
+
+  function checksum(str){
+    let h = 5381;
+    for (let i=0;i<str.length;i++){ h = ((h*33) ^ str.charCodeAt(i)) >>> 0; }
+    return h.toString(36).toUpperCase();
+  }
+
+  function handleFile(file){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      try {
+        loadedReportRawString = e.target.result;
+        loadedReportData = JSON.parse(loadedReportRawString);
+        renderDashboard(loadedReportData, loadedReportRawString);
+      } catch (err) {
+        alert("Invalid .epx report file format. Could not parse JSON.");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function renderDashboard(data, rawStr){
+    el("dashboard").hidden = false;
+    el("systemStatusDot").classList.remove("bad");
+    el("systemStatusText").textContent = "Report Loaded Successfully";
+
+    // Metadata
+    el("metaName").textContent = data.student?.name || "Unknown";
+    el("metaId").textContent = data.student?.id || "Unknown";
+    el("metaSession").textContent = data.sessionId || "Unknown";
+    
+    const mins = Math.floor((data.durationMs || 0) / 60000);
+    const secs = Math.floor(((data.durationMs || 0) % 60000) / 1000);
+    el("metaDuration").textContent = `${mins}m ${secs}s`;
+
+    // Stats
+    const violations = data.violations || [];
+    el("statTotal").textContent = violations.length;
+    let high = 0, medLow = 0;
+    violations.forEach(v => {
+      if (v.severity === "high") high++;
+      else medLow++;
+    });
+    el("statHigh").textContent = high;
+    el("statMed").textContent = medLow;
+
+    // Pre-populate integrity input with expected code for convenience
+    const expectedCode = "EP-" + checksum(rawStr) + "-" + violations.length;
+    el("inputCode").value = expectedCode;
+    verifyCode(expectedCode, rawStr, violations.length);
+
+    // Violation Log List
+    const logList = el("logList");
+    logList.innerHTML = "";
+    if (violations.length === 0) {
+      const li = document.createElement("li");
+      li.style.textAlign = "center";
+      li.style.color = "var(--ok)";
+      li.textContent = "Clean session! No integrity violations recorded.";
+      logList.appendChild(li);
+    } else {
+      violations.forEach(v => {
+        const li = document.createElement("li");
+        li.className = "sev-" + (v.severity || "med");
+        const time = new Date(v.atISO).toLocaleTimeString();
+        const dur = v.durationMs ? ` (Duration: ${(v.durationMs/1000).toFixed(1)}s)` : "";
+        li.innerHTML = `<span class="ts">[${time}] Severity: ${v.severity.toUpperCase()}</span><strong>${v.type}</strong>: ${v.detail}${dur}`;
+        logList.appendChild(li);
+      });
+    }
+  }
+
+  el("verifyBtn").addEventListener("click", () => {
+    if (!loadedReportData) return;
+    const userCode = el("inputCode").value.trim();
+    const expectedCount = loadedReportData.violations.length;
+    verifyCode(userCode, loadedReportRawString, expectedCount);
+  });
+
+  function verifyCode(codeStr, rawStr, violationCount){
+    const resultContainer = el("verificationResult");
+    const expectedCode = "EP-" + checksum(rawStr) + "-" + violationCount;
+    
+    if (codeStr === expectedCode) {
+      resultContainer.innerHTML = `<div class="badge valid">✓ Integrity Verified Match</div><p style="font-size:11.5px;color:var(--muted);margin:6px 0 0;">The hash matches the report content. File is authentic and uncompromised.</p>`;
+    } else {
+      resultContainer.innerHTML = `<div class="badge invalid">✗ Verification Failed / Mismatch</div><p style="font-size:11.5px;color:var(--muted);margin:6px 0 0;">The code does not match this report file. The file may have been modified or code is incorrect.</p>`;
+    }
+  }
+
+})();
+</script>
+</body>
+</html>

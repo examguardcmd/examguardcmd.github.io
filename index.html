@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Proctor — Session Monitor</title>
+<style>
+  :root{
+    --ink:#0B3D6B;
+    --ink-2:#082B4D;
+    --paper:#FFFFFF;
+    --paper-2:#EAF3FB;
+    --rule:#CFE3F2;
+    --seal:#1E6FB0;
+    --seal-2:#145088;
+    --amber:#4FA8E0;
+    --ok:#7EC1EA;
+    --text:#10233A;
+    --muted:#5C7387;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --serif: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--text);font-family:var(--serif);}
+  body{min-height:100vh;display:flex;flex-direction:column;}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    background:var(--ink);
+    color:var(--paper);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 20px;
+    border-bottom:3px solid var(--seal);
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.03em;
+  }
+  .brand-row{display:flex;align-items:center;gap:12px;}
+  .logo{height:30px;width:auto;display:block;}
+  .logo[src=""],.logo:not([src]){display:none;}
+  .status-cluster{display:flex;gap:18px;align-items:center;}
+  .status-chip{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:3px;background:var(--ink-2);}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);}
+  .dot.bad{background:var(--seal);}
+  .dot.warn{background:var(--amber);}
+  #violationCount.high{color:#F0A79C;}
+
+  /* ---------- layout shells ---------- */
+  section{flex:1;width:100%;}
+  .wrap{max-width:920px;margin:0 auto;padding:40px 24px 60px;}
+  h1{font-family:var(--serif);font-size:28px;margin:0 0 6px;}
+  h2{font-family:var(--serif);font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:6px;}
+  p.lede{color:var(--muted);font-size:15px;line-height:1.6;margin-top:0;}
+
+  /* ---------- setup screen ---------- */
+  .rules{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:18px 22px;margin:18px 0;}
+  .rules li{margin:8px 0;line-height:1.5;font-size:14.5px;}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-width:420px;}
+  .field label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+  .field input{
+    font-family:var(--serif);font-size:16px;padding:10px 12px;
+    border:1px solid var(--rule);border-radius:2px;background:#fff;color:var(--text);
+  }
+  .field input:focus{outline:2px solid var(--seal);outline-offset:1px;}
+  .btn{
+    font-family:var(--mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;
+    padding:12px 22px;border-radius:2px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+    cursor:pointer;transition:background .15s ease;
+  }
+  .btn:hover{background:var(--ink-2);}
+  .btn.secondary{background:transparent;color:var(--ink);border-color:var(--ink);}
+  .btn.secondary:hover{background:var(--paper-2);}
+  .btn.seal{background:var(--seal);border-color:var(--seal);}
+  .btn.seal:hover{background:var(--seal-2);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn:focus-visible, a:focus-visible, input:focus-visible{outline:2px solid var(--seal);outline-offset:2px;}
+
+  /* ---------- exam screen ---------- */
+  #examScreen .wrap{max-width:1180px;padding-top:16px;}
+  .exam-grid{display:grid;grid-template-columns:290px 1fr;gap:16px;align-items:start;}
+  @media (max-width: 860px){ .exam-grid{grid-template-columns:1fr;} }
+  .panel{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:16px;position:sticky;top:16px;}
+  .panel dl{font-family:var(--mono);font-size:12.5px;margin:0;}
+  .panel dt{color:var(--muted);margin-top:8px;}
+  .panel dd{margin:0 0 4px;color:var(--text);}
+  #logList{list-style:none;margin:0;padding:0;max-height:340px;overflow-y:auto;}
+  #logList li{
+    font-family:var(--mono);font-size:11.5px;line-height:1.4;
+    padding:8px 8px;border-bottom:1px dashed var(--rule);
+  }
+  #logList li.sev-high{color:var(--seal-2);}
+  #logList li.sev-med{color:var(--amber);}
+  #logList .ts{color:var(--muted);display:block;font-size:10px;}
+  #logList:empty::after{content:"No violations recorded yet.";color:var(--muted);font-style:italic;font-family:var(--serif);}
+  .form-wrap{background:#fff;border:1px solid var(--rule);border-radius:2px;overflow:hidden;height:74vh;min-height:520px;}
+  .form-wrap iframe{width:100%;height:100%;border:0;display:block;}
+  .form-wrap.placeholder{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--muted);font-family:var(--mono);font-size:13px;text-align:center;padding:24px;}
+  .exam-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px;}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand-row">
+    <img class="logo" id="topbarLogo" src="logo.png" alt="Institution logo">
+  </div>
+  <div class="status-cluster">
+    <span class="status-chip"><span class="dot" id="fsDot"></span><span id="fsIndicator">Fullscreen: off</span></span>
+    <span class="status-chip"><span class="dot" id="vDot"></span><span id="violationCount">Violations: 0</span></span>
+    <span class="status-chip" id="timer">00:00:00</span>
+  </div>
+</header>
+
+<!-- ============ SETUP ============ -->
+<section id="setupScreen">
+  <div class="wrap">
+    <h1>Before you begin</h1>
+    <p class="lede">This page monitors your browser session while you complete the exam form below. Read the rules, enter your details, then start — the exam form only becomes visible after you enter fullscreen.</p>
+
+    <div class="rules">
+      <ol>
+        <li>Stay in <strong>fullscreen</strong> for the entire exam. Exiting fullscreen is logged.</li>
+        <li>Do not switch tabs, minimize the window, or open other apps (alt‑tab). Losing focus is logged.</li>
+        <li>Do not resize the browser window or use split‑screen / snap layouts. This is logged.</li>
+        <li>Use one screen only. Work on this device and this browser window only. This is logged.</li>
+        <li>At the end, your <strong>.epx report file</strong> will download automatically and your <strong>integrity code</strong> will be copied to your clipboard to submit on the LMS.</li>
+      </ol>
+    </div>
+
+    <form id="studentForm">
+      <div class="field">
+        <label for="studentName">Full name</label>
+        <input id="studentName" type="text" required autocomplete="name">
+      </div>
+      <div class="field">
+        <label for="studentId">Student ID</label>
+        <input id="studentId" type="text" required autocomplete="off">
+      </div>
+      <button class="btn seal" type="submit">Enter fullscreen &amp; start exam</button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ EXAM ============ -->
+<section id="examScreen" hidden>
+  <div class="wrap">
+    <div class="exam-grid">
+      <aside class="panel">
+        <h2>Session</h2>
+        <dl>
+          <dt>Student</dt><dd id="sumName">—</dd>
+          <dt>ID</dt><dd id="sumId">—</dd>
+          <dt>Started</dt><dd id="sumStart">—</dd>
+          <dt>Session ID</dt><dd id="sumSession">—</dd>
+        </dl>
+        <h2>Violation log</h2>
+        <ul id="logList" aria-live="polite"></ul>
+      </aside>
+
+      <main>
+        <div class="form-wrap" id="formWrap">
+          <iframe id="googleFormFrame" title="Exam form" referrerpolicy="no-referrer"></iframe>
+        </div>
+        <div class="exam-footer">
+          <span style="font-family:var(--mono);font-size:11.5px;color:var(--muted);">Keep this window in fullscreen until you submit the form.</span>
+          <button class="btn" id="endExamBtn">End exam &amp; generate report</button>
+        </div>
+      </main>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =====================================================================
+     CONFIG — edit this before publishing the page
+     ===================================================================== */
+  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Ac-ngsy-JY_uPm6R8zB4ylxFwfbEkf124YxlLwywiAw/viewform?embedded=true";
+
+  /* =====================================================================
+     STATE
+     ===================================================================== */
+  const state = {
+    name: "",
+    id: "",
+    sessionId: genSessionId(),
+    startTime: null,
+    endTime: null,
+    violations: [],
+    fsActive: false,
+    devtoolsWarned: false
+  };
+  let pendingBlurStart = null;
+  let pendingHiddenStart = null;
+  let timerHandle = null;
+
+  /* =====================================================================
+     DOM refs
+     ===================================================================== */
+  const el = (id) => document.getElementById(id);
+  const setupScreen = el("setupScreen");
+  const examScreen = el("examScreen");
+  const logList = el("logList");
+  const violationCountEl = el("violationCount");
+  const vDot = el("vDot");
+  const fsIndicator = el("fsIndicator");
+  const fsDot = el("fsDot");
+  const timerEl = el("timer");
+
+  /* =====================================================================
+     HELPERS
+     ===================================================================== */
+  function genSessionId(){
+    return "S-" + Date.now().toString(36).toUpperCase() + "-" + Math.random().toString(36).slice(2,7).toUpperCase();
+  }
+
+  function nowISO(){ return new Date().toISOString(); }
+
+  function fmtClock(ms){
+    const s = Math.floor(ms/1000);
+    const hh = String(Math.floor(s/3600)).padStart(2,"0");
+    const mm = String(Math.floor((s%3600)/60)).padStart(2,"0");
+    const ss = String(s%60).padStart(2,"0");
+    return `${hh}:${mm}:${ss}`;
+  }
+
+  function checksum(str){
+    let h = 5381;
+    for (let i=0;i<str.length;i++){ h = ((h*33) ^ str.charCodeAt(i)) >>> 0; }
+    return h.toString(36).toUpperCase();
+  }
+
+  function logViolation(type, detail, severity, durationMs){
+    const entry = { type, detail, severity: severity||"med", atISO: nowISO(), durationMs: durationMs||null };
+    state.violations.push(entry);
+    renderLogEntry(entry);
+    updateCounters();
+  }
+
+  function renderLogEntry(entry){
+    const li = document.createElement("li");
+    li.className = "sev-" + entry.severity;
+    const time = new Date(entry.atISO).toLocaleTimeString();
+    const dur = entry.durationMs ? ` (${(entry.durationMs/1000).toFixed(1)}s)` : "";
+    li.innerHTML = `<span class="ts">${time}</span>${entry.detail}${dur}`;
+    logList.prepend(li);
+  }
+
+  function updateCounters(){
+    const n = state.violations.length;
+    violationCountEl.textContent = "Violations: " + n;
+    violationCountEl.classList.toggle("high", n > 0);
+    vDot.classList.toggle("bad", n > 3);
+    vDot.classList.toggle("warn", n > 0 && n <= 3);
+  }
+
+  function updateFsIndicator(){
+    const fs = !!document.fullscreenElement;
+    fsIndicator.textContent = "Fullscreen: " + (fs ? "on" : "off");
+    fsDot.classList.toggle("bad", !fs && state.startTime);
+  }
+
+  /* =====================================================================
+     START EXAM
+     ===================================================================== */
+  el("studentForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    state.name = el("studentName").value.trim();
+    state.id = el("studentId").value.trim();
+    if (!state.name || !state.id) return;
+
+    document.documentElement.requestFullscreen?.().catch(()=>{}).finally(beginSession);
+    if (!document.documentElement.requestFullscreen) beginSession();
+  });
+
+  function beginSession(){
+    state.startTime = nowISO();
+    setupScreen.hidden = true;
+    examScreen.hidden = false;
+
+    el("sumName").textContent = state.name;
+    el("sumId").textContent = state.id;
+    el("sumStart").textContent = new Date(state.startTime).toLocaleString();
+    el("sumSession").textContent = state.sessionId;
+
+    const frame = el("googleFormFrame");
+    if (GOOGLE_FORM_URL.includes("PUT_YOUR_FORM_ID_HERE")) {
+      el("formWrap").classList.add("placeholder");
+      el("formWrap").innerHTML = "Set GOOGLE_FORM_URL near the top of the &lt;script&gt; tag to your form's embed link.";
+    } else {
+      frame.src = GOOGLE_FORM_URL;
+    }
+
+    timerHandle = setInterval(()=>{
+      timerEl.textContent = fmtClock(Date.now() - new Date(state.startTime).getTime());
+    }, 1000);
+
+    attachMonitors();
+    updateFsIndicator();
+  }
+
+  /* =====================================================================
+     MONITORS
+     ===================================================================== */
+  function attachMonitors(){
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        pendingHiddenStart = Date.now();
+        logViolation("tab_hidden", "Tab switched or window minimized", "high");
+      } else if (pendingHiddenStart) {
+        const dur = Date.now() - pendingHiddenStart;
+        logViolation("tab_visible", "Returned to exam tab", "med", dur);
+        pendingHiddenStart = null;
+      }
+    });
+
+    window.addEventListener("blur", () => {
+      if (state.endTime) return;
+      pendingBlurStart = Date.now();
+    });
+
+    window.addEventListener("focus", () => {
+      pendingBlurStart = null;
+    });
+
+    setInterval(() => {
+      if (pendingBlurStart && !state.endTime) {
+        if (Date.now() - pendingBlurStart > 350) {
+          if (document.activeElement !== el("googleFormFrame")) {
+            logViolation("window_blur", "Browser window lost focus (possible alt‑tab or other app)", "high");
+          }
+          pendingBlurStart = null;
+        }
+      }
+    }, 100);
+
+    document.addEventListener("fullscreenchange", () => {
+      updateFsIndicator();
+      if (!document.fullscreenElement && state.startTime) {
+        logViolation("fullscreen_exit", "Exited fullscreen mode", "high");
+      }
+    });
+
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const widthRatio = window.outerWidth / screen.availWidth;
+        if (widthRatio < 0.85) {
+          logViolation("window_resized", `Window resized/narrowed to ~${Math.round(widthRatio*100)}% of screen width (possible split screen)`, "med");
+        }
+      }, 400);
+    });
+
+    setInterval(() => {
+      const widthDiff = window.outerWidth - window.innerWidth;
+      const heightDiff = window.outerHeight - window.innerHeight;
+      if ((widthDiff > 180 || heightDiff > 180) && !state.devtoolsWarned) {
+        state.devtoolsWarned = true;
+        logViolation("devtools_suspected", "Window/viewport size gap suggests developer tools may be open", "med");
+      }
+      if (widthDiff <= 180 && heightDiff <= 180) state.devtoolsWarned = false;
+    }, 2000);
+
+    ["copy","cut","paste"].forEach(evt => {
+      document.addEventListener(evt, (e) => {
+        e.preventDefault();
+        logViolation(evt, `Attempted ${evt}`, "med");
+      });
+    });
+    document.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      logViolation("context_menu", "Right-click menu attempted", "med");
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const k = e.key.toLowerCase();
+      const combo = (e.ctrlKey||e.metaKey) && ["t","n","w","tab"].includes(k);
+      if (combo) {
+        e.preventDefault();
+        logViolation("shortcut_blocked", `Blocked shortcut: ${e.ctrlKey?"Ctrl":"Cmd"}+${e.key}`, "med");
+      }
+      if (k === "f11") {
+        logViolation("shortcut_attempt", "F11 pressed (fullscreen toggle)", "low");
+      }
+      if (k === "printscreen") {
+        logViolation("shortcut_attempt", "Print Screen pressed", "med");
+      }
+      if (e.key === "Escape" && document.fullscreenElement) {
+        logViolation("shortcut_attempt", "Escape pressed while in fullscreen", "low");
+      }
+    });
+
+    window.addEventListener("beforeunload", (e) => {
+      if (!state.endTime) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+  }
+
+  /* =====================================================================
+     END EXAM / GENERATE REPORT & DOWNLOAD .EPX
+     ===================================================================== */
+  el("endExamBtn").addEventListener("click", () => {
+    if (!confirm("End the exam and generate your report? Your .epx file will be downloaded and your integrity code copied to clipboard.")) return;
+    state.endTime = nowISO();
+    clearInterval(timerHandle);
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(()=>{});
+
+    const durationMs = new Date(state.endTime) - new Date(state.startTime);
+    const bySeverity = { high:0, med:0, low:0 };
+    state.violations.forEach(v => { bySeverity[v.severity] = (bySeverity[v.severity]||0) + 1; });
+
+    const report = {
+      sessionId: state.sessionId,
+      student: { name: state.name, id: state.id },
+      startTime: state.startTime,
+      endTime: state.endTime,
+      durationMs,
+      totalViolations: state.violations.length,
+      severityBreakdown: bySeverity,
+      violations: state.violations
+    };
+
+    const reportStr = JSON.stringify(report, null, 2);
+    const code = "EP-" + checksum(reportStr) + "-" + state.violations.length;
+
+    const blob = new Blob([reportStr], {type:"application/octet-stream"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `exam-report-${state.id || "student"}-${state.sessionId}.epx`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    navigator.clipboard?.writeText(code).catch(() => {});
+
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#EAF3FB;color:#10233A;padding:20px;text-align:center;">
+        <div style="background:#fff;border:1px solid #CFE3F2;padding:40px;border-radius:4px;max-width:620px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+          <h1 style="color:#0B3D6B;margin-top:0;font-size:24px;">Exam Submitted &amp; Report Generated</h1>
+          <p style="color:#5C7387;line-height:1.6;font-size:15px;">Your proctoring report <strong>.epx</strong> file has been downloaded to your device. Your integrity code has been automatically copied to your clipboard.</p>
+          <div style="background:#0B3D6B;color:#F0EAD6;font-family:ui-monospace,monospace;font-size:20px;padding:16px;border-radius:2px;margin:24px 0;letter-spacing:0.06em;">${code}</div>
+          <p style="font-size:13.5px;color:#5C7387;line-height:1.5;">Please submit the downloaded <strong>.epx</strong> file and provide this <strong>integrity code</strong> on your LMS or to your faculty as required. You can now close this window.</p>
+        </div>
+      </div>
+    `;
+  });
+
+})();
+</script>
+</body>
+</html>

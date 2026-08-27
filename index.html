@@ -176,9 +176,29 @@
   "use strict";
 
   /* =====================================================================
+     BROWSER BLOCKER (Brave & Internet Explorer)
+     ===================================================================== */
+  const ua = navigator.userAgent;
+  const isIE = /*@cc_on!@*/false || /MSIE|Trident/.test(ua);
+  const isBrave = (navigator.brave && typeof navigator.brave.isBrave === "function");
+
+  if (isIE || isBrave) {
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#EAF3FB;color:#10233A;padding:20px;text-align:center;">
+        <div style="background:#fff;border:1px solid #CFE3F2;padding:40px;border-radius:4px;max-width:620px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+          <h1 style="color:#0B3D6B;margin-top:0;font-size:24px;">Unsupported Browser Detected</h1>
+          <p style="color:#5C7387;line-height:1.6;font-size:15px;">You are trying to access the exam portal using <strong>${isIE ? "Internet Explorer" : "Brave"}</strong>. This browser is restricted and not permitted for this examination.</p>
+          <p style="color:#5C7387;line-height:1.6;font-size:15px;margin-top:15px;">Please open this link using <strong>Microsoft Edge</strong> or <strong>Google Chrome</strong> to proceed.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  /* =====================================================================
      CONFIG — edit this before publishing the page
      ===================================================================== */
-  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeE9_ZeC0K0lHMsppsySmyGU8kIVTvvuLJicrc4k_4cTwvvgw/viewform?embedded=true";
+  const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/1Ac-ngsy-JY_uPm6R8zB4ylxFwfbEkf124YxlLwywiAw/viewform?embedded=true";
 
   /* =====================================================================
      CACHE / FORFEIT CHECK ON LOAD
@@ -196,7 +216,7 @@
             <button id="adminUnlockBtn" class="btn seal" style="padding:10px 20px;">Unlock Access</button>
           </div>
 
-          <p style="font-size:13.5px;color:#5C7387;line-height:1.5;margin-top:20px;">Please contact your administrator or instructor if you believe this was an error[cite: 1].</p>
+          <p style="font-size:13.5px;color:#5C7387;line-height:1.5;margin-top:20px;">Please contact your administrator or instructor if you believe this was an error.</p>
         </div>
       </div>
     `;
@@ -315,7 +335,6 @@
     state.id = el("studentId").value.trim();
     if (!state.name || !state.id) return;
 
-    // Save state to cache so refreshing the page triggers the forfeit block
     localStorage.setItem("exam_status", "started");
 
     document.documentElement.requestFullscreen?.().catch(()=>{}).finally(beginSession);
@@ -457,7 +476,6 @@
     clearInterval(timerHandle);
     if (document.fullscreenElement) document.exitFullscreen?.().catch(()=>{});
 
-    // Clear the localStorage cache so future sessions aren't locked out permanently
     localStorage.removeItem("exam_status");
 
     const durationMs = new Date(state.endTime) - new Date(state.startTime);
@@ -502,4 +520,4 @@
 })();
 </script>
 </body>
-</html>https://docs.google.com/forms/d/e/1FAIpQLSf08JvF9I5hF0th8KjCnTNPDRAQnjWsch_teTH256XZgtcEIQ/viewform
+</html>

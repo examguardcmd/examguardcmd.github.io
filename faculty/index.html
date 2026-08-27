@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Exam Proctor — Faculty Dashboard</title>
+<title>Faculty Portal — Exam Report Decoder</title>
 <style>
   :root{
     --ink:#0B3D6B;
@@ -14,8 +14,7 @@
     --seal:#1E6FB0;
     --seal-2:#145088;
     --amber:#4FA8E0;
-    --ok:#28a745;
-    --bad:#dc3545;
+    --ok:#7EC1EA;
     --text:#10233A;
     --muted:#5C7387;
     --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
@@ -36,69 +35,62 @@
     font-size:13px;
     letter-spacing:.03em;
   }
-  .brand-row{display:flex;align-items:center;gap:12px;font-weight:bold;}
+  .brand-row{display:flex;align-items:center;gap:12px;}
+  .logo{height:30px;width:auto;display:block;}
+  .logo[src=""],.logo:not([src]){display:none;}
   .status-cluster{display:flex;gap:18px;align-items:center;}
-  .status-chip{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:3px;background:var(--ink-2);}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);}
-  .dot.bad{background:var(--bad);}
 
   /* ---------- layout shells ---------- */
   section{flex:1;width:100%;}
-  .wrap{max-width:1100px;margin:0 auto;padding:40px 24px 60px;}
-  h1{font-size:28px;margin:0 0 6px;}
-  h2{font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:6px;}
+  .wrap{max-width:1000px;margin:0 auto;padding:40px 24px 60px;}
+  h1{font-family:var(--serif);font-size:28px;margin:0 0 6px;}
+  h2{font-family:var(--serif);font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 0 10px;border-bottom:1px solid var(--rule);padding-bottom:6px;}
   p.lede{color:var(--muted);font-size:15px;line-height:1.6;margin-top:0;}
 
-  /* ---------- upload zone ---------- */
+  /* ---------- upload box ---------- */
   .dropzone{
     background:var(--paper-2);border:2px dashed var(--seal);border-radius:4px;
-    padding:32px;text-align:center;cursor:pointer;transition:background .15s ease;
-    margin-bottom:24px;position:relative;
+    padding:40px 20px;text-align:center;cursor:pointer;transition:background .15s ease;
+    margin:20px 0;
   }
   .dropzone:hover, .dropzone.dragover{background:#dbeaf8;}
-  .dropzone input[type="file"]{
-    position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;
+  .dropzone p{margin:10px 0 0;font-size:14px;color:var(--muted);font-family:var(--mono);}
+  
+  .btn{
+    font-family:var(--mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;
+    padding:12px 22px;border-radius:2px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+    cursor:pointer;transition:background .15s ease;display:inline-block;
   }
-  .dropzone p{margin:8px 0 0;font-family:var(--mono);font-size:13px;color:var(--muted);}
-
-  /* ---------- dashboard grid ---------- */
-  .dashboard-grid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start;}
-  @media(max-width:860px){.dashboard-grid{grid-template-columns:1fr;}}
-
-  .panel{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:16px;}
-  .panel dl{font-family:var(--mono);font-size:12.5px;margin:0;}
-  .panel dt{color:var(--muted);margin-top:10px;}
+  .btn:hover{background:var(--ink-2);}
+  .btn.seal{background:var(--seal);border-color:var(--seal);}
+  .btn.seal:hover{background:var(--seal-2);}
+  
+  /* ---------- dashboard results ---------- */
+  .dashboard-grid{display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start;margin-top:20px;}
+  @media (max-width: 768px){ .dashboard-grid{grid-template-columns:1fr;} }
+  
+  .panel{background:var(--paper-2);border:1px solid var(--rule);border-radius:2px;padding:20px;}
+  .panel dl{font-family:var(--mono);font-size:13px;margin:0;}
+  .panel dt{color:var(--muted);margin-top:12px;}
+  .panel dt:first-child{margin-top:0;}
   .panel dd{margin:0 0 4px;color:var(--text);font-weight:bold;}
 
-  .verifier-box{background:#fff;border:1px solid var(--rule);border-radius:2px;padding:16px;margin-bottom:16px;}
-  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
-  .field label{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
-  .field input{
-    font-family:var(--mono);font-size:14px;padding:8px 10px;
-    border:1px solid var(--rule);border-radius:2px;background:#fff;color:var(--text);
-  }
-
-  .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:3px;font-family:var(--mono);font-size:12px;font-weight:bold;margin-top:10px;}
-  .badge.valid{background:#d4edda;color:#155724;border:1px solid #c3e6cb;}
-  .badge.invalid{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;}
-
-  /* ---------- violation log list ---------- */
-  #logList{list-style:none;margin:0;padding:0;max-height:420px;overflow-y:auto;background:#fff;border:1px solid var(--rule);border-radius:2px;}
-  #logList li{
-    font-family:var(--mono);font-size:12px;line-height:1.4;
-    padding:10px 12px;border-bottom:1px dashed var(--rule);
-  }
-  #logList li.sev-high{background:#fff5f5;color:var(--bad);}
-  #logList li.sev-med{background:#fffdf4;color:#b78103;}
-  #logList li.sev-low{color:var(--text);}
-  #logList .ts{color:var(--muted);display:block;font-size:10.5px;margin-bottom:2px;}
-  #logList:empty::after{content:"No report loaded. Upload an .epx file to inspect violations.";display:block;padding:24px;color:var(--muted);font-style:italic;font-family:var(--serif);text-align:center;}
-
   .stats-row{display:flex;gap:12px;margin-bottom:16px;}
-  .stat-card{flex:1;background:#fff;border:1px solid var(--rule);padding:12px;border-radius:2px;text-align:center;}
-  .stat-card .num{font-family:var(--mono);font-size:20px;font-weight:bold;color:var(--ink);}
-  .stat-card .label{font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+  .stat-card{background:#fff;border:1px solid var(--rule);padding:12px;border-radius:2px;flex:1;text-align:center;}
+  .stat-card .num{font-size:22px;font-family:var(--mono);color:var(--ink);font-weight:bold;}
+  .stat-card .label{font-size:11px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;margin-top:4px;}
 
+  #violationTableList{list-style:none;margin:0;padding:0;max-height:400px;overflow-y:auto;}
+  #violationTableList li{
+    font-family:var(--mono);font-size:12px;line-height:1.5;
+    padding:10px;background:#fff;border:1px solid var(--rule);border-radius:2px;margin-bottom:8px;
+  }
+  #violationTableList li.sev-high{border-left:4px solid var(--seal-2);}
+  #violationTableList li.sev-med{border-left:4px solid var(--amber);}
+  #violationTableList li.sev-low{border-left:4px solid var(--ok);}
+  .violation-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:10.5px;margin-bottom:4px;}
+
+  .error-box{background:#fdf2f2;border:1px solid #f5c6cb;color:#721c24;padding:15px;border-radius:2px;font-family:var(--mono);font-size:13px;margin-top:15px;}
   [hidden]{display:none !important;}
 </style>
 </head>
@@ -106,69 +98,64 @@
 
 <header class="topbar">
   <div class="brand-row">
-    <span>EXAM PROCTOR // FACULTY VERIFICATION PORTAL</span>
+    <img class="logo" id="topbarLogo" src="logo.png" alt="Institution logo">
   </div>
   <div class="status-cluster">
-    <span class="status-chip"><span class="dot" id="systemStatusDot"></span><span id="systemStatusText">Awaiting Report</span></span>
+    <!-- Status cluster left clean -->
   </div>
 </header>
 
 <section>
   <div class="wrap">
-    <h1>Session Inspection &amp; Integrity Check</h1>
-    <p class="lede">Upload a student's submitted <strong>.epx proctoring report</strong> file and verify their cryptographic integrity code to review violation logs securely.</p>
+    <h1>Exam Report Decoder</h1>
+    <p class="lede">Upload or drag and drop a compiled student <strong>.epx</strong> proctoring file below to decrypt session telemetry, inspect logs, and review integrity metrics.</p>
 
-    <!-- Upload Dropzone -->
+    <!-- UPLOAD CONTAINER -->
     <div class="dropzone" id="dropzone">
-      <input type="file" id="fileInput" accept=".epx,.json">
-      <strong>Click to upload .epx file</strong> or drag and drop it here
-      <p>Supports standard Exam Proctor exchange files (*.epx)</p>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0B3D6B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+      <p><strong>Click to browse</strong> or drag &amp; drop your student's .epx file here</p>
+      <input type="file" id="fileInput" accept=".epx" style="display:none;">
     </div>
 
-    <div id="dashboard" hidden>
-      <div class="dashboard-grid">
-        <!-- Left Column: Metadata & Integrity Check -->
-        <div>
-          <div class="panel">
-            <h2>Candidate Info</h2>
-            <dl>
-              <dt>Student Name</dt><dd id="metaName">—</dd>
-              <dt>Student ID</dt><dd id="metaId">—</dd>
-              <dt>Session ID</dt><dd id="metaSession">—</dd>
-              <dt>Exam Duration</dt><dd id="metaDuration">—</dd>
-            </dl>
-          </div>
+    <div id="errorContainer" class="error-box" hidden></div>
 
-          <div class="verifier-box" style="margin-top:16px;">
-            <h2>Integrity Verification</h2>
-            <div class="field" style="margin-top:10px;">
-              <label for="inputCode">Student Integrity Code</label>
-              <input type="text" id="inputCode" placeholder="Paste code (e.g. EP-ABC123Z-3)">
-            </div>
-            <button class="btn" id="verifyBtn" style="width:100%; font-family:var(--mono); font-size:12px; padding:10px; background:var(--ink); color:#fff; border:none; cursor:pointer; border-radius:2px;">Verify Code Match</button>
-            <div id="verificationResult"></div>
+    <!-- DECODED RESULTS CONTAINER -->
+    <div id="resultsContainer" hidden>
+      <h2>Session Overview</h2>
+      
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="num" id="resTotalViolations">0</div>
+          <div class="label">Total Violations</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="resDuration">0m 0s</div>
+          <div class="label">Duration</div>
+        </div>
+        <div class="stat-card">
+          <div class="num" id="resHighSev">0</div>
+          <div class="label">High Severity</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="panel">
+          <h2>Candidate Details</h2>
+          <dl>
+            <dt>Student Name</dt><dd id="resName">—</dd>
+            <dt>Student ID</dt><dd id="resId">—</dd>
+            <dt>Session ID</dt><dd id="resSessionId">—</dd>
+            <dt>Start Time</dt><dd id="resStart">—</dd>
+            <dt>End Time</dt><dd id="resEnd">—</dd>
+          </dl>
+          <div style="margin-top:20px;">
+            <button class="btn secondary" id="resetBtn" style="width:100%;text-align:center;">Load Another File</button>
           </div>
         </div>
 
-        <!-- Right Column: Stats & Violation Log -->
-        <div>
-          <div class="stats-row">
-            <div class="stat-card">
-              <div class="num" id="statTotal">0</div>
-              <div class="label">Total Violations</div>
-            </div>
-            <div class="stat-card">
-              <div class="num" id="statHigh" style="color:var(--bad);">0</div>
-              <div class="label">High Severity</div>
-            </div>
-            <div class="stat-card">
-              <div class="num" id="statMed" style="color:#b78103;">0</div>
-              <div class="label">Med/Low</div>
-            </div>
-          </div>
-
-          <h2>Dynamic Violation Log</h2>
-          <ul id="logList" aria-live="polite"></ul>
+        <div class="panel">
+          <h2>Chronological Violation Log</h2>
+          <ul id="violationTableList" aria-live="polite"></ul>
         </div>
       </div>
     </div>
@@ -179,119 +166,137 @@
 (function(){
   "use strict";
 
-  let loadedReportData = null;
-  let loadedReportRawString = "";
+  const PI_STREAM = "31415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
 
-  const el = (id) => document.getElementById(id);
-  const dropzone = el("dropzone");
-  const fileInput = el("fileInput");
+  const dropzone = document.getElementById("dropzone");
+  const fileInput = document.getElementById("fileInput");
+  const errorContainer = document.getElementById("errorContainer");
+  const resultsContainer = document.getElementById("resultsContainer");
+  const resetBtn = document.getElementById("resetBtn");
 
-  // Fix: Ensure standard file upload trigger works correctly across all browsers
+  // DOM output fields
+  const resName = document.getElementById("resName");
+  const resId = document.getElementById("resId");
+  const resSessionId = document.getElementById("resSessionId");
+  const resStart = document.getElementById("resStart");
+  const resEnd = document.getElementById("resEnd");
+  const resTotalViolations = document.getElementById("resTotalViolations");
+  const resDuration = document.getElementById("resDuration");
+  const resHighSev = document.getElementById("resHighSev");
+  const violationTableList = document.getElementById("violationTableList");
+
+  // Interaction wiring
+  dropzone.addEventListener("click", () => fileInput.click());
+  
+  dropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("dragover");
+  });
+
+  dropzone.addEventListener("dragleave", () => {
+    dropzone.classList.remove("dragover");
+  });
+
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files.length) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
+
   fileInput.addEventListener("change", (e) => {
-    if (e.target.files && e.target.files.length > 0) {
+    if (e.target.files.length) {
       handleFile(e.target.files[0]);
     }
   });
 
-  // Drag and drop event handling
-  dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
-  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
-  dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("dragover");
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      handleFile(e.dataTransfer.files[0]);
-      fileInput.files = e.dataTransfer.files; // Sync dropped file with input element state
-    }
+  resetBtn.addEventListener("click", () => {
+    fileInput.value = "";
+    resultsContainer.hidden = true;
+    dropzone.hidden = false;
+    errorContainer.hidden = true;
   });
 
-  function checksum(str){
-    let h = 5381;
-    for (let i=0;i<str.length;i++){ h = ((h*33) ^ str.charCodeAt(i)) >>> 0; }
-    return h.toString(36).toUpperCase();
+  function showError(msg) {
+    errorContainer.textContent = msg;
+    errorContainer.hidden = false;
+    resultsContainer.hidden = true;
   }
 
-  function handleFile(file){
+  function handleFile(file) {
+    errorContainer.hidden = true;
     const reader = new FileReader();
-    reader.onload = function(e){
+    reader.onload = function(e) {
       try {
-        loadedReportRawString = e.target.result;
-        loadedReportData = JSON.parse(loadedReportRawString);
-        renderDashboard(loadedReportData, loadedReportRawString);
+        const content = e.target.result;
+        const report = decodePiEpxFile(content);
+        displayReport(report);
       } catch (err) {
-        alert("Invalid .epx report file format. Could not parse JSON.");
+        showError("Failed to decode file: " + err.message);
       }
     };
     reader.readAsText(file);
   }
 
-  function renderDashboard(data, rawStr){
-    el("dashboard").hidden = false;
-    el("systemStatusDot").classList.remove("bad");
-    el("systemStatusText").textContent = "Report Loaded Successfully";
-
-    // Metadata
-    el("metaName").textContent = data.student?.name || "Unknown";
-    el("metaId").textContent = data.student?.id || "Unknown";
-    el("metaSession").textContent = data.sessionId || "Unknown";
-    
-    const mins = Math.floor((data.durationMs || 0) / 60000);
-    const secs = Math.floor(((data.durationMs || 0) % 60000) / 1000);
-    el("metaDuration").textContent = `${mins}m ${secs}s`;
-
-    // Stats
-    const violations = data.violations || [];
-    el("statTotal").textContent = violations.length;
-    let high = 0, medLow = 0;
-    violations.forEach(v => {
-      if (v.severity === "high") high++;
-      else medLow++;
-    });
-    el("statHigh").textContent = high;
-    el("statMed").textContent = medLow;
-
-    // Pre-populate integrity input with expected code for convenience
-    const expectedCode = "EP-" + checksum(rawStr) + "-" + violations.length;
-    el("inputCode").value = expectedCode;
-    verifyCode(expectedCode, rawStr, violations.length);
-
-    // Violation Log List
-    const logList = el("logList");
-    logList.innerHTML = "";
-    if (violations.length === 0) {
-      const li = document.createElement("li");
-      li.style.textAlign = "center";
-      li.style.color = "var(--ok)";
-      li.textContent = "Clean session! No integrity violations recorded.";
-      logList.appendChild(li);
-    } else {
-      violations.forEach(v => {
-        const li = document.createElement("li");
-        li.className = "sev-" + (v.severity || "med");
-        const time = new Date(v.atISO).toLocaleTimeString();
-        const dur = v.durationMs ? ` (Duration: ${(v.durationMs/1000).toFixed(1)}s)` : "";
-        li.innerHTML = `<span class="ts">[${time}] Severity: ${v.severity.toUpperCase()}</span><strong>${v.type}</strong>: ${v.detail}${dur}`;
-        logList.appendChild(li);
-      });
+  function decodePiEpxFile(fileContent) {
+    if (!fileContent.startsWith("PI-CIPHER-V1:")) {
+      throw new Error("Invalid or uncompiled proctoring file format. Expected a valid .epx compiled binary.");
     }
+    const hexBlock = fileContent.replace("PI-CIPHER-V1:", "");
+    let str = "";
+    let idx = 0;
+    for (let i = 0; i < hexBlock.length; i += 4) {
+      const encodedVal = parseInt(hexBlock.substr(i, 4), 16);
+      const piDigit = parseInt(PI_STREAM[idx % PI_STREAM.length], 10);
+      const charCode = (encodedVal - (idx % 31) - (piDigit * 17));
+      str += String.fromCharCode(charCode);
+      idx++;
+    }
+    return JSON.parse(str);
   }
 
-  el("verifyBtn").addEventListener("click", () => {
-    if (!loadedReportData) return;
-    const userCode = el("inputCode").value.trim();
-    const expectedCount = loadedReportData.violations.length;
-    verifyCode(userCode, loadedReportRawString, expectedCount);
-  });
+  function displayReport(report) {
+    dropzone.hidden = true;
+    resultsContainer.hidden = false;
 
-  function verifyCode(codeStr, rawStr, violationCount){
-    const resultContainer = el("verificationResult");
-    const expectedCode = "EP-" + checksum(rawStr) + "-" + violationCount;
+    resName.textContent = report.student?.name || "Unknown";
+    resId.textContent = report.student?.id || "Unknown";
+    resSessionId.textContent = report.sessionId || "Unknown";
+    resStart.textContent = report.startTime ? new Date(report.startTime).toLocaleString() : "—";
+    resEnd.textContent = report.endTime ? new Date(report.endTime).toLocaleString() : "—";
+
+    resTotalViolations.textContent = report.totalViolations || 0;
     
-    if (codeStr === expectedCode) {
-      resultContainer.innerHTML = `<div class="badge valid">✓ Integrity Verified Match</div><p style="font-size:11.5px;color:var(--muted);margin:6px 0 0;">The hash matches the report content. File is authentic and uncompromised.</p>`;
-    } else {
-      resultContainer.innerHTML = `<div class="badge invalid">✗ Verification Failed / Mismatch</div><p style="font-size:11.5px;color:var(--muted);margin:6px 0 0;">The code does not match this report file. The file may have been modified or code is incorrect.</p>`;
+    const durSec = Math.floor((report.durationMs || 0) / 1000);
+    const mins = Math.floor(durSec / 60);
+    const secs = durSec % 60;
+    resDuration.textContent = `${mins}m ${secs}s`;
+
+    resHighSev.textContent = report.severityBreakdown?.high || 0;
+
+    // Render list
+    violationTableList.innerHTML = "";
+    if (!report.violations || report.violations.length === 0) {
+      violationTableList.innerHTML = `<li style="text-align:center;color:var(--muted);font-style:italic;">No recorded violations during this session. Excellent integrity!</li>`;
+      return;
     }
+
+    report.violations.forEach(v => {
+      const li = document.createElement("li");
+      li.className = `sev-${v.severity || "med"}`;
+      const timeStr = new Date(v.atISO).toLocaleTimeString();
+      const durStr = v.durationMs ? ` — Duration: ${(v.durationMs / 1000).toFixed(1)}s` : "";
+      
+      li.innerHTML = `
+        <div class="violation-meta">
+          <span><strong>Type:</strong> ${v.type}</span>
+          <span>${timeStr}</span>
+        </div>
+        <div>${v.detail}${durStr}</div>
+      `;
+      violationTableList.appendChild(li);
+    });
   }
 
 })();

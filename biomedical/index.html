@@ -717,7 +717,7 @@ const MCQ_BANK = [
 ];
 
 const MCQ_COUNT = 6;              // number of MCQs drawn from the bank each attempt
-const MIN_NUMERIC_SECONDS = 30;   // numeric answers submitted faster than this are flagged
+const MIN_NUMERIC_SECONDS = 30;   // internal review threshold — not surfaced to candidates
 
 let questions = [];
 let totalMarks = 0;
@@ -1100,13 +1100,9 @@ function evaluateCheatFlags(){
     if (s.cheatFlagged || s.numericValue === '') return;
     if (s.activeMs < MIN_NUMERIC_SECONDS * 1000){
       s.cheatFlagged = true;
-      if (typeof window.__logViolation === 'function'){
-        window.__logViolation(
-          'rapid_numeric_answer',
-          'Numeric question\u2019s active view time was ' + (s.activeMs/1000).toFixed(1) + 's (under ' + MIN_NUMERIC_SECONDS + 's) \u2014 flagged as suspected cheating, 0 marks awarded',
-          'high'
-        );
-      }
+      // Recorded internally for the faculty review payload only. Deliberately
+      // NOT routed through window.__logViolation, so the candidate's on-screen
+      // violation panel never shows this flag or the threshold that caused it.
     }
   });
 }

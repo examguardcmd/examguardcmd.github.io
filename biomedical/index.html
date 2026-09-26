@@ -717,8 +717,9 @@ const MCQ_BANK = [
 ];
 
 const MCQ_COUNT = 6;              // number of MCQs drawn from the bank each attempt
-const IDLE_GRACE_SECONDS = 3;          // internal review threshold — not surfaced to candidates
-const RAPID_ANSWER_WINDOW_SECONDS = 15; // internal review threshold — not surfaced to candidates
+const IDLE_GRACE_SECONDS = 3;          // internal review threshold — not surfaced to candidates (discrete-dataset numeric question only)
+const RAPID_ANSWER_WINDOW_SECONDS = 15; // internal review threshold — not surfaced to candidates (discrete-dataset numeric question only)
+const MIN_NUMERIC_SOLVE_SECONDS = 60;   // internal review threshold — not surfaced to candidates (non-discrete numeric questions)
 
 let questions = [];
 let totalMarks = 0;
@@ -838,7 +839,11 @@ function buildDiscreteNumericQuestion(){
     '</table>' +
     '<p style="margin-top:14px;">Calculate the Root Mean Square (RMS) value of \\(f(t)\\) for \\(t\\) from \\(0\\) to \\(5\\).</p>';
 
-  return { id:'numeric', type:'numeric', marks:4, text, answer: rms };
+  // Flagged as a discrete-dataset question so the malpractice check at
+  // submission uses the original idle-grace / rapid-answer-window method
+  // instead of the flat minimum-solve-time rule applied to the other
+  // (non-discrete) numeric generators.
+  return { id:'numeric', type:'numeric', marks:4, text, answer: rms, discreteData:true };
 }
 
 function buildLogSignalQuestion(){
@@ -1151,34 +1156,52 @@ window.addEventListener('focus', () => {
   resumeActiveTimer(activeIdx);
 });
 
-/* Numeric questions where the candidate's first keypad interaction landed
-   inside the detection window are flagged as suspected cheating and scored
-   as 0 marks regardless of correctness. Both the idle grace period and the
-   window itself are measured in continuous on-page time — accumulated only
-   while this question is actually visible and focused, pausing whenever the
-   candidate navigates to another question or away from the tab, and
-   resuming from where it left off when they come back. So the window
-   can't be skipped just by leaving the numeric question open in the
-   background and returning later. The window opens IDLE_GRACE_SECONDS of
-   such on-page time after the question first appears (answers faster than
-   this aren't flagged either) and stays open for the following
-   RAPID_ANSWER_WINDOW_SECONDS: a first keystroke landing shortly after the
-   idle grace period suggests the answer was obtained rather than worked
-   out. Called once, at submission. */
+/* Numeric questions are checked for suspected cheating at submission using
+   one of two methods, chosen by question subtype. Both methods measure
+   continuous on-page time — accumulated only while the question is
+   actually visible and focused, pausing whenever the candidate navigates
+   to another question or away from the tab, and resuming from where it
+   left off when they come back — so neither check can be skipped just by
+   leaving the question open in the background and returning later.
+
+   - Discrete-dataset question (q.discreteData, e.g. the discrete-time
+     table RMS item): uses the original rapid-answer-window method. A
+     first keypad interaction landing inside the window that opens
+     IDLE_GRACE_SECONDS after the question first appears and stays open
+     for the following RAPID_ANSWER_WINDOW_SECONDS suggests the answer was
+     obtained rather than worked out.
+
+   - Every other numeric question (continuous-signal, log-signal, MAV
+     sine, triangular periodic — all of which require working through an
+     integral rather than reading values off a table): flagged if the
+     candidate finishes the question (leaves an answer entered) having
+     spent less than MIN_NUMERIC_SOLVE_SECONDS of on-page time on it in
+     total, since these problems cannot legitimately be solved that fast.
+
+   Either way, a flagged question is scored as 0 marks regardless of
+   correctness. Called once, at submission. */
 function evaluateCheatFlags(){
   pauseActiveTimer();
   questions.forEach((q, idx) => {
     if (q.type !== 'numeric') return;
     const s = state[idx];
-    if (s.cheatFlagged || s.numericValue === '' || s.activeMsAtFirstInput === null) return;
-    const windowStartMs = IDLE_GRACE_SECONDS * 1000;
-    const windowEndMs = windowStartMs + (RAPID_ANSWER_WINDOW_SECONDS * 1000);
-    if (s.activeMsAtFirstInput >= windowStartMs && s.activeMsAtFirstInput <= windowEndMs){
-      s.cheatFlagged = true;
-      // Recorded internally for the faculty review payload only. Deliberately
-      // NOT routed through window.__logViolation, so the candidate's on-screen
-      // violation panel never shows this flag or the threshold that caused it.
+    if (s.cheatFlagged || s.numericValue === '') return;
+
+    if (q.discreteData){
+      if (s.activeMsAtFirstInput === null) return;
+      const windowStartMs = IDLE_GRACE_SECONDS * 1000;
+      const windowEndMs = windowStartMs + (RAPID_ANSWER_WINDOW_SECONDS * 1000);
+      if (s.activeMsAtFirstInput >= windowStartMs && s.activeMsAtFirstInput <= windowEndMs){
+        s.cheatFlagged = true;
+      }
+    } else {
+      if (s.activeMs < MIN_NUMERIC_SOLVE_SECONDS * 1000){
+        s.cheatFlagged = true;
+      }
     }
+    // Recorded internally for the faculty review payload only. Deliberately
+    // NOT routed through window.__logViolation, so the candidate's on-screen
+    // violation panel never shows this flag or the threshold that caused it.
   });
 }
 
@@ -1251,8 +1274,12 @@ function submitResultsToSheet(summary){
     violationCount: (proctor.violations || []).length,
     numericCheatFlagCount: state.filter(s => s.cheatFlagged).length,
     numericFlagDetails: state
-      .filter(s => s.cheatFlagged && s.activeMsAtFirstInput !== null)
-      .map(s => ({ activeSecondsBeforeFirstKeystroke: Math.round(s.activeMsAtFirstInput / 1000) })),
+      .map((s, idx) => ({ s, q: questions[idx] }))
+      .filter(({ s }) => s.cheatFlagged)
+      .map(({ s, q }) => q.discreteData
+        ? { method:'rapid-answer-window', activeSecondsBeforeFirstKeystroke: s.activeMsAtFirstInput !== null ? Math.round(s.activeMsAtFirstInput / 1000) : null }
+        : { method:'min-solve-time', totalActiveSeconds: Math.round(s.activeMs / 1000) }
+      ),
     violations: (proctor.violations || []).map(v => ({
       type: v.type,
       severity: v.severity,

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wearable Technologies &amp; Corrective Training in Neurorehabilitation — Examination</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { scale: 1, displayAlign: 'left' },
+  options: { enableMenu: false }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-svg.min.js" id="MathJax-script" async></script>
+<style>
+  :root{
+    --brand-blue:#005EA6;
+    --brand-dark:#003B6F;
+    --bg-light:#F8F9FA;
+    --border-color:#E0E0E0;
+    --text-main:#333333;
+    --success-color:#2E7D32;
+    --error-color:#C62828;
+    --warning-color:#E65100;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Roboto',sans-serif;-webkit-font-smoothing:antialiased;}
+  body{background:#fff;color:var(--text-main);display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+  mjx-container[display="true"]{display:block !important;margin:0.6em 0 !important;}
+  mjx-container:not([display="true"]){vertical-align:middle !important;}
+
+  /* HEADER */
+  header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-color);height:60px;background:#fff;z-index:110;}
+  .header-left{display:flex;align-items:center;height:100%;}
+  .logo-container{padding:0 20px;height:100%;display:flex;align-items:center;border-right:1px solid var(--border-color);}
+  .logo-container .brand-logo{height:34px;width:auto;display:block;}
+  .logo-container .brand-logo-fallback{font-weight:700;font-size:15px;letter-spacing:.3px;font-family:'Roboto Slab',serif;color:var(--brand-blue);display:none;}
+  .subject-title{padding-left:24px;font-weight:500;font-size:16px;color:#222;}
+  .header-right{display:flex;align-items:center;gap:12px;padding-right:24px;color:var(--brand-blue);font-size:14px;font-weight:500;}
+  .timer-pill{background:var(--bg-light);border:1px solid var(--border-color);padding:6px 14px;border-radius:16px;color:#333;font-weight:500;font-size:13px;}
+  .timer-pill.critical{background:#FFEBEE;border-color:var(--error-color);color:var(--error-color);}
+
+  /* ANTI-CHEAT STATUS CHIPS */
+  .status-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:16px;background:var(--bg-light);border:1px solid var(--border-color);font-size:12.5px;color:#333;cursor:default;}
+  .status-chip.clickable{cursor:pointer;}
+  .status-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--success-color);flex-shrink:0;}
+  .status-chip .dot.bad{background:var(--error-color);}
+  .status-chip .dot.warn{background:var(--warning-color);}
+  #violationCount.high{color:var(--error-color);font-weight:700;}
+
+  /* VIOLATION LOG DROPDOWN */
+  #violationPanel{position:fixed;top:60px;right:24px;width:340px;max-height:360px;overflow-y:auto;background:#fff;border:1px solid var(--border-color);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:200;display:none;}
+  #violationPanel.open{display:block;}
+  #violationPanel .vp-header{padding:10px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#666;border-bottom:1px solid var(--border-color);}
+  #violationLog{list-style:none;margin:0;padding:0;}
+  #violationLog li{font-size:12.5px;padding:8px 14px;border-bottom:1px dashed var(--border-color);line-height:1.4;}
+  #violationLog li.sev-high{color:var(--error-color);}
+  #violationLog li.sev-med{color:var(--warning-color);}
+  #violationLog:empty::after{content:"No violations recorded yet.";display:block;padding:14px;color:#888;font-style:italic;font-size:12.5px;}
+  .vp-ts{display:block;color:#999;font-size:10.5px;}
+
+  /* PROCTORING RULES BOX (setup screen) */
+  .proctor-rules{background:var(--bg-light);border:1px solid var(--border-color);border-radius:8px;padding:16px 20px;margin-top:20px;max-width:560px;}
+  .proctor-rules .section-subtitle{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#777;margin-bottom:8px;}
+  .proctor-rules li{font-size:13.5px;line-height:1.6;color:#444;margin-left:18px;}
+
+  /* FORFEIT / BLOCKED SCREEN */
+  .lockout-screen{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;background:var(--bg-light);color:var(--text-main);padding:20px;text-align:center;}
+  .lockout-card{background:#fff;border:1px solid var(--border-color);padding:40px;border-radius:8px;max-width:560px;box-shadow:0 4px 15px rgba(0,0,0,.05);}
+  .lockout-card h1{color:var(--brand-dark);font-size:22px;margin-bottom:12px;}
+  .lockout-card p{color:#555;line-height:1.6;font-size:14.5px;}
+  .lockout-card input{font-size:14.5px;padding:10px;border:1px solid var(--border-color);border-radius:4px;width:100%;max-width:260px;margin:16px 0 10px;text-align:center;}
+
+  /* SETUP SCREEN */
+  #setup-screen{position:absolute;top:60px;left:0;width:100%;height:calc(100% - 60px);background:#fff;z-index:100;display:flex;flex-direction:column;padding:50px 12%;overflow-y:auto;}
+  .welcome-hero h1{font-size:30px;font-weight:700;color:var(--brand-dark);}
+  .welcome-hero p{font-size:15px;color:#555;margin-top:6px;font-weight:300;}
+  .setup-card{margin-top:32px;background:#fff;border:1px solid var(--border-color);padding:32px;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.02);max-width:560px;}
+  .setup-card .section-subtitle{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#777;margin-bottom:12px;}
+  .setup-stats{display:flex;gap:16px;margin-bottom:24px;}
+  .setup-stat{flex:1;background:var(--bg-light);border:1px solid var(--border-color);border-radius:8px;padding:14px;text-align:center;}
+  .setup-stat .num{font-size:22px;font-weight:700;color:var(--brand-dark);}
+  .setup-stat .lbl{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+  .btn-primary{background:var(--brand-blue);color:#fff;border:none;padding:12px 32px;font-size:14px;font-weight:500;border-radius:4px;cursor:pointer;}
+  .btn-primary:hover{background:var(--brand-dark);}
+  .btn-secondary{background:#fff;border:1px solid var(--brand-blue);color:var(--brand-blue);padding:10px 24px;font-size:14px;font-weight:500;border-radius:4px;cursor:pointer;}
+
+  /* STUDENT INFO FORM */
+  .student-info-form{margin-bottom:24px;}
+  .student-info-form .field{margin-bottom:14px;}
+  .student-info-form label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#777;font-weight:700;margin-bottom:6px;}
+  .student-info-form input{width:100%;font-size:15px;padding:10px 12px;border:1px solid var(--border-color);border-radius:6px;background:#fff;color:var(--text-main);font-family:'Roboto',sans-serif;}
+  .student-info-form input:focus{outline:2px solid var(--brand-blue);outline-offset:1px;}
+  .student-info-form input.invalid{border-color:var(--error-color);}
+  .field-error{color:var(--error-color);font-size:12px;margin-top:4px;display:none;}
+  .field-error.show{display:block;}
+
+  /* NAV BAR */
+  .navigation-bar{background:var(--bg-light);border-bottom:1px solid var(--border-color);padding:12px 40px;display:none;align-items:center;overflow-x:auto;gap:8px;min-height:52px;}
+  .nav-bubble{position:relative;min-width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--brand-blue);color:var(--brand-blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;user-select:none;transition:all .15s ease;flex-shrink:0;}
+  .nav-bubble.active{background:var(--brand-blue);color:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand-blue);}
+  .nav-bubble.answered{background:var(--brand-blue);color:#fff;}
+
+  /* MAIN */
+  main{flex:1;display:none;flex-direction:column;padding:30px 15% 110px 15%;overflow-y:auto;background:#fff;}
+  .question-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .question-number{font-size:17px;font-weight:700;color:#111;display:flex;align-items:center;gap:10px;}
+  .marks-badge{background:#EAF2FA;color:var(--brand-blue);font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:.3px;}
+  .question-text{font-size:16px;line-height:1.9;margin-bottom:24px;color:#222;}
+  .discrete-table{border-collapse:collapse;margin:16px 0;}
+  .discrete-table td{padding:8px 26px;font-size:15px;color:#222;text-align:center;}
+  .discrete-table tr:first-child td{color:#555;border-bottom:1px solid var(--border-color);padding-bottom:10px;}
+  .discrete-table tr:last-child td{padding-top:10px;}
+
+  .options-container{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+  .option-row{display:flex;align-items:flex-start;gap:16px;cursor:pointer;padding:12px 14px;border-radius:8px;transition:background .15s;border:1px solid var(--border-color);}
+  .option-letter{min-width:30px;height:30px;border-radius:50%;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;font-weight:500;font-size:13px;color:#333;background:#fff;flex-shrink:0;transition:all .15s ease;}
+  .option-row.selected .option-letter{background:var(--brand-blue);color:#fff;border-color:var(--brand-blue);}
+  .option-row.selected{border-color:var(--brand-blue);background:#F0F6FA;}
+  .option-text{font-size:15px;line-height:1.5;padding-top:4px;color:#333;}
+  .option-row.correct-reveal{background:#E8F5E9;border-color:var(--success-color);}
+  .option-row.correct-reveal .option-letter{background:var(--success-color);color:#fff;border-color:var(--success-color);}
+  .option-row.wrong-reveal{background:#FFEBEE;border-color:var(--error-color);}
+  .option-row.wrong-reveal .option-letter{background:var(--error-color);color:#fff;border-color:var(--error-color);}
+
+  /* NUMERIC ENTRY */
+  .numeric-entry-panel{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:20px;}
+  .numeric-display-box{flex:1;min-width:220px;}
+  .numeric-display-box label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#777;font-weight:700;margin-bottom:8px;}
+  .numeric-display{border:2px solid var(--border-color);background:var(--bg-light);border-radius:8px;height:64px;display:flex;align-items:center;justify-content:flex-end;padding:0 18px;font-size:28px;font-weight:700;color:var(--brand-dark);letter-spacing:1px;}
+  .numeric-display.correct-reveal{border-color:var(--success-color);background:#E8F5E9;color:var(--success-color);}
+  .numeric-display.wrong-reveal{border-color:var(--error-color);background:#FFEBEE;color:var(--error-color);}
+  .numeric-hint-line{margin-top:8px;font-size:12px;color:#888;}
+  .keypad{display:grid;grid-template-columns:repeat(3,56px);grid-auto-rows:48px;gap:8px;}
+  .keypad button{display:flex;align-items:center;justify-content:center;line-height:1;border:1px solid #ccc;background:#fff;border-radius:6px;font-size:17px;font-weight:500;color:#333;cursor:pointer;transition:all .12s;}
+  .keypad button:hover{background:#EAF2FA;border-color:var(--brand-blue);}
+  .keypad button.wide{grid-column:span 1;}
+  .keypad button.op{color:var(--brand-blue);font-weight:700;}
+  .keypad button.clear{color:var(--error-color);font-weight:700;}
+
+  /* FOOTER */
+  footer{position:fixed;bottom:0;left:0;width:100%;height:70px;border-top:1px solid var(--border-color);background:#fff;display:none;align-items:center;justify-content:space-between;padding:0 40px;z-index:110;}
+  .nav-btn{width:44px;height:44px;border-radius:50%;background:var(--brand-blue);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;}
+  .nav-btn:disabled{background:#E0E0E0;cursor:not-allowed;}
+  .footer-center{display:flex;gap:12px;}
+  .btn-finalize{background:var(--error-color);color:#fff;border:none;padding:12px 28px;font-size:14px;font-weight:500;border-radius:4px;cursor:pointer;}
+
+  /* RESULTS */
+  #results-screen{display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;overflow-y:auto;background:#fff;height:100%;}
+  .results-container{max-width:560px;width:100%;background:#fff;border:1px solid var(--border-color);border-radius:8px;padding:48px 40px;box-shadow:0 4px 15px rgba(0,0,0,.05);text-align:center;}
+  .results-container .thankyou-icon{width:56px;height:56px;border-radius:50%;background:#E8F5E9;color:var(--success-color);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;}
+  .results-container h2{color:var(--brand-dark);font-size:22px;margin-bottom:14px;}
+  .results-container p{color:#555;font-size:15px;line-height:1.7;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-container">
+      <img class="brand-logo" id="brand-logo-img" src="examguard-logo.png" alt="ExamGuard"
+           onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1';this.src='examguard-logo.jpg';}else{this.style.display='none';document.getElementById('brand-logo-fallback').style.display='block';}">
+      <span class="brand-logo-fallback" id="brand-logo-fallback">EXAMGUARD</span>
+    </div>
+    <div class="subject-title">Wearable Technologies &amp; Corrective Training in Neurorehabilitation</div>
+  </div>
+  <div class="header-right">
+    <span class="status-chip" id="candidateChip" style="display:none;"><span id="candidateInfo"></span></span>
+    <span class="status-chip" id="fsChip"><span class="dot bad" id="fsDot"></span><span id="fsIndicator">Fullscreen: off</span></span>
+    <span class="status-chip clickable" id="violationChip"><span class="dot" id="vDot"></span><span id="violationCount">Violations: 0</span></span>
+    <span class="timer-pill" id="exam-timer" style="display:none;">15:00</span>
+    <span class="timer-pill" id="progress-pill">0 / 7 answered</span>
+  </div>
+</header>
+
+<div id="violationPanel">
+  <div class="vp-header">Violation Log</div>
+  <ul id="violationLog"></ul>
+</div>
+
+<div class="navigation-bar" id="nav-bar"></div>
+
+<div id="setup-screen">
+  <div class="welcome-hero">
+    <h1>Course Examination</h1>
+    <p>An introduction to signal processing, biosignals, and neuroscience fundamentals.</p>
+  </div>
+  <div class="proctor-rules">
+    <div class="section-subtitle">Exam Conditions</div>
+    <ol>
+      <li>This exam is timed: you have <strong>15 minutes</strong> once you start.</li>
+      <li>Stay in <strong>fullscreen</strong> for the entire exam. Exiting fullscreen is logged.</li>
+      <li>Do not switch tabs, minimize the window, or open other apps. Losing focus is logged.</li>
+      <li>Do not resize the browser window or use split‑screen layouts. This is logged.</li>
+      <li>Copy, paste, and right‑click are disabled during the exam.</li>
+    </ol>
+  </div>
+  <div class="setup-card">
+    <div class="section-subtitle">Exam Summary</div>
+    <div class="setup-stats">
+      <div class="setup-stat"><div class="num">7</div><div class="lbl">Questions</div></div>
+      <div class="setup-stat"><div class="num">10</div><div class="lbl">Total Marks</div></div>
+      <div class="setup-stat"><div class="num">1</div><div class="lbl">Numeric Item</div></div>
+    </div>
+    <div class="student-info-form">
+      <div class="section-subtitle">Candidate Details</div>
+      <div class="field">
+        <label for="student-name">Full Name</label>
+        <input type="text" id="student-name" autocomplete="name" placeholder="e.g. Ashok Kumar">
+        <div class="field-error" id="student-name-error">Please enter your full name.</div>
+      </div>
+      <div class="field">
+        <label for="student-regno">Register Number</label>
+        <input type="text" id="student-regno" autocomplete="off" placeholder="e.g. 3122243003123">
+        <div class="field-error" id="student-regno-error">Please enter your register number.</div>
+      </div>
+    </div>
+    <button class="btn-primary" id="start-exam-btn">Start Exam</button>
+  </div>
+</div>
+
+<main id="exam-frame">
+  <div class="question-meta">
+    <div class="question-number">
+      <span id="q-num">Question 1 of 7</span>
+      <span class="marks-badge" id="marks-badge">1 mark</span>
+    </div>
+  </div>
+  <div class="question-text" id="q-text"></div>
+
+  <div class="options-container" id="options-box"></div>
+  <div class="numeric-entry-panel" id="numeric-box" style="display:none;">
+    <div class="numeric-display-box">
+      <label>Your Answer</label>
+      <div class="numeric-display" id="numeric-display">&nbsp;</div>
+      <div class="numeric-hint-line" id="numeric-hint-line">Enter a whole number using the keypad. Your answer is saved automatically.</div>
+    </div>
+    <div class="keypad" id="keypad"></div>
+  </div>
+</main>
+
+<footer id="footer">
+  <button class="nav-btn" id="prev-btn">&#8592;</button>
+  <div class="footer-center">
+    <button class="btn-finalize" id="finalize-btn">Submit Exam</button>
+  </div>
+  <button class="nav-btn" id="next-btn">&#8594;</button>
+</footer>
+
+<div id="results-screen">
+  <div class="results-container">
+    <div class="thankyou-icon">&#10003;</div>
+    <h2>Thank you for taking the examination!</h2>
+    <p>Your score will be manually reviewed by the faculty-in-charge for this course.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =====================================================================
+   BROWSER BLOCKER (Brave & Internet Explorer)
+   ===================================================================== */
+const ua = navigator.userAgent;
+const isIE = /*@cc_on!@*/false || /MSIE|Trident/.test(ua);
+const isBrave = (navigator.brave && typeof navigator.brave.isBrave === "function");
+
+if (isIE || isBrave) {
+  document.body.innerHTML = `
+    <div class="lockout-screen">
+      <div class="lockout-card">
+        <h1>Unsupported Browser Detected</h1>
+        <p>You are trying to access the exam using <strong>${isIE ? "Internet Explorer" : "Brave"}</strong>. This browser is restricted and not permitted for this examination.</p>
+        <p style="margin-top:15px;">Please open this link using <strong>Microsoft Edge</strong> or <strong>Google Chrome</strong> to proceed.</p>
+      </div>
+    </div>`;
+  return;
+}
+
+/* =====================================================================
+   DEVICE / OS CHECK (desktop Windows or Mac only — phones blocked)
+   ===================================================================== */
+function detectDevice(){
+  const uaData = navigator.userAgentData;
+  const platform = (uaData && uaData.platform) || navigator.platform || "";
+  const isWindows = /Windows NT/i.test(ua) || /Win/i.test(platform);
+  const isIOSPhone = /iPhone|iPod/i.test(ua);
+  const isIPad = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const isAndroidPhone = isAndroid && /Mobile/i.test(ua);
+  const isAndroidTablet = isAndroid && !isAndroidPhone;
+  const isMacDesktop = (/Macintosh|Mac OS X/i.test(ua) || /Mac/i.test(platform)) && !isIPad;
+  const isOtherMobile = /BlackBerry|IEMobile|Windows Phone|Mobile(?!.*iPad)/i.test(ua) && !isIPad && !isAndroidTablet;
+
+  const isPhone = isIOSPhone || isAndroidPhone || (isOtherMobile && !isWindows && !isMacDesktop);
+  const isSupportedDesktop = (isWindows || isMacDesktop) && !isPhone;
+
+  let osLabel = "Unknown";
+  if (isWindows) osLabel = "Windows";
+  else if (isMacDesktop) osLabel = "macOS";
+  else if (isIPad) osLabel = "iPadOS";
+  else if (isIOSPhone) osLabel = "iOS";
+  else if (isAndroidTablet) osLabel = "Android (tablet)";
+  else if (isAndroidPhone) osLabel = "Android";
+
+  return { osLabel, isPhone, isSupportedDesktop };
+}
+
+const device = detectDevice();
+window.__deviceInfo = device;
+if (device.isPhone) {
+  document.body.innerHTML = `
+    <div class="lockout-screen">
+      <div class="lockout-card">
+        <h1>Desktop Device Required</h1>
+        <p>This examination can only be completed on a <strong>Windows</strong> or <strong>Mac</strong> desktop or laptop computer.</p>
+        <p style="margin-top:15px;">We detected you are using a phone (${device.osLabel}). Please switch to a desktop device to continue.</p>
+      </div>
+    </div>`;
+  return;
+}
+
+/* =====================================================================
+   RELOAD / FORFEIT CHECK ON LOAD
+   ===================================================================== */
+const ADMIN_UNLOCK_PASSWORD = "8262026";
+if (localStorage.getItem("biomed_exam_status") === "started") {
+  document.body.innerHTML = `
+    <div class="lockout-screen">
+      <div class="lockout-card">
+        <h1>Exam Access Forfeited</h1>
+        <p>You have reloaded the page or navigated away after starting the exam. Per proctoring guidelines, <strong>you have forfeited your ability to take this exam</strong> due to a session reload violation.</p>
+        <div style="margin:20px 0;">
+          <input type="password" id="adminPassInput" placeholder="Enter Admin Password">
+          <br>
+          <button id="adminUnlockBtn" class="btn-primary" style="padding:10px 20px;">Unlock Access</button>
+        </div>
+        <p style="font-size:13px;margin-top:20px;">Please contact your instructor if you believe this was an error.</p>
+      </div>
+    </div>`;
+  setTimeout(() => {
+    const unlockBtn = document.getElementById("adminUnlockBtn");
+    const passInput = document.getElementById("adminPassInput");
+    const handleUnlock = () => {
+      if (passInput.value === ADMIN_UNLOCK_PASSWORD) {
+        localStorage.removeItem("biomed_exam_status");
+        location.reload();
+      } else {
+        alert("Incorrect admin password.");
+      }
+    };
+    unlockBtn.addEventListener("click", handleUnlock);
+    passInput.addEventListener("keypress", (e) => { if (e.key === "Enter") handleUnlock(); });
+  }, 0);
+  return;
+}
+
+/* =====================================================================
+   PROCTORING STATE
+   ===================================================================== */
+const EXAM_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+/* Paste your deployed Google Apps Script Web App URL here (see setup instructions). */
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7o6TRLxYzToniSGvsrVr1uADxczPeQt81RBQ4XQ3yv-zxctK9q_GkzrTPjUEfIbdL/exec";
+window.__GOOGLE_APPS_SCRIPT_URL = GOOGLE_APPS_SCRIPT_URL;
+
+const proctor = {
+  sessionId: "S-" + Date.now().toString(36).toUpperCase() + "-" + Math.random().toString(36).slice(2,7).toUpperCase(),
+  startTime: null,
+  endTime: null,
+  examEndsAt: null,
+  violations: [],
+  devtoolsWarned: false,
+  active: false
+};
+let pendingBlurStart = null;
+let pendingHiddenStart = null;
+let countdownHandle = null;
+let monitorsAttached = false;
+
+const violationLog = document.getElementById("violationLog");
+const violationCountEl = document.getElementById("violationCount");
+const vDot = document.getElementById("vDot");
+const fsIndicator = document.getElementById("fsIndicator");
+const fsDot = document.getElementById("fsDot");
+const violationChip = document.getElementById("violationChip");
+const violationPanel = document.getElementById("violationPanel");
+const examTimerEl = document.getElementById("exam-timer");
+
+function fmtClock(ms){
+  const s = Math.max(0, Math.floor(ms/1000));
+  const mm = String(Math.floor(s/60)).padStart(2,"0");
+  const ss = String(s%60).padStart(2,"0");
+  return mm + ":" + ss;
+}
+
+function logViolation(type, detail, severity, durationMs){
+  const entry = { type, detail, severity: severity||"med", at: new Date(), durationMs: durationMs||null };
+  proctor.violations.push(entry);
+  const li = document.createElement("li");
+  li.className = "sev-" + entry.severity;
+  const dur = entry.durationMs ? ` (${(entry.durationMs/1000).toFixed(1)}s)` : "";
+  li.innerHTML = '<span class="vp-ts">' + entry.at.toLocaleTimeString() + '</span>' + entry.detail + dur;
+  violationLog.prepend(li);
+  const n = proctor.violations.length;
+  violationCountEl.textContent = "Violations: " + n;
+  violationCountEl.classList.toggle("high", n > 0);
+  vDot.classList.toggle("bad", n > 3);
+  vDot.classList.toggle("warn", n > 0 && n <= 3);
+}
+
+function updateFsIndicator(){
+  const fs = !!document.fullscreenElement;
+  fsIndicator.textContent = "Fullscreen: " + (fs ? "on" : "off");
+  fsDot.classList.toggle("bad", !fs && proctor.active);
+}
+
+violationChip.addEventListener("click", () => {
+  violationPanel.classList.toggle("open");
+});
+
+/* =====================================================================
+   MONITORS
+   ===================================================================== */
+function attachMonitors(){
+  if (monitorsAttached) return;
+  monitorsAttached = true;
+
+  document.addEventListener("visibilitychange", () => {
+    if (!proctor.active) return;
+    if (document.hidden) {
+      pendingHiddenStart = Date.now();
+      logViolation("tab_hidden", "Tab switched or window minimized", "high");
+    } else if (pendingHiddenStart) {
+      const dur = Date.now() - pendingHiddenStart;
+      logViolation("tab_visible", "Returned to exam tab", "med", dur);
+      pendingHiddenStart = null;
+    }
+  });
+
+  window.addEventListener("blur", () => {
+    if (!proctor.active || proctor.endTime) return;
+    pendingBlurStart = Date.now();
+  });
+
+  window.addEventListener("focus", () => { pendingBlurStart = null; });
+
+  setInterval(() => {
+    if (pendingBlurStart && proctor.active && !proctor.endTime) {
+      if (Date.now() - pendingBlurStart > 350) {
+        logViolation("window_blur", "Browser window lost focus (possible alt-tab or other app)", "high");
+        pendingBlurStart = null;
+      }
+    }
+  }, 100);
+
+  document.addEventListener("fullscreenchange", () => {
+    updateFsIndicator();
+    if (!document.fullscreenElement && proctor.active && !proctor.endTime) {
+      logViolation("fullscreen_exit", "Exited fullscreen mode", "high");
+    }
+  });
+
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    if (!proctor.active) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const widthRatio = window.outerWidth / screen.availWidth;
+      if (widthRatio < 0.85) {
+        logViolation("window_resized", `Window resized/narrowed to ~${Math.round(widthRatio*100)}% of screen width (possible split screen)`, "med");
+      }
+    }, 400);
+  });
+
+  setInterval(() => {
+    if (!proctor.active || proctor.endTime) return;
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+    if ((widthDiff > 180 || heightDiff > 180) && !proctor.devtoolsWarned) {
+      proctor.devtoolsWarned = true;
+      logViolation("devtools_suspected", "Window/viewport size gap suggests developer tools may be open", "med");
+    }
+    if (widthDiff <= 180 && heightDiff <= 180) proctor.devtoolsWarned = false;
+  }, 2000);
+
+  ["copy","cut","paste"].forEach(evt => {
+    document.addEventListener(evt, (e) => {
+      if (!proctor.active || proctor.endTime) return;
+      e.preventDefault();
+      logViolation(evt, `Attempted ${evt}`, "med");
+    });
+  });
+  document.addEventListener("contextmenu", (e) => {
+    if (!proctor.active || proctor.endTime) return;
+    e.preventDefault();
+    logViolation("context_menu", "Right-click menu attempted", "med");
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (!proctor.active || proctor.endTime) return;
+    const k = e.key.toLowerCase();
+    const combo = (e.ctrlKey||e.metaKey) && ["t","n","w","tab"].includes(k);
+    if (combo) {
+      e.preventDefault();
+      logViolation("shortcut_blocked", `Blocked shortcut: ${e.ctrlKey?"Ctrl":"Cmd"}+${e.key}`, "med");
+    }
+    if (k === "f11") {
+      logViolation("shortcut_attempt", "F11 pressed (fullscreen toggle)", "low");
+    }
+    if (k === "printscreen") {
+      logViolation("shortcut_attempt", "Print Screen pressed", "med");
+    }
+    if (e.key === "Escape" && document.fullscreenElement) {
+      logViolation("shortcut_attempt", "Escape pressed while in fullscreen", "low");
+    }
+  });
+
+  window.addEventListener("beforeunload", (e) => {
+    if (proctor.active && !proctor.endTime) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
+}
+
+/* =====================================================================
+   COUNTDOWN TIMER (15 minutes)
+   ===================================================================== */
+function startCountdown(){
+  examTimerEl.style.display = "inline-flex";
+  countdownHandle = setInterval(() => {
+    const remaining = proctor.examEndsAt - Date.now();
+    if (remaining <= 0) {
+      examTimerEl.textContent = "00:00";
+      clearInterval(countdownHandle);
+      logViolation("time_expired", "Time limit reached — exam auto-submitted", "low");
+      if (typeof window.__autoSubmit === "function") window.__autoSubmit();
+      return;
+    }
+    examTimerEl.textContent = fmtClock(remaining);
+    examTimerEl.classList.toggle("critical", remaining < 60000);
+  }, 250);
+}
+
+function endProctoring(){
+  proctor.endTime = new Date();
+  proctor.active = false;
+  clearInterval(countdownHandle);
+  localStorage.removeItem("biomed_exam_status");
+  if (document.fullscreenElement) document.exitFullscreen?.().catch(()=>{});
+}
+
+window.__proctor = proctor;
+window.__logViolation = logViolation;
+window.__attachMonitors = attachMonitors;
+window.__startCountdown = startCountdown;
+window.__endProctoring = endProctoring;
+window.__beginProctoring = function(){
+  proctor.active = true;
+  proctor.startTime = new Date();
+  proctor.examEndsAt = Date.now() + EXAM_DURATION_MS;
+  localStorage.setItem("biomed_exam_status", "started");
+  document.documentElement.requestFullscreen?.().catch(()=>{});
+  attachMonitors();
+  updateFsIndicator();
+  startCountdown();
+};
+
+})();
+
+(function(){
+
+/* =====================================================================
+   QUESTION BANK
+   The exam is assembled fresh each time it is launched: one numeric
+   item (randomly generated) plus a non-repeating, randomly selected,
+   randomly ordered subset of the MCQ bank below, with each question's
+   answer choices independently shuffled. This — together with the
+   numeric-item response-time check — is intended to make the exam
+   harder to share answers for between candidates.
+   ===================================================================== */
+const MCQ_BANK = [
+  {
+    id:'mcq-1', marks:1,
+    text: 'What is the component signal of an sEMG (surface electromyogram) signal?',
+    options:[
+      {letter:'A', text:'MUAP (Motor Unit Action Potential)'},
+      {letter:'B', text:'ECG (Electrocardiogram)'},
+      {letter:'C', text:'RMS (Root Mean Square value)'},
+      {letter:'D', text:'MFP (Muscle Fiber Potential)'}
+    ],
+    answer:'A'
+  },
+  {
+    id:'mcq-2', marks:1,
+    text: 'Which neurotransmitter deficiency is most directly associated with the motor symptoms of Parkinson\u2019s disease?',
+    options:[
+      {letter:'A', text:'Dopamine'},
+      {letter:'B', text:'Glutamate'},
+      {letter:'C', text:'GABA'},
+      {letter:'D', text:'Acetylcholine'}
+    ],
+    answer:'A'
+  },
+  {
+    id:'mcq-3', marks:1,
+    text: 'Which specific region of the midbrain undergoes selective degeneration of dopaminergic neurons in Parkinson\'s disease?',
+    options:[
+      {letter:'A', text:'Hippocampus'},
+      {letter:'B', text:'Nucleus basalis'},
+      {letter:'C', text:'Substantia nigra'},
+      {letter:'D', text:'Locus coeruleus'}
+    ],
+    answer:'C'
+  },
+  {
+    id:'mcq-4', marks:1,
+    text: 'Which of the following logical gates cannot be replicated using a single perceptron?',
+    options:[
+      {letter:'A', text:'XOR'},
+      {letter:'B', text:'OR'},
+      {letter:'C', text:'AND'},
+      {letter:'D', text:'NOT'}
+    ],
+    answer:'A'
+  },
+  {
+    id:'mcq-5', marks:1,
+    text: 'Which structure in a neuron is responsible for increasing the speed of nerve impulse transmission via saltatory conduction?',
+    options:[
+      {letter:'A', text:'Axon'},
+      {letter:'B', text:'Dendrites'},
+      {letter:'C', text:'Myelin sheath'},
+      {letter:'D', text:'Axon terminal'}
+    ],
+    answer:'C'
+  },
+  {
+    id:'mcq-6', marks:1,
+    text: 'Which of the following formulas gives the mean absolute value (MAV) for the signal \\(x(t) = e^{-t^2}\\) on the interval \\([-1, 1]\\)?',
+    options:[
+      {letter:'A', text:'\\(\\displaystyle\\int_{-1}^{1} \\left| e^{-t^2} \\right|\\, dt\\)'},
+      {letter:'B', text:'\\(\\displaystyle\\left| \\int_{-1}^{1} e^{-t^2}\\, dt \\right|\\)'},
+      {letter:'C', text:'\\(\\displaystyle\\frac{1}{2}\\int_{-1}^{1} e^{-t^2}\\, dt\\)'},
+      {letter:'D', text:'\\(\\displaystyle\\sqrt{\\int_{-1}^{1} e^{-2t^2}\\, dt}\\)'}
+    ],
+    answer:'A'
+  },
+  {
+    id:'mcq-7', marks:1,
+    text: 'Which of the following correctly describes the pathway of an electrochemical impulse through a typical motor neuron?',
+    options:[
+      {letter:'A', text:'Axon \\(\\rightarrow\\) Cell body \\(\\rightarrow\\) Dendrite \\(\\rightarrow\\) Synaptic terminal'},
+      {letter:'B', text:'Dendrite \\(\\rightarrow\\) Axon \\(\\rightarrow\\) Cell body \\(\\rightarrow\\) Synaptic terminal'},
+      {letter:'C', text:'Dendrite \\(\\rightarrow\\) Cell body \\(\\rightarrow\\) Axon \\(\\rightarrow\\) Synaptic terminal'},
+      {letter:'D', text:'Synaptic terminal \\(\\rightarrow\\) Axon \\(\\rightarrow\\) Cell body \\(\\rightarrow\\) Dendrite'}
+    ],
+    answer:'C'
+  },
+  {
+    id:'mcq-8', marks:1,
+    text: 'What is the primary structural role of the Nodes of Ranvier along a myelinated axon?',
+    options:[
+      {letter:'A', text:'To synthesize proteins and provide metabolic energy to the axon'},
+      {letter:'B', text:'To act as electrical insulators preventing ion leakage across the membrane'},
+      {letter:'C', text:'To house high concentrations of neurotransmitter-filled vesicles'},
+      {letter:'D', text:'To allow saltatory conduction, significantly increasing impulse transmission speed'}
+    ],
+    answer:'D'
+  },
+  {
+    id:'mcq-9', marks:1,
+    text: 'Which principle most directly underlies task-specific, repetitive practice used in corrective training for post-stroke motor recovery?',
+    options:[
+      {letter:'A', text:'Neuroplasticity'},
+      {letter:'B', text:'Myelin degeneration'},
+      {letter:'C', text:'Synaptic pruning during REM sleep'},
+      {letter:'D', text:'Homeostatic thermoregulation'}
+    ],
+    answer:'A'
+  },
+  {
+    id:'mcq-10', marks:1,
+    text: 'Which of the following sets contains the four cardinal motor symptoms of Parkinson\'s disease?',
+    options:[
+      {letter:'A', text:'Ageusia, bradykinesia, dementia, and rigidity'},
+      {letter:'B', text:'Tremor, bradykinesia, rigidity, and postural instability'},
+      {letter:'C', text:'Tremor, bradykinesia, seborrhea, and constipation'},
+      {letter:'D', text:'Micrographia, bradykinesia, rigidity, and depression'}
+    ],
+    answer:'B'
+  },
+  {
+    id:'mcq-11', marks:1,
+    text: 'Which of the following medications is used to treat the primary motor symptoms of Parkinson\'s disease?',
+    options:[
+      {letter:'A', text:'Dopamine'},
+      {letter:'B', text:'Levodopa'},
+      {letter:'C', text:'Haloperidol'},
+      {letter:'D', text:'Propranolol'}
+    ],
+    answer:'B'
+  },
+  {
+    id:'mcq-12', marks:1,
+    text: 'In a closed-loop wearable rehabilitation system, what is the primary purpose of real-time biofeedback provided to the patient?',
+    options:[
+      {letter:'A', text:'To help the patient consciously correct movement patterns during training'},
+      {letter:'B', text:'To recharge the device battery'},
+      {letter:'C', text:'To calibrate the ambient room temperature sensor'},
+      {letter:'D', text:'To encrypt patient data during transmission'}
+    ],
+    answer:'A'
+  }
+];
+
+const MCQ_COUNT = 6;              // number of MCQs drawn from the bank each attempt
+const MIN_NUMERIC_SECONDS = 45;   // numeric answers submitted faster than this are flagged
+
+let questions = [];
+let totalMarks = 0;
+let activeIdx = 0;
+let state = [];
+
+const DOM = {
+  setupScreen: document.getElementById('setup-screen'),
+  examFrame: document.getElementById('exam-frame'),
+  navBar: document.getElementById('nav-bar'),
+  footer: document.getElementById('footer'),
+  qNum: document.getElementById('q-num'),
+  marksBadge: document.getElementById('marks-badge'),
+  qText: document.getElementById('q-text'),
+  optionsBox: document.getElementById('options-box'),
+  numericBox: document.getElementById('numeric-box'),
+  numericDisplay: document.getElementById('numeric-display'),
+  keypad: document.getElementById('keypad'),
+  prevBtn: document.getElementById('prev-btn'),
+  nextBtn: document.getElementById('next-btn'),
+  finalizeBtn: document.getElementById('finalize-btn'),
+  progressPill: document.getElementById('progress-pill'),
+  resultsScreen: document.getElementById('results-screen')
+};
+
+function randInt(min, max){
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function shuffleArray(arr){
+  for (let i = arr.length - 1; i > 0; i--){
+    const j = randInt(0, i);
+    const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr;
+}
+
+function randomizeNumericQuestion(){
+  // The numeric item is randomly either a continuous-signal RMS problem or a
+  // discrete-time table RMS problem. Both always resolve to an integer answer.
+  return (Math.random() < 0.5) ? buildContinuousNumericQuestion() : buildDiscreteNumericQuestion();
+}
+
+function buildContinuousNumericQuestion(){
+  // Random start time for the interval (kept as a whole number). Every
+  // number in the question — the interval bounds, the energy value, and
+  // (elsewhere) the answer itself — is rendered in LaTeX via \( \) so it
+  // matches the typeset math around it.
+  const A = randInt(1, 9);
+  // Force the answer to be a whole number: pick RMS first, then derive
+  // the required energy value E = RMS^2 (since energy of a(t) plus the
+  // equal energy of its shifted copy b(t), divided by the 2-unit
+  // interval length, must equal RMS^2).
+  const possibleRms = [1, 2, 3, 4, 5, 6];
+  const rms = possibleRms[randInt(0, possibleRms.length - 1)];
+  const energy = rms * rms;
+
+  const text = 'A signal \\(x(t)\\) is defined as \\(x(t) = a(t) + b(t)\\), where \\(b(t) = a(t-1)\\). ' +
+    'The signals occupy the following intervals: \\(a(t) = 0\\) for \\(' + A + ' < t < ' + (A + 1) + '\\) and \\(b(t) = 0\\) for \\(' + (A + 1) + ' < t < ' + (A + 2) + '\\). ' +
+    'If \\(\\displaystyle\\int_{' + A + '}^{' + (A + 1) + '} a^2(t)\\,dt = ' + energy + '\\), what is the RMS value of \\(x(t)\\) over the interval \\(' + A + ' < t < ' + (A + 2) + '\\)?';
+
+  return { id:'numeric', type:'numeric', marks:4, text, answer: rms };
+}
+
+function generateDiscreteRmsSet(){
+  // Pick a target integer RMS, then try to find 6 small integers whose
+  // squares sum to 6*rms^2 (so the mean of squares is a perfect square).
+  const possibleRms = [1, 2, 3, 4, 5];
+  for (let attempt = 0; attempt < 300; attempt++){
+    const rms = possibleRms[randInt(0, possibleRms.length - 1)];
+    const target = 6 * rms * rms;
+    const vals = [];
+    let sumSq = 0;
+    for (let i = 0; i < 5; i++){
+      const v = randInt(-4, 4);
+      vals.push(v);
+      sumSq += v * v;
+    }
+    const remainder = target - sumSq;
+    if (remainder < 0) continue;
+    const root = Math.round(Math.sqrt(remainder));
+    if (root * root === remainder){
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      vals.push(root === 0 ? 0 : sign * root);
+      shuffleArray(vals);
+      return { values: vals, rms };
+    }
+  }
+  // Guaranteed fallback (always valid): three +2's and three -2's, RMS = 2.
+  return { values: shuffleArray([2, 2, 2, -2, -2, -2]), rms: 2 };
+}
+
+function buildDiscreteNumericQuestion(){
+  const { values, rms } = generateDiscreteRmsSet();
+
+  // Every table entry — the time index and the sampled value — is
+  // rendered in LaTeX (\( \)) rather than as plain text, matching the
+  // header row and the rest of the question's math typesetting.
+  const tCells = values.map((_, i) => '<td>\\(' + i + '\\)</td>').join('');
+  const fCells = values.map(v => '<td>\\(' + v + '\\)</td>').join('');
+
+  const text =
+    '<p style="margin-bottom:14px;">A discrete-time signal \\(f(t)\\) is sampled at discrete time values \\(t \\in \\{0, 1, 2, 3, 4, 5\\}\\). The values of the signal are given in the table below:</p>' +
+    '<table class="discrete-table">' +
+      '<tr><td>\\(t\\)</td>' + tCells + '</tr>' +
+      '<tr><td>\\(f(t)\\)</td>' + fCells + '</tr>' +
+    '</table>' +
+    '<p style="margin-top:14px;">Calculate the Root Mean Square (RMS) value of \\(f(t)\\) for \\(t\\) from \\(0\\) to \\(5\\).</p>';
+
+  return { id:'numeric', type:'numeric', marks:4, text, answer: rms };
+}
+
+/* Shuffle one MCQ's answer choices (re-lettering A–D) while keeping
+   track of which shuffled letter is now correct. */
+function shuffleMcqOptions(bankQ){
+  const letters = ['A', 'B', 'C', 'D'];
+  const correctText = bankQ.options.find(o => o.letter === bankQ.answer).text;
+  const texts = shuffleArray(bankQ.options.map(o => o.text));
+  const options = texts.map((text, i) => ({ letter: letters[i], text }));
+  const answer = options.find(o => o.text === correctText).letter;
+  return { id: bankQ.id, type: 'mcq', marks: bankQ.marks, text: bankQ.text, options, answer };
+}
+
+/* Assemble one exam attempt: the randomly-generated numeric item plus a
+   non-repeating random sample of MCQs from the bank, each with its
+   answer choices independently shuffled and re-lettered. */
+function buildQuestionSet(){
+  const numericQ = randomizeNumericQuestion();
+  const pool = shuffleArray(MCQ_BANK.slice());
+  const chosenMcqs = pool.slice(0, MCQ_COUNT).map(shuffleMcqOptions);
+  return [numericQ, ...chosenMcqs];
+}
+
+let candidateName = '';
+let candidateRegNo = '';
+
+function validateStudentInfo(){
+  const nameInput = document.getElementById('student-name');
+  const regInput = document.getElementById('student-regno');
+  const nameError = document.getElementById('student-name-error');
+  const regError = document.getElementById('student-regno-error');
+
+  const name = nameInput.value.trim();
+  const regNo = regInput.value.trim();
+
+  let valid = true;
+  if (!name){
+    nameInput.classList.add('invalid');
+    nameError.classList.add('show');
+    valid = false;
+  } else {
+    nameInput.classList.remove('invalid');
+    nameError.classList.remove('show');
+  }
+  if (!regNo){
+    regInput.classList.add('invalid');
+    regError.classList.add('show');
+    valid = false;
+  } else {
+    regInput.classList.remove('invalid');
+    regError.classList.remove('show');
+  }
+
+  if (valid){
+    candidateName = name;
+    candidateRegNo = regNo;
+  }
+  return valid;
+}
+
+function launchExam(){
+  if (!validateStudentInfo()) return;
+
+  questions = buildQuestionSet();
+  totalMarks = questions.reduce((s,q) => s + q.marks, 0);
+  activeIdx = 0;
+  state = questions.map(() => ({
+    selected: null,
+    numericValue: '',
+    activeMs: 0,        // cumulative time actively viewing this question
+    resumedAt: null,     // timestamp the question became active again (null while paused/not viewed)
+    cheatFlagged: false
+  }));
+
+  DOM.setupScreen.style.display = 'none';
+  DOM.navBar.style.display = 'flex';
+  DOM.examFrame.style.display = 'flex';
+  DOM.footer.style.display = 'flex';
+  buildNav();
+  render();
+
+  const candidateChip = document.getElementById('candidateChip');
+  const candidateInfo = document.getElementById('candidateInfo');
+  candidateInfo.textContent = candidateName + ' \u00B7 ' + candidateRegNo;
+  candidateChip.style.display = 'flex';
+
+  if (window.__proctor){
+    window.__proctor.name = candidateName;
+    window.__proctor.regNo = candidateRegNo;
+  }
+  if (typeof window.__beginProctoring === 'function') window.__beginProctoring();
+}
+
+document.getElementById('start-exam-btn').addEventListener('click', launchExam);
+['student-name','student-regno'].forEach(id => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    e.target.classList.remove('invalid');
+    document.getElementById(id + '-error').classList.remove('show');
+  });
+});
+
+function buildNav(){
+  DOM.navBar.innerHTML = '';
+  questions.forEach((_, idx) => {
+    const b = document.createElement('div');
+    b.className = 'nav-bubble';
+    b.id = 'nav-bubble-' + idx;
+    b.innerText = idx + 1;
+    b.addEventListener('click', () => { pauseActiveTimer(); activeIdx = idx; render(); });
+    DOM.navBar.appendChild(b);
+  });
+}
+
+function buildKeypad(){
+  DOM.keypad.innerHTML = '';
+  const keys = ['7','8','9','4','5','6','1','2','3','-','0','back'];
+  keys.forEach(k => {
+    const btn = document.createElement('button');
+    if (k === 'back'){
+      btn.innerText = '\u232B';
+      btn.className = 'clear';
+      btn.onclick = () => { onKeypad('back'); };
+    } else if (k === '-'){
+      btn.innerHTML = '\\(-\\)';
+      btn.className = 'op';
+      btn.onclick = () => { onKeypad('-'); };
+    } else {
+      btn.innerHTML = '\\(' + k + '\\)';
+      btn.onclick = () => { onKeypad(k); };
+    }
+    DOM.keypad.appendChild(btn);
+  });
+  const clearBtn = document.createElement('button');
+  clearBtn.innerText = 'Clear';
+  clearBtn.className = 'clear';
+  clearBtn.style.gridColumn = 'span 3';
+  clearBtn.onclick = () => { onKeypad('clear'); };
+  DOM.keypad.appendChild(clearBtn);
+}
+
+function onKeypad(key){
+  const s = state[activeIdx];
+  if (key === 'back'){
+    s.numericValue = s.numericValue.slice(0, -1);
+  } else if (key === 'clear'){
+    s.numericValue = '';
+  } else if (key === '-'){
+    if (s.numericValue.startsWith('-')) s.numericValue = s.numericValue.slice(1);
+    else s.numericValue = '-' + s.numericValue;
+  } else {
+    s.numericValue += key;
+  }
+  render();
+}
+
+function updateProgressPill(){
+  const answered = state.filter(s => s.selected !== null || s.numericValue !== '').length;
+  DOM.progressPill.innerText = answered + ' / ' + questions.length + ' answered';
+}
+
+/* Per-question active-view timing: only counts time the candidate is
+   actually looking at a given question. Switching to another question
+   (nav bubble, prev/next) or leaving the tab/window pauses the clock
+   for whichever question was active; coming back resumes it. Used to
+   decide, at submission time, whether a numeric answer was produced
+   suspiciously fast. */
+function pauseActiveTimer(){
+  const s = state[activeIdx];
+  if (s && s.resumedAt != null){
+    s.activeMs += Date.now() - s.resumedAt;
+    s.resumedAt = null;
+  }
+}
+
+function resumeActiveTimer(idx){
+  const s = state[idx];
+  if (s && s.resumedAt == null){
+    s.resumedAt = Date.now();
+  }
+}
+
+function render(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+  resumeActiveTimer(activeIdx);
+
+  document.querySelectorAll('.nav-bubble').forEach((b, idx) => {
+    b.classList.remove('active','answered');
+    if (idx === activeIdx) b.classList.add('active');
+    const answered = questions[idx].type === 'numeric' ? state[idx].numericValue !== '' : state[idx].selected !== null;
+    if (answered) b.classList.add('answered');
+  });
+
+  DOM.qNum.innerText = 'Question ' + (activeIdx + 1) + ' of ' + questions.length;
+  DOM.marksBadge.innerText = q.marks + (q.marks === 1 ? ' mark' : ' marks');
+  DOM.qText.innerHTML = q.text;
+
+  if (q.type === 'mcq'){
+    DOM.optionsBox.style.display = 'flex';
+    DOM.numericBox.style.display = 'none';
+    DOM.optionsBox.innerHTML = '';
+    q.options.forEach(opt => {
+      const row = document.createElement('div');
+      row.className = 'option-row';
+      if (s.selected === opt.letter) row.classList.add('selected');
+      row.innerHTML = '<div class="option-letter">' + opt.letter + '</div><div class="option-text">' + opt.text + '</div>';
+      row.addEventListener('click', () => { s.selected = opt.letter; render(); });
+      DOM.optionsBox.appendChild(row);
+    });
+  } else {
+    DOM.optionsBox.style.display = 'none';
+    DOM.numericBox.style.display = 'flex';
+    buildKeypad();
+    DOM.numericDisplay.innerHTML = s.numericValue === '' ? '&nbsp;' : '\\(' + s.numericValue + '\\)';
+    DOM.numericDisplay.className = 'numeric-display';
+  }
+
+  DOM.prevBtn.disabled = (activeIdx === 0);
+  DOM.nextBtn.disabled = (activeIdx === questions.length - 1);
+
+  updateProgressPill();
+
+  if (window.MathJax && window.MathJax.typesetPromise){
+    const targets = [DOM.qText, DOM.optionsBox];
+    if (q.type === 'numeric') targets.push(DOM.numericDisplay, DOM.keypad);
+    MathJax.typesetPromise(targets).catch(()=>{});
+  }
+}
+
+function goPrev(){ if (activeIdx > 0){ pauseActiveTimer(); activeIdx--; render(); } }
+function goNext(){ if (activeIdx < questions.length - 1){ pauseActiveTimer(); activeIdx++; render(); } }
+
+DOM.prevBtn.addEventListener('click', goPrev);
+DOM.nextBtn.addEventListener('click', goNext);
+
+document.addEventListener('keydown', (e) => {
+  if (DOM.examFrame.style.display !== 'flex') return;
+  if (e.key === 'ArrowLeft'){ e.preventDefault(); goPrev(); }
+  else if (e.key === 'ArrowRight'){ e.preventDefault(); goNext(); }
+});
+
+/* Leaving the tab or the browser window also pauses the active
+   question's timer; returning resumes it. Scoped to only matter while
+   the exam itself is on screen. */
+document.addEventListener('visibilitychange', () => {
+  if (DOM.examFrame.style.display !== 'flex') return;
+  if (document.hidden) pauseActiveTimer();
+  else resumeActiveTimer(activeIdx);
+});
+window.addEventListener('blur', () => {
+  if (DOM.examFrame.style.display !== 'flex') return;
+  pauseActiveTimer();
+});
+window.addEventListener('focus', () => {
+  if (DOM.examFrame.style.display !== 'flex') return;
+  resumeActiveTimer(activeIdx);
+});
+
+/* Numeric questions whose cumulative active-view time (time actually
+   spent on that question, excluding any paused/away time) is under
+   MIN_NUMERIC_SECONDS at submission are flagged as suspected cheating
+   and scored as 0 marks regardless of correctness. Called once, at
+   submission, after the currently active question's timer is paused
+   so its time is fully counted. */
+function evaluateCheatFlags(){
+  pauseActiveTimer();
+  questions.forEach((q, idx) => {
+    if (q.type !== 'numeric') return;
+    const s = state[idx];
+    if (s.cheatFlagged || s.numericValue === '') return;
+    if (s.activeMs < MIN_NUMERIC_SECONDS * 1000){
+      s.cheatFlagged = true;
+      if (typeof window.__logViolation === 'function'){
+        window.__logViolation(
+          'rapid_numeric_answer',
+          'Numeric question\u2019s active view time was ' + (s.activeMs/1000).toFixed(1) + 's (under ' + MIN_NUMERIC_SECONDS + 's) \u2014 flagged as suspected cheating, 0 marks awarded',
+          'high'
+        );
+      }
+    }
+  });
+}
+
+DOM.finalizeBtn.addEventListener('click', () => {
+  if (confirm('Submit the exam and see your results?')) evaluateResults();
+});
+
+/* A numeric answer flagged as suspiciously fast always scores 0, even
+   if the value entered happens to be correct. */
+function isCorrect(q, s){
+  if (q.type === 'numeric'){
+    if (s.cheatFlagged) return false;
+    return parseInt(s.numericValue, 10) === q.answer;
+  }
+  return s.selected === q.answer;
+}
+
+/* Scoring happens as before (and is still sent to faculty for review),
+   but the candidate is never shown their score, a correct/incorrect
+   breakdown, or a way to retry — only a plain acknowledgement screen. */
+function evaluateResults(){
+  evaluateCheatFlags();
+
+  let marksScored = 0;
+  let numCorrect = 0;
+
+  questions.forEach((q, idx) => {
+    const s = state[idx];
+    if (isCorrect(q, s)){
+      marksScored += q.marks;
+      numCorrect++;
+    }
+  });
+
+  DOM.examFrame.style.display = 'none';
+  DOM.navBar.style.display = 'none';
+  DOM.footer.style.display = 'none';
+  DOM.resultsScreen.style.display = 'flex';
+
+  const pct = Math.round((marksScored / totalMarks) * 100) || 0;
+
+  if (typeof window.__endProctoring === 'function') window.__endProctoring();
+  const timerEl = document.getElementById('exam-timer');
+  if (timerEl) timerEl.style.display = 'none';
+
+  submitResultsToSheet({
+    marksScored, totalMarks, numCorrect, totalQuestions: questions.length, pct
+  });
+}
+
+function submitResultsToSheet(summary){
+  const url = window.__GOOGLE_APPS_SCRIPT_URL;
+  if (!url || url === "YOUR_WEB_APP_URL_HERE") {
+    console.warn("GOOGLE_APPS_SCRIPT_URL not configured — results were not sent to the spreadsheet.");
+    return;
+  }
+
+  const proctor = window.__proctor || {};
+  const device = window.__deviceInfo || {};
+
+  const payload = {
+    sessionId: proctor.sessionId || "",
+    name: proctor.name || candidateName || "",
+    regNo: proctor.regNo || candidateRegNo || "",
+    score: summary.marksScored,
+    totalMarks: summary.totalMarks,
+    percentage: summary.pct,
+    numCorrect: summary.numCorrect,
+    totalQuestions: summary.totalQuestions,
+    violationCount: (proctor.violations || []).length,
+    numericCheatFlagCount: state.filter(s => s.cheatFlagged).length,
+    violations: (proctor.violations || []).map(v => ({
+      type: v.type,
+      severity: v.severity,
+      detail: v.detail,
+      at: v.at instanceof Date ? v.at.toISOString() : v.at
+    })),
+    startTime: proctor.startTime instanceof Date ? proctor.startTime.toISOString() : proctor.startTime,
+    endTime: proctor.endTime instanceof Date ? proctor.endTime.toISOString() : proctor.endTime,
+    osLabel: device.osLabel || ""
+  };
+
+  fetch(url, {
+    method: "POST",
+    mode: "no-cors", // required for Apps Script web apps called from a static page
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  }).catch(err => {
+    console.error("Failed to send results to Google Sheets:", err);
+  });
+}
+
+window.__autoSubmit = function(){
+  evaluateResults();
+};
+})();
+</script>
+</body>
+</html>

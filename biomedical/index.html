@@ -717,7 +717,7 @@ const MCQ_BANK = [
 ];
 
 const MCQ_COUNT = 6;              // number of MCQs drawn from the bank each attempt
-const MIN_NUMERIC_SECONDS = 30;   // internal review threshold — not surfaced to candidates
+const MIN_SECONDS_BEFORE_INPUT = 15;   // internal review threshold — not surfaced to candidates
 
 let questions = [];
 let totalMarks = 0;
@@ -899,6 +899,8 @@ function launchExam(){
     numericValue: '',
     activeMs: 0,        // cumulative time actively viewing this question
     resumedAt: null,     // timestamp the question became active again (null while paused/not viewed)
+    firstSeenAt: null,   // timestamp this question first appeared on screen
+    firstInputAt: null,  // timestamp of the first keypad interaction on this question
     cheatFlagged: false
   }));
 
@@ -970,6 +972,7 @@ function buildKeypad(){
 
 function onKeypad(key){
   const s = state[activeIdx];
+  if (s.firstInputAt === null) s.firstInputAt = Date.now();
   if (key === 'back'){
     s.numericValue = s.numericValue.slice(0, -1);
   } else if (key === 'clear'){
@@ -1013,6 +1016,7 @@ function render(){
   const q = questions[activeIdx];
   const s = state[activeIdx];
   resumeActiveTimer(activeIdx);
+  if (s.firstSeenAt === null) s.firstSeenAt = Date.now();
 
   document.querySelectorAll('.nav-bubble').forEach((b, idx) => {
     b.classList.remove('active','answered');
@@ -1086,19 +1090,20 @@ window.addEventListener('focus', () => {
   resumeActiveTimer(activeIdx);
 });
 
-/* Numeric questions whose cumulative active-view time (time actually
-   spent on that question, excluding any paused/away time) is under
-   MIN_NUMERIC_SECONDS at submission are flagged as suspected cheating
-   and scored as 0 marks regardless of correctness. Called once, at
-   submission, after the currently active question's timer is paused
-   so its time is fully counted. */
+/* Numeric questions where the candidate's first keypad interaction came
+   less than MIN_SECONDS_BEFORE_INPUT after the question first appeared
+   on screen are flagged as suspected cheating and scored as 0 marks
+   regardless of correctness — a very short delay before typing suggests
+   the answer was obtained rather than worked out. Called once, at
+   submission. */
 function evaluateCheatFlags(){
   pauseActiveTimer();
   questions.forEach((q, idx) => {
     if (q.type !== 'numeric') return;
     const s = state[idx];
-    if (s.cheatFlagged || s.numericValue === '') return;
-    if (s.activeMs < MIN_NUMERIC_SECONDS * 1000){
+    if (s.cheatFlagged || s.numericValue === '' || s.firstInputAt === null || s.firstSeenAt === null) return;
+    const delayMs = s.firstInputAt - s.firstSeenAt;
+    if (delayMs < MIN_SECONDS_BEFORE_INPUT * 1000){
       s.cheatFlagged = true;
       // Recorded internally for the faculty review payload only. Deliberately
       // NOT routed through window.__logViolation, so the candidate's on-screen
@@ -1175,6 +1180,9 @@ function submitResultsToSheet(summary){
     totalQuestions: summary.totalQuestions,
     violationCount: (proctor.violations || []).length,
     numericCheatFlagCount: state.filter(s => s.cheatFlagged).length,
+    numericFlagDetails: state
+      .filter(s => s.cheatFlagged && s.firstSeenAt !== null && s.firstInputAt !== null)
+      .map(s => ({ secondsBeforeFirstKeystroke: Math.round((s.firstInputAt - s.firstSeenAt) / 1000) })),
     violations: (proctor.violations || []).map(v => ({
       type: v.type,
       severity: v.severity,

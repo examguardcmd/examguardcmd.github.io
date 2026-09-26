@@ -717,7 +717,8 @@ const MCQ_BANK = [
 ];
 
 const MCQ_COUNT = 6;              // number of MCQs drawn from the bank each attempt
-const MIN_SECONDS_BEFORE_INPUT = 15;   // internal review threshold — not surfaced to candidates
+const IDLE_GRACE_SECONDS = 3;          // internal review threshold — not surfaced to candidates
+const RAPID_ANSWER_WINDOW_SECONDS = 15; // internal review threshold — not surfaced to candidates
 
 let questions = [];
 let totalMarks = 0;
@@ -756,9 +757,19 @@ function shuffleArray(arr){
 }
 
 function randomizeNumericQuestion(){
-  // The numeric item is randomly either a continuous-signal RMS problem or a
-  // discrete-time table RMS problem. Both always resolve to an integer answer.
-  return (Math.random() < 0.5) ? buildContinuousNumericQuestion() : buildDiscreteNumericQuestion();
+  // The numeric item is randomly one of five generators — a continuous-signal
+  // RMS problem, a discrete-time table RMS problem, a logarithmic-signal RMS
+  // problem, an sEMG sinusoid MAV problem, or a triangular periodic-signal
+  // RMS problem. Every generator is parameterized so it always resolves to
+  // an exact integer answer.
+  const generators = [
+    buildContinuousNumericQuestion,
+    buildDiscreteNumericQuestion,
+    buildLogSignalQuestion,
+    buildMavSineQuestion,
+    buildTriangularPeriodicQuestion
+  ];
+  return generators[randInt(0, generators.length - 1)]();
 }
 
 function buildContinuousNumericQuestion(){
@@ -830,6 +841,46 @@ function buildDiscreteNumericQuestion(){
   return { id:'numeric', type:'numeric', marks:4, text, answer: rms };
 }
 
+function buildLogSignalQuestion(){
+  // Non-periodic signal x(t) = k*sqrt(2)*ln(t) over (0, 1]. Since
+  // \int_0^1 (ln t)^2 dt = 2 exactly, the mean-square value works out to
+  // exactly 2*k^2, so the RMS value is always the exact integer 2k.
+  const k = randInt(1, 9);
+  const rms = 2 * k;
+
+  const text = 'A non-periodic analytical signal is defined over the interval \\(t \\in (0, 1]\\) as \\(x(t) = ' + k + '\\sqrt{2}\\,\\ln(t)\\). Determine the exact RMS value of the signal over this interval.';
+
+  return { id:'numeric', type:'numeric', marks:4, text, answer: rms };
+}
+
+function buildMavSineQuestion(){
+  // sEMG-style sinusoid x(t) = (k*pi/2) sin(t) over a full period [0, 2pi].
+  // The average of |sin(t)| over any whole number of periods is exactly
+  // 2/pi, so amplitudes that are multiples of pi/2 make the MAV come out
+  // to the exact integer k.
+  const k = randInt(1, 9);
+
+  const text = 'An sEMG signal is represented by the function \\(x(t) = \\dfrac{' + k + '\\pi}{2}\\sin(t)\\) for the interval \\(0 \\le t \\le 2\\pi\\). What is the MAV (Mean Absolute Value) of this signal over this interval?';
+
+  return { id:'numeric', type:'numeric', marks:4, text, answer: k };
+}
+
+function buildTriangularPeriodicQuestion(){
+  // Triangular periodic signal (period 4), shaped like the classic
+  // x(t)=t / x(t)=4-t triangle wave but scaled by a coefficient of the
+  // form k*sqrt(3)/2, so the RMS value over one period always comes out
+  // to the exact integer k.
+  const k = randInt(1, 6);
+  const coeff = '\\frac{' + k + '\\sqrt{3}}{2}';
+
+  const text =
+    '<p style="margin-bottom:14px;">A continuous-time signal \\(x(t)\\) is defined over one period \\(0 \\le t \\le 4\\) as</p>' +
+    '\\[x(t) = \\begin{cases} ' + coeff + ' t, & 0 \\le t < 2 \\\\ ' + coeff + ' (4 - t), & 2 \\le t \\le 4 \\end{cases}\\]' +
+    '<p style="margin-top:14px;">The signal is periodically extended with period \\(T = 4\\). Calculate the RMS value of \\(x(t)\\) over one period.</p>';
+
+  return { id:'numeric', type:'numeric', marks:4, text, answer: k };
+}
+
 /* Shuffle one MCQ's answer choices (re-lettering A–D) while keeping
    track of which shuffled letter is now correct. */
 function shuffleMcqOptions(bankQ){
@@ -848,7 +899,7 @@ function buildQuestionSet(){
   const numericQ = randomizeNumericQuestion();
   const pool = shuffleArray(MCQ_BANK.slice());
   const chosenMcqs = pool.slice(0, MCQ_COUNT).map(shuffleMcqOptions);
-  return [numericQ, ...chosenMcqs];
+  return [...chosenMcqs, numericQ];
 }
 
 let candidateName = '';
@@ -901,6 +952,7 @@ function launchExam(){
     resumedAt: null,     // timestamp the question became active again (null while paused/not viewed)
     firstSeenAt: null,   // timestamp this question first appeared on screen
     firstInputAt: null,  // timestamp of the first keypad interaction on this question
+    activeMsAtFirstInput: null, // pause-aware on-page time elapsed when they first touched the keypad
     cheatFlagged: false
   }));
 
@@ -972,7 +1024,10 @@ function buildKeypad(){
 
 function onKeypad(key){
   const s = state[activeIdx];
-  if (s.firstInputAt === null) s.firstInputAt = Date.now();
+  if (s.firstInputAt === null){
+    s.firstInputAt = Date.now();
+    s.activeMsAtFirstInput = getElapsedActiveMs(activeIdx);
+  }
   if (key === 'back'){
     s.numericValue = s.numericValue.slice(0, -1);
   } else if (key === 'clear'){
@@ -997,6 +1052,12 @@ function updateProgressPill(){
    for whichever question was active; coming back resumes it. Used to
    decide, at submission time, whether a numeric answer was produced
    suspiciously fast. */
+function getElapsedActiveMs(idx){
+  const s = state[idx];
+  if (!s) return 0;
+  return s.activeMs + (s.resumedAt != null ? (Date.now() - s.resumedAt) : 0);
+}
+
 function pauseActiveTimer(){
   const s = state[activeIdx];
   if (s && s.resumedAt != null){
@@ -1090,20 +1151,29 @@ window.addEventListener('focus', () => {
   resumeActiveTimer(activeIdx);
 });
 
-/* Numeric questions where the candidate's first keypad interaction came
-   less than MIN_SECONDS_BEFORE_INPUT after the question first appeared
-   on screen are flagged as suspected cheating and scored as 0 marks
-   regardless of correctness — a very short delay before typing suggests
-   the answer was obtained rather than worked out. Called once, at
-   submission. */
+/* Numeric questions where the candidate's first keypad interaction landed
+   inside the detection window are flagged as suspected cheating and scored
+   as 0 marks regardless of correctness. Both the idle grace period and the
+   window itself are measured in continuous on-page time — accumulated only
+   while this question is actually visible and focused, pausing whenever the
+   candidate navigates to another question or away from the tab, and
+   resuming from where it left off when they come back. So the window
+   can't be skipped just by leaving the numeric question open in the
+   background and returning later. The window opens IDLE_GRACE_SECONDS of
+   such on-page time after the question first appears (answers faster than
+   this aren't flagged either) and stays open for the following
+   RAPID_ANSWER_WINDOW_SECONDS: a first keystroke landing shortly after the
+   idle grace period suggests the answer was obtained rather than worked
+   out. Called once, at submission. */
 function evaluateCheatFlags(){
   pauseActiveTimer();
   questions.forEach((q, idx) => {
     if (q.type !== 'numeric') return;
     const s = state[idx];
-    if (s.cheatFlagged || s.numericValue === '' || s.firstInputAt === null || s.firstSeenAt === null) return;
-    const delayMs = s.firstInputAt - s.firstSeenAt;
-    if (delayMs < MIN_SECONDS_BEFORE_INPUT * 1000){
+    if (s.cheatFlagged || s.numericValue === '' || s.activeMsAtFirstInput === null) return;
+    const windowStartMs = IDLE_GRACE_SECONDS * 1000;
+    const windowEndMs = windowStartMs + (RAPID_ANSWER_WINDOW_SECONDS * 1000);
+    if (s.activeMsAtFirstInput >= windowStartMs && s.activeMsAtFirstInput <= windowEndMs){
       s.cheatFlagged = true;
       // Recorded internally for the faculty review payload only. Deliberately
       // NOT routed through window.__logViolation, so the candidate's on-screen
@@ -1113,7 +1183,7 @@ function evaluateCheatFlags(){
 }
 
 DOM.finalizeBtn.addEventListener('click', () => {
-  if (confirm('Submit the exam and see your results?')) evaluateResults();
+  if (confirm('Are you sure you want to submit this exam? Only click this after attempting all questions. This action cannot be undone.')) evaluateResults();
 });
 
 /* A numeric answer flagged as suspiciously fast always scores 0, even
@@ -1181,8 +1251,8 @@ function submitResultsToSheet(summary){
     violationCount: (proctor.violations || []).length,
     numericCheatFlagCount: state.filter(s => s.cheatFlagged).length,
     numericFlagDetails: state
-      .filter(s => s.cheatFlagged && s.firstSeenAt !== null && s.firstInputAt !== null)
-      .map(s => ({ secondsBeforeFirstKeystroke: Math.round((s.firstInputAt - s.firstSeenAt) / 1000) })),
+      .filter(s => s.cheatFlagged && s.activeMsAtFirstInput !== null)
+      .map(s => ({ activeSecondsBeforeFirstKeystroke: Math.round(s.activeMsAtFirstInput / 1000) })),
     violations: (proctor.violations || []).map(v => ({
       type: v.type,
       severity: v.severity,

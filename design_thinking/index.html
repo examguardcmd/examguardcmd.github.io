@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Thinking — Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand-blue:#005EA6;
+    --brand-dark:#003B6F;
+    --bg-light:#F8F9FA;
+    --border-color:#E0E0E0;
+    --text-main:#333333;
+    --success-color:#2E7D32;
+    --error-color:#C62828;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Roboto',sans-serif;-webkit-font-smoothing:antialiased;}
+  body{background:#fff;color:var(--text-main);display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+  header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-color);height:60px;background:#fff;z-index:110;flex-shrink:0;}
+  .header-left{display:flex;align-items:center;height:100%;}
+  .logo-container{padding:0 20px;height:100%;display:flex;align-items:center;border-right:1px solid var(--border-color);}
+  .logo-container span{font-weight:700;font-size:15px;letter-spacing:.3px;font-family:'Roboto Slab',serif;color:var(--brand-blue);}
+  .subject-title{padding-left:24px;font-weight:500;font-size:16px;color:#222;}
+  .header-right{padding-right:24px;font-size:13px;color:#666;}
+
+  .navigation-bar{background:var(--bg-light);border-bottom:1px solid var(--border-color);padding:12px 40px;display:flex;align-items:center;overflow-x:auto;gap:8px;min-height:52px;flex-shrink:0;}
+  .nav-bubble{position:relative;min-width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--brand-blue);color:var(--brand-blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;user-select:none;transition:all .15s ease;flex-shrink:0;}
+  .nav-bubble.active{background:var(--brand-blue);color:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand-blue);}
+  .nav-bubble.answered{background:var(--brand-blue);color:#fff;}
+
+  main{flex:1;display:flex;flex-direction:column;padding:30px 15% 40px 15%;overflow-y:auto;background:#fff;}
+  .question-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .question-number{font-size:17px;font-weight:700;color:#111;}
+  .marks-badge{background:#EAF2FA;color:var(--brand-blue);font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:.3px;}
+  .question-text{font-size:17px;line-height:1.6;margin-bottom:6px;color:#222;font-weight:500;}
+  .question-hint{font-size:13px;color:#777;margin-bottom:20px;}
+
+  textarea{width:100%;min-height:160px;font-size:15px;line-height:1.6;padding:14px 16px;border:1px solid var(--border-color);border-radius:8px;font-family:'Roboto',sans-serif;color:var(--text-main);resize:vertical;}
+  textarea:focus{outline:2px solid var(--brand-blue);outline-offset:1px;}
+
+  .actions-row{display:flex;align-items:center;gap:12px;margin-top:16px;}
+  .btn-primary{background:var(--brand-blue);color:#fff;border:none;padding:12px 28px;font-size:14px;font-weight:500;border-radius:6px;cursor:pointer;}
+  .btn-primary:hover{background:var(--brand-dark);}
+  .btn-secondary{background:#fff;border:1px solid var(--border-color);color:#444;padding:11px 20px;font-size:14px;font-weight:500;border-radius:6px;cursor:pointer;}
+  .btn-secondary:hover{border-color:#999;}
+
+  .result-box{margin-top:24px;border:1px solid var(--border-color);border-radius:8px;display:flex;flex-direction:column;max-height:340px;display:none;}
+  .result-score{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg-light);border-bottom:1px solid var(--border-color);border-radius:8px 8px 0 0;flex-shrink:0;}
+  .result-score .score-num{font-size:18px;font-weight:700;color:var(--brand-dark);}
+  #resultRows{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .result-row{display:flex;align-items:flex-start;gap:14px;padding:12px 18px;border-bottom:1px dashed var(--border-color);}
+  .result-row:last-child{border-bottom:none;}
+  .result-icon{min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;}
+  .result-icon.hit{background:var(--success-color);}
+  .result-icon.miss{background:var(--error-color);}
+  .result-text .expected{font-size:14.5px;color:#222;font-weight:500;}
+  .result-text .matched{font-size:12.5px;color:#888;margin-top:2px;}
+
+  footer{border-top:1px solid var(--border-color);background:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;flex-shrink:0;}
+  .nav-btn{background:#fff;border:1px solid var(--border-color);color:#333;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;}
+  .nav-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .total-pill{font-size:13.5px;color:#555;}
+  .total-pill b{color:var(--brand-dark);}
+
+  @media (max-width: 700px){
+    header{height:auto;flex-wrap:wrap;padding:10px 14px;}
+    .header-left{flex-wrap:wrap;}
+    .logo-container{padding:0 12px 0 0;border-right:none;height:auto;}
+    .subject-title{padding-left:0;font-size:14px;}
+    .header-right{display:none;}
+    .navigation-bar{padding:10px 14px;}
+    main{padding:20px 16px 30px 16px;}
+    .question-text{font-size:15.5px;}
+    textarea{min-height:130px;font-size:14px;}
+    .actions-row{flex-wrap:wrap;}
+    .btn-primary,.btn-secondary{flex:1;text-align:center;padding:12px 14px;}
+    .result-box{max-height:none;}
+    #resultRows{max-height:45vh;}
+    footer{padding:12px 16px;flex-wrap:wrap;gap:10px;justify-content:center;}
+    .total-pill{order:3;width:100%;text-align:center;}
+    .nav-btn{flex:1;padding:10px 12px;font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-container"><span>DT PRACTICE</span></div>
+    <div class="subject-title">Design Thinking — Practice</div>
+  </div>
+  <div class="header-right">Typos and capitalization don't matter</div>
+</header>
+
+<div class="navigation-bar" id="navBar"></div>
+
+<main>
+  <div class="question-meta">
+    <div class="question-number" id="qNum"></div>
+    <div class="marks-badge" id="marksBadge"></div>
+  </div>
+  <div class="question-text" id="qText"></div>
+  <div class="question-hint" id="qHint">Type one answer per line, in any order. Then check your answers.</div>
+
+  <textarea id="answerBox" placeholder="Type each answer on its own line..."></textarea>
+
+  <div class="actions-row">
+    <button class="btn-primary" id="checkBtn">Check Answers</button>
+    <button class="btn-secondary" id="clearBtn">Clear</button>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-score">
+      <span>Score</span>
+      <span class="score-num" id="scoreNum"></span>
+    </div>
+    <div id="resultRows"></div>
+  </div>
+</main>
+
+<footer>
+  <button class="nav-btn" id="prevBtn">← Previous</button>
+  <div class="total-pill">Overall: <b id="totalScore">0</b> / <b id="totalMax">0</b></div>
+  <button class="nav-btn" id="nextBtn">Next →</button>
+</footer>
+
+<script>
+const QUESTION_BANK = [
+  { text:"What are the 5 types of low fidelity prototypes?", answers:["Sketches","Paper Prototype","Lego Prototype","Digital Wireframe","Wizard of Oz Prototype"] },
+  { text:"What are the 3 stages of digital prototyping?", answers:["Digital Wireframe","Mockup","Operational Prototype"] },
+  { text:"What are 5 stages of Google Design Sprint?", answers:["Understand","Sketch","Decide","Prototype","Test"] },
+  { text:"What are the 3 networks of creative cognition?", answers:["Executive Attention Network","Imagination Network","Salience Network"] },
+  { text:"What are the stages of Graham Wallas's framework?", answers:["Preparation","Incubation","Illumination","Verification"] },
+  { text:"What are the 6 principles of Systematic Innovative Thinking?", answers:["Cognitive Fixedness","Path of Most Resistance","Closed World","Existing Situation","Virtual Product","Function follows Form"] },
+  { text:"What are the 5 main SIT thinking tools?", answers:["Subtraction","Division","Multiplication","Task Unification","Attribute Dependency"] },
+  { text:"What are the 3 main methods used for structured problem solving during the Ideation phase of the Design Thinking process?", answers:["Morphological Box","SCAMPER","Synectics"] },
+  { text:"What are the frameworks used during the convergent (perspective) phase of Ideation?", answers:["Six Thinking Hats","Walt Disney Method","Delphi Method"] },
+  { text:"What are the frameworks used during the divergent (idea generation) phase of Ideation?", answers:["Brainstorming","Brainwriting (6-3-5)","Mindmapping","Lotus Blossom"] },
+  { text:"What are the 6 feelings associated with the \"Six Thinking Hats\" framework?", answers:["Black Hat - Skeptic","White Hat - Analytical","Blue Hat - Manager","Green Hat - Creativity","Red Hat - Feelings","Yellow Hat - Optimism"] },
+  { text:"What are the 3 thinkers in the Walt Disney method?", answers:["Dreamer","Realist","Critic"] },
+  { text:"What are the 4 analogy types used in Synectics?", answers:["Direct","Personal","Symbolic","Fantasy"] },
+  { text:"What are the 7 steps in the SCAMPER method?", answers:["Substitute","Combine","Adapt","Modify","Put to another use","Eliminate","Reverse"] }
+];
+
+function randInt(min, max){
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function genMorphBoxQuestion(){
+  const params = randInt(2, 6);
+  const variations = randInt(2, 7);
+  const answer = Math.pow(variations, params);
+  return {
+    type: 'numeric',
+    text: 'A design team has implemented a Morphological Box for designing a system with ' + params + ' parameters. Each parameter has ' + variations + ' distinct variations. How many possible designs can be created?',
+    answers: [String(answer)]
+  };
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const questions = shuffle([...QUESTION_BANK, genMorphBoxQuestion()]);
+
+const state = questions.map(q => ({ text:"", checked:false, score:0 }));
+let activeIdx = 0;
+
+const DOM = {
+  navBar: document.getElementById('navBar'),
+  qNum: document.getElementById('qNum'),
+  marksBadge: document.getElementById('marksBadge'),
+  qText: document.getElementById('qText'),
+  answerBox: document.getElementById('answerBox'),
+  checkBtn: document.getElementById('checkBtn'),
+  clearBtn: document.getElementById('clearBtn'),
+  resultBox: document.getElementById('resultBox'),
+  scoreNum: document.getElementById('scoreNum'),
+  resultRows: document.getElementById('resultRows'),
+  prevBtn: document.getElementById('prevBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  totalScore: document.getElementById('totalScore'),
+  totalMax: document.getElementById('totalMax')
+};
+
+function normalize(s){
+  return s.toLowerCase().trim().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ');
+}
+
+function levenshtein(a, b){
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp = Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for (let j=0;j<=n;j++) dp[0][j]=j;
+  for (let i=1;i<=m;i++){
+    for (let j=1;j<=n;j++){
+      const cost = a[i-1]===b[j-1] ? 0 : 1;
+      dp[i][j] = Math.min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+cost);
+    }
+  }
+  return dp[m][n];
+}
+
+function isFuzzyMatch(userText, expected){
+  const a = normalize(userText), b = normalize(expected);
+  if (!a) return false;
+  if (a === b) return true;
+  const threshold = Math.max(1, Math.floor(b.length * 0.25));
+  return levenshtein(a, b) <= threshold;
+}
+
+function buildNav(){
+  DOM.navBar.innerHTML = '';
+  questions.forEach((q, idx) => {
+    const b = document.createElement('div');
+    b.className = 'nav-bubble';
+    b.innerText = idx + 1;
+    b.addEventListener('click', () => { activeIdx = idx; render(); });
+    DOM.navBar.appendChild(b);
+  });
+}
+
+function updateNav(){
+  const bubbles = DOM.navBar.querySelectorAll('.nav-bubble');
+  bubbles.forEach((b, idx) => {
+    b.classList.remove('active','answered');
+    if (idx === activeIdx) b.classList.add('active');
+    if (state[idx].checked) b.classList.add('answered');
+  });
+}
+
+function updateTotals(){
+  const scored = state.reduce((sum, s) => sum + s.score, 0);
+  const max = questions.reduce((sum, q) => sum + q.answers.length, 0);
+  DOM.totalScore.innerText = scored;
+  DOM.totalMax.innerText = max;
+}
+
+function render(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+
+  DOM.qNum.innerText = 'Question ' + (activeIdx + 1) + ' of ' + questions.length;
+  DOM.marksBadge.innerText = q.answers.length + (q.answers.length === 1 ? ' mark' : ' marks');
+  DOM.qText.innerText = q.text;
+  DOM.answerBox.value = s.text;
+  DOM.answerBox.placeholder = q.type === 'numeric' ? 'Type your numeric answer...' : 'Type each answer on its own line...';
+  document.getElementById('qHint').innerText = q.type === 'numeric'
+    ? 'Enter a single number as your answer.'
+    : 'Type one answer per line, in any order. Then check your answers.';
+
+  if (s.checked){
+    showResults(false);
+  } else {
+    DOM.resultBox.style.display = 'none';
+  }
+
+  DOM.prevBtn.disabled = (activeIdx === 0);
+  DOM.nextBtn.disabled = (activeIdx === questions.length - 1);
+
+  updateNav();
+  updateTotals();
+}
+
+function checkAnswer(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+  s.text = DOM.answerBox.value;
+
+  if (q.type === 'numeric'){
+    const raw = s.text.trim();
+    const userNum = parseInt(raw.replace(/[^\d-]/g, ''), 10);
+    const expectedNum = parseInt(q.answers[0], 10);
+    const correct = raw.length > 0 && !isNaN(userNum) && userNum === expectedNum;
+    s.score = correct ? 1 : 0;
+    s.checked = true;
+    s.matches = [correct ? raw : null];
+    showResults(true);
+    updateNav();
+    updateTotals();
+    return;
+  }
+
+  const lines = s.text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const used = new Array(lines.length).fill(false);
+  const matches = q.answers.map(() => null);
+
+  q.answers.forEach((expected, qi) => {
+    let bestIdx = -1, bestDist = Infinity;
+    lines.forEach((line, li) => {
+      if (used[li]) return;
+      const a = normalize(line), b = normalize(expected);
+      const dist = levenshtein(a, b);
+      const threshold = Math.max(1, Math.floor(b.length * 0.25));
+      if (dist <= threshold && dist < bestDist){
+        bestDist = dist; bestIdx = li;
+      }
+    });
+    if (bestIdx !== -1){
+      used[bestIdx] = true;
+      matches[qi] = lines[bestIdx];
+    }
+  });
+
+  s.score = matches.filter(m => m !== null).length;
+  s.checked = true;
+  s.matches = matches;
+
+  showResults(true);
+  updateNav();
+  updateTotals();
+}
+
+function showResults(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+
+  DOM.resultBox.style.display = 'flex';
+  DOM.scoreNum.innerText = s.score + ' / ' + q.answers.length;
+  DOM.resultRows.innerHTML = '';
+
+  q.answers.forEach((expected, i) => {
+    const matched = s.matches ? s.matches[i] : null;
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    const icon = document.createElement('div');
+    icon.className = 'result-icon ' + (matched ? 'hit' : 'miss');
+    icon.innerText = matched ? '✓' : '✕';
+    const text = document.createElement('div');
+    text.className = 'result-text';
+    text.innerHTML = '<div class="expected">' + expected + '</div>' +
+      (matched ? '<div class="matched">You wrote: "' + matched + '"</div>' : '<div class="matched">Not found in your answers</div>');
+    row.appendChild(icon);
+    row.appendChild(text);
+    DOM.resultRows.appendChild(row);
+  });
+}
+
+DOM.checkBtn.addEventListener('click', checkAnswer);
+DOM.clearBtn.addEventListener('click', () => {
+  const s = state[activeIdx];
+  s.text = ''; s.checked = false; s.score = 0; s.matches = null;
+  DOM.answerBox.value = '';
+  DOM.resultBox.style.display = 'none';
+  updateNav();
+  updateTotals();
+});
+
+DOM.prevBtn.addEventListener('click', () => { if (activeIdx > 0){ activeIdx--; render(); } });
+DOM.nextBtn.addEventListener('click', () => { if (activeIdx < questions.length - 1){ activeIdx++; render(); } });
+
+document.addEventListener('keydown', (e) => {
+  if (document.activeElement === DOM.answerBox) return;
+  if (e.key === 'ArrowLeft'){ e.preventDefault(); DOM.prevBtn.click(); }
+  else if (e.key === 'ArrowRight'){ e.preventDefault(); DOM.nextBtn.click(); }
+});
+
+buildNav();
+render();
+</script>
+</body>
+</html>

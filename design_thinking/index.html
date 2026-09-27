@@ -64,8 +64,37 @@
   .nav-btn:disabled{opacity:.4;cursor:not-allowed;}
   .total-pill{font-size:13.5px;color:#555;}
   .total-pill b{color:var(--brand-dark);}
+  .switch-mode-btn{background:none;border:1px solid var(--border-color);color:#555;font-size:12.5px;padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .switch-mode-btn:hover{border-color:#999;}
+
+  .start-screen{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;padding:20px;z-index:200;}
+  .start-card{max-width:560px;width:100%;text-align:center;}
+  .start-card h1{font-family:'Roboto Slab',serif;font-size:24px;color:var(--brand-dark);margin-bottom:8px;}
+  .start-card p{color:#666;font-size:14.5px;margin-bottom:28px;}
+  .mode-buttons{display:flex;gap:16px;}
+  .mode-btn{flex:1;background:#fff;border:1.5px solid var(--border-color);border-radius:10px;padding:22px 16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:all .15s ease;}
+  .mode-btn:hover{border-color:var(--brand-blue);box-shadow:0 2px 10px rgba(0,94,166,0.12);}
+  .mode-title{font-size:16px;font-weight:700;color:var(--brand-dark);}
+  .mode-sub{font-size:12.5px;color:#777;line-height:1.4;}
+
+  .mcq-options{display:none;flex-direction:column;gap:10px;}
+  .mcq-option{border:1px solid var(--border-color);border-radius:8px;padding:12px 16px;font-size:14.5px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s ease;}
+  .mcq-option:hover{border-color:var(--brand-blue);}
+  .mcq-option.selected{border-color:var(--brand-blue);background:#EAF2FA;}
+  .mcq-option.disabled{cursor:default;}
+  .mcq-option .opt-letter{min-width:24px;height:24px;border-radius:50%;border:1.5px solid #999;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#666;flex-shrink:0;}
+  .mcq-option.selected .opt-letter{border-color:var(--brand-blue);background:var(--brand-blue);color:#fff;}
+  .mcq-option.correct{border-color:var(--success-color);background:#EAF7EA;}
+  .mcq-option.correct .opt-letter{background:var(--success-color);border-color:var(--success-color);color:#fff;}
+  .mcq-option.incorrect{border-color:var(--error-color);background:#FDEAEA;}
+  .mcq-option.incorrect .opt-letter{background:var(--error-color);border-color:var(--error-color);color:#fff;}
+  .mcq-feedback{margin-top:16px;padding:12px 16px;border-radius:8px;font-size:14px;font-weight:500;display:none;}
+  .mcq-feedback.hit{background:#EAF7EA;color:var(--success-color);}
+  .mcq-feedback.miss{background:#FDEAEA;color:var(--error-color);}
 
   @media (max-width: 700px){
+    .mode-buttons{flex-direction:column;}
+    .start-card h1{font-size:20px;}
     header{height:auto;flex-wrap:wrap;padding:10px 14px;}
     .header-left{flex-wrap:wrap;}
     .logo-container{padding:0 12px 0 0;border-right:none;height:auto;}
@@ -87,6 +116,25 @@
 </head>
 <body>
 
+<div class="start-screen" id="startScreen">
+  <div class="start-card">
+    <h1>Design Thinking — Practice</h1>
+    <p>Choose how you'd like to practice this round</p>
+    <div class="mode-buttons">
+      <button class="mode-btn" id="frqModeBtn">
+        <span class="mode-title">Free Response</span>
+        <span class="mode-sub">Type out each answer yourself. Capitalization and small typos don't matter.</span>
+      </button>
+      <button class="mode-btn" id="mcqModeBtn">
+        <span class="mode-title">Multiple Choice</span>
+        <span class="mode-sub">Pick from 4 options, including ordering and sequencing questions.</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="appScreen" style="display:none;flex-direction:column;flex:1;min-height:0;">
+
 <header>
   <div class="header-left">
     <div class="logo-container">
@@ -96,7 +144,7 @@
     </div>
     <div class="subject-title">Design Thinking — Practice</div>
   </div>
-  <div class="header-right">Typos and capitalization don't matter</div>
+  <button class="switch-mode-btn" id="switchModeBtn">Switch Mode</button>
 </header>
 
 <div class="navigation-bar" id="navBar"></div>
@@ -107,12 +155,17 @@
     <div class="marks-badge" id="marksBadge"></div>
   </div>
   <div class="question-text" id="qText"></div>
-  <div class="question-hint" id="qHint">Type one answer per line, in any order. Then check your answers.</div>
 
-  <textarea id="answerBox" placeholder="Type each answer on its own line..."></textarea>
+  <div id="frqInputArea">
+    <div class="question-hint" id="qHint">Type one answer per line, in any order. Then check your answers.</div>
+    <textarea id="answerBox" placeholder="Type each answer on its own line..."></textarea>
+  </div>
+
+  <div class="mcq-options" id="mcqOptions"></div>
+  <div class="mcq-feedback" id="mcqFeedback"></div>
 
   <div class="actions-row">
-    <button class="btn-primary" id="checkBtn">Check Answers</button>
+    <button class="btn-primary" id="checkBtn">Check Answer</button>
     <button class="btn-secondary" id="clearBtn">Clear</button>
   </div>
 
@@ -131,8 +184,10 @@
   <button class="nav-btn" id="nextBtn">Next →</button>
 </footer>
 
+</div>
+
 <script>
-const QUESTION_BANK = [
+const FRQ_BANK = [
   { text:"What are the 5 types of low fidelity prototypes?", answers:["Sketches","Paper Prototype","Lego Prototype","Digital Wireframe","Wizard of Oz Prototype"] },
   { text:"What are the 3 stages of digital prototyping?", answers:["Digital Wireframe","Mockup","Operational Prototype"] },
   { text:"What are 5 stages of Google Design Sprint?", answers:["Understand","Sketch","Decide","Prototype","Test"] },
@@ -173,9 +228,64 @@ function shuffle(arr){
   return a;
 }
 
-const questions = shuffle([...QUESTION_BANK, genMorphBoxQuestion()]);
+const MCQ_BANK_RAW = [
+  { text:"What is the correct order of stages in digital prototyping?", options:["Digital Wireframe → Mockup → Operational Prototype","Mockup → Operational Prototype → Digital Wireframe","Operational Prototype → Digital Wireframe → Mockup","Digital Wireframe → Operational Prototype → Mockup"], correct:0 },
+  { text:"What is the correct order of the Google Design Sprint stages?", options:["Understand → Sketch → Decide → Prototype → Test","Sketch → Understand → Prototype → Decide → Test","Understand → Decide → Sketch → Test → Prototype","Sketch → Decide → Understand → Test → Prototype"], correct:0 },
+  { text:"Which of the following is NOT one of the 3 networks of creative cognition?", options:["Executive Attention Network","Working Memory Network","Imagination Network","Salience Network"], correct:1 },
+  { text:"What is the correct order of stages in Graham Wallas's framework?", options:["Preparation → Incubation → Illumination → Verification","Incubation → Preparation → Verification → Illumination","Preparation → Illumination → Incubation → Verification","Illumination → Preparation → Incubation → Verification"], correct:0 },
+  { text:"Which of the following is one of the 6 principles of Systematic Innovative Thinking (SIT)?", options:["Closed World","Open Brainstorming","User Empathy","Rapid Prototyping"], correct:0 },
+  { text:"Which of these is NOT one of the 5 main SIT thinking tools?", options:["Subtraction","Division","Combination","Multiplication"], correct:2 },
+  { text:"Which method is used for structured problem solving during the Ideation phase (rather than divergent idea generation)?", options:["SCAMPER","Brainstorming","Mindmapping","Lotus Blossom"], correct:0 },
+  { text:"Which framework belongs to the convergent (perspective) phase of Ideation?", options:["Six Thinking Hats","Brainwriting (6-3-5)","Mindmapping","Lotus Blossom"], correct:0 },
+  { text:"Which framework belongs to the divergent (idea generation) phase of Ideation?", options:["Brainstorming","Delphi Method","Walt Disney Method","Six Thinking Hats"], correct:0 },
+  { text:"In the Six Thinking Hats framework, which hat represents feelings and emotions?", options:["Red Hat","Black Hat","Yellow Hat","Blue Hat"], correct:0 },
+  { text:"What is the correct order of thinkers in the Walt Disney Method?", options:["Dreamer → Realist → Critic","Critic → Dreamer → Realist","Realist → Critic → Dreamer","Dreamer → Critic → Realist"], correct:0 },
+  { text:"Which of the following is NOT one of the 4 analogy types used in Synectics?", options:["Direct","Personal","Symbolic","Contextual"], correct:3 },
+  { text:"What is the correct order of the first four SCAMPER steps?", options:["Substitute → Combine → Adapt → Modify","Combine → Substitute → Modify → Adapt","Adapt → Substitute → Combine → Modify","Substitute → Adapt → Combine → Modify"], correct:0 },
+  { text:"Which of the following is a low fidelity prototype type?", options:["Wizard of Oz Prototype","Mockup","Operational Prototype","High-fidelity Prototype"], correct:0 }
+];
 
-const state = questions.map(q => ({ text:"", checked:false, score:0 }));
+function shuffleMCQOptions(q){
+  const tagged = q.options.map((opt, i) => ({ opt, isCorrect: i === q.correct }));
+  const shuffled = shuffle(tagged);
+  return { type:'mcq', text:q.text, options: shuffled.map(o => o.opt), correct: shuffled.findIndex(o => o.isCorrect) };
+}
+
+function genMorphBoxMCQ(){
+  const params = randInt(2, 5);
+  const variations = randInt(2, 6);
+  const correctAnswer = Math.pow(variations, params);
+  const distractorSet = new Set([
+    params * variations,
+    Math.pow(variations, params > 2 ? params - 1 : params + 1),
+    Math.pow(variations + 1, params)
+  ]);
+  let opts = [correctAnswer];
+  distractorSet.forEach(d => { if (d !== correctAnswer && !opts.includes(d) && d > 0) opts.push(d); });
+  while (opts.length < 4){
+    const fake = correctAnswer + randInt(1, 12) * (Math.random() < 0.5 ? -1 : 1);
+    if (fake > 0 && !opts.includes(fake)) opts.push(fake);
+  }
+  opts = shuffle(opts.slice(0, 4));
+  return {
+    type:'mcq',
+    text: 'A design team has implemented a Morphological Box for designing a system with ' + params + ' parameters. Each parameter has ' + variations + ' distinct variations. How many possible designs can be created?',
+    options: opts.map(String),
+    correct: opts.indexOf(correctAnswer)
+  };
+}
+
+function buildFRQQuestions(){
+  return shuffle([...FRQ_BANK, genMorphBoxQuestion()]);
+}
+
+function buildMCQQuestions(){
+  return shuffle([...MCQ_BANK_RAW.map(shuffleMCQOptions), genMorphBoxMCQ()]);
+}
+
+let mode = null;
+let questions = [];
+let state = [];
 let activeIdx = 0;
 
 const DOM = {
@@ -192,8 +302,32 @@ const DOM = {
   prevBtn: document.getElementById('prevBtn'),
   nextBtn: document.getElementById('nextBtn'),
   totalScore: document.getElementById('totalScore'),
-  totalMax: document.getElementById('totalMax')
+  totalMax: document.getElementById('totalMax'),
+  frqInputArea: document.getElementById('frqInputArea'),
+  mcqOptions: document.getElementById('mcqOptions'),
+  mcqFeedback: document.getElementById('mcqFeedback'),
+  startScreen: document.getElementById('startScreen'),
+  appScreen: document.getElementById('appScreen')
 };
+
+function startQuiz(selectedMode){
+  mode = selectedMode;
+  questions = (mode === 'frq' ? buildFRQQuestions() : buildMCQQuestions())
+    .map(q => Object.assign({}, q, { maxMarks: q.type === 'mcq' ? 1 : (q.type === 'numeric' ? 1 : q.answers.length) }));
+  state = questions.map(() => ({ text:"", checked:false, score:0, selected: undefined, matches: null }));
+  activeIdx = 0;
+  DOM.startScreen.style.display = 'none';
+  DOM.appScreen.style.display = 'flex';
+  buildNav();
+  render();
+}
+
+document.getElementById('frqModeBtn').addEventListener('click', () => startQuiz('frq'));
+document.getElementById('mcqModeBtn').addEventListener('click', () => startQuiz('mcq'));
+document.getElementById('switchModeBtn').addEventListener('click', () => {
+  DOM.appScreen.style.display = 'none';
+  DOM.startScreen.style.display = 'flex';
+});
 
 function normalize(s){
   return s.toLowerCase().trim().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ');
@@ -244,9 +378,40 @@ function updateNav(){
 
 function updateTotals(){
   const scored = state.reduce((sum, s) => sum + s.score, 0);
-  const max = questions.reduce((sum, q) => sum + q.answers.length, 0);
+  const max = questions.reduce((sum, q) => sum + q.maxMarks, 0);
   DOM.totalScore.innerText = scored;
   DOM.totalMax.innerText = max;
+}
+
+function renderMCQOptions(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+  const letters = ['A','B','C','D','E','F'];
+
+  DOM.mcqOptions.innerHTML = '';
+  q.options.forEach((opt, idx) => {
+    const row = document.createElement('div');
+    row.className = 'mcq-option';
+    if (s.selected === idx) row.classList.add('selected');
+    if (s.checked){
+      row.classList.add('disabled');
+      if (idx === q.correct) row.classList.add('correct');
+      else if (idx === s.selected) row.classList.add('incorrect');
+    } else {
+      row.addEventListener('click', () => { s.selected = idx; renderMCQOptions(); });
+    }
+    row.innerHTML = '<span class="opt-letter">' + letters[idx] + '</span><span>' + opt + '</span>';
+    DOM.mcqOptions.appendChild(row);
+  });
+
+  if (s.checked){
+    const correct = s.selected === q.correct;
+    DOM.mcqFeedback.style.display = 'block';
+    DOM.mcqFeedback.className = 'mcq-feedback ' + (correct ? 'hit' : 'miss');
+    DOM.mcqFeedback.innerText = (correct ? 'Correct! ' : 'Incorrect — correct answer: ' + q.options[q.correct] + '. ') + '(' + s.score + '/1)';
+  } else {
+    DOM.mcqFeedback.style.display = 'none';
+  }
 }
 
 function render(){
@@ -254,18 +419,31 @@ function render(){
   const s = state[activeIdx];
 
   DOM.qNum.innerText = 'Question ' + (activeIdx + 1) + ' of ' + questions.length;
-  DOM.marksBadge.innerText = q.answers.length + (q.answers.length === 1 ? ' mark' : ' marks');
+  DOM.marksBadge.innerText = q.maxMarks + (q.maxMarks === 1 ? ' mark' : ' marks');
   DOM.qText.innerText = q.text;
-  DOM.answerBox.value = s.text;
-  DOM.answerBox.placeholder = q.type === 'numeric' ? 'Type your numeric answer...' : 'Type each answer on its own line...';
-  document.getElementById('qHint').innerText = q.type === 'numeric'
-    ? 'Enter a single number as your answer.'
-    : 'Type one answer per line, in any order. Then check your answers.';
 
-  if (s.checked){
-    showResults(false);
-  } else {
+  if (q.type === 'mcq'){
+    DOM.frqInputArea.style.display = 'none';
+    DOM.mcqOptions.style.display = 'flex';
+    DOM.checkBtn.innerText = 'Check Answer';
     DOM.resultBox.style.display = 'none';
+    renderMCQOptions();
+  } else {
+    DOM.frqInputArea.style.display = 'block';
+    DOM.mcqOptions.style.display = 'none';
+    DOM.mcqFeedback.style.display = 'none';
+    DOM.checkBtn.innerText = 'Check Answer';
+    DOM.answerBox.value = s.text;
+    DOM.answerBox.placeholder = q.type === 'numeric' ? 'Type your numeric answer...' : 'Type each answer on its own line...';
+    document.getElementById('qHint').innerText = q.type === 'numeric'
+      ? 'Enter a single number as your answer.'
+      : 'Type one answer per line, in any order. Then check your answers.';
+
+    if (s.checked){
+      showResults(false);
+    } else {
+      DOM.resultBox.style.display = 'none';
+    }
   }
 
   DOM.prevBtn.disabled = (activeIdx === 0);
@@ -275,8 +453,21 @@ function render(){
   updateTotals();
 }
 
+function checkMCQAnswer(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+  if (s.selected === undefined || s.selected === null) return;
+  s.checked = true;
+  s.score = (s.selected === q.correct) ? 1 : 0;
+  renderMCQOptions();
+  updateNav();
+  updateTotals();
+}
+
 function checkAnswer(){
   const q = questions[activeIdx];
+  if (q.type === 'mcq'){ checkMCQAnswer(); return; }
+
   const s = state[activeIdx];
   s.text = DOM.answerBox.value;
 
@@ -352,11 +543,8 @@ function showResults(){
 DOM.checkBtn.addEventListener('click', checkAnswer);
 DOM.clearBtn.addEventListener('click', () => {
   const s = state[activeIdx];
-  s.text = ''; s.checked = false; s.score = 0; s.matches = null;
-  DOM.answerBox.value = '';
-  DOM.resultBox.style.display = 'none';
-  updateNav();
-  updateTotals();
+  s.text = ''; s.checked = false; s.score = 0; s.matches = null; s.selected = undefined;
+  render();
 });
 
 DOM.prevBtn.addEventListener('click', () => { if (activeIdx > 0){ activeIdx--; render(); } });
@@ -367,9 +555,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft'){ e.preventDefault(); DOM.prevBtn.click(); }
   else if (e.key === 'ArrowRight'){ e.preventDefault(); DOM.nextBtn.click(); }
 });
-
-buildNav();
-render();
 </script>
 </body>
 </html>

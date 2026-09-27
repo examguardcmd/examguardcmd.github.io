@@ -21,7 +21,8 @@
   header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-color);height:60px;background:#fff;z-index:110;flex-shrink:0;}
   .header-left{display:flex;align-items:center;height:100%;}
   .logo-container{padding:0 20px;height:100%;display:flex;align-items:center;border-right:1px solid var(--border-color);}
-  .logo-container span{font-weight:700;font-size:15px;letter-spacing:.3px;font-family:'Roboto Slab',serif;color:var(--brand-blue);}
+  .logo-container .brand-logo{height:34px;width:auto;display:block;}
+  .logo-container span{font-weight:700;font-size:15px;letter-spacing:.3px;font-family:'Roboto Slab',serif;color:var(--brand-blue);display:none;}
   .subject-title{padding-left:24px;font-weight:500;font-size:16px;color:#222;}
   .header-right{padding-right:24px;font-size:13px;color:#666;}
 
@@ -88,7 +89,11 @@
 
 <header>
   <div class="header-left">
-    <div class="logo-container"><span>DT PRACTICE</span></div>
+    <div class="logo-container">
+      <img class="brand-logo" id="brand-logo-img" src="examguard-logo.png" alt="Design Thinking Practice"
+           onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1';this.src='examguard-logo.jpg';}else{this.style.display='none';document.getElementById('brand-logo-fallback').style.display='block';}">
+      <span class="brand-logo-fallback" id="brand-logo-fallback">DT PRACTICE</span>
+    </div>
     <div class="subject-title">Design Thinking — Practice</div>
   </div>
   <div class="header-right">Typos and capitalization don't matter</div>

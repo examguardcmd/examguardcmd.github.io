@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Professional English — Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand-blue:#005EA6;
+    --brand-dark:#003B6F;
+    --bg-light:#F8F9FA;
+    --border-color:#E0E0E0;
+    --text-main:#333333;
+    --success-color:#2E7D32;
+    --error-color:#C62828;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Roboto',sans-serif;-webkit-font-smoothing:antialiased;}
+  body{background:#fff;color:var(--text-main);display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+  header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-color);height:60px;background:#fff;z-index:110;flex-shrink:0;}
+  .header-left{display:flex;align-items:center;height:100%;}
+  .logo-container{padding:0 20px;height:100%;display:flex;align-items:center;border-right:1px solid var(--border-color);}
+  .logo-container .brand-logo{height:34px;width:auto;display:block;}
+  .logo-container span{font-weight:700;font-size:15px;letter-spacing:.3px;font-family:'Roboto Slab',serif;color:var(--brand-blue);display:none;}
+  .subject-title{padding-left:24px;font-weight:500;font-size:16px;color:#222;}
+  .header-right{padding-right:24px;font-size:13px;color:#666;}
+
+  .navigation-bar{background:var(--bg-light);border-bottom:1px solid var(--border-color);padding:12px 40px;display:flex;align-items:center;overflow-x:auto;gap:8px;min-height:52px;flex-shrink:0;}
+  .nav-bubble{position:relative;min-width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--brand-blue);color:var(--brand-blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;user-select:none;transition:all .15s ease;flex-shrink:0;}
+  .nav-bubble.active{background:var(--brand-blue);color:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--brand-blue);}
+  .nav-bubble.answered{background:var(--brand-blue);color:#fff;}
+
+  main{flex:1;display:flex;flex-direction:column;padding:30px 15% 40px 15%;overflow-y:auto;background:#fff;}
+  .question-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .question-number{font-size:17px;font-weight:700;color:#111;}
+  .marks-badge{background:#EAF2FA;color:var(--brand-blue);font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:.3px;}
+  .question-text{font-size:17px;line-height:1.6;margin-bottom:6px;color:#222;font-weight:500;}
+  .question-hint{font-size:13px;color:#777;margin-bottom:20px;}
+
+  textarea{width:100%;min-height:160px;font-size:15px;line-height:1.6;padding:14px 16px;border:1px solid var(--border-color);border-radius:8px;font-family:'Roboto',sans-serif;color:var(--text-main);resize:vertical;}
+  textarea:focus{outline:2px solid var(--brand-blue);outline-offset:1px;}
+
+  .actions-row{display:flex;align-items:center;gap:12px;margin-top:16px;}
+  .btn-primary{background:var(--brand-blue);color:#fff;border:none;padding:12px 28px;font-size:14px;font-weight:500;border-radius:6px;cursor:pointer;}
+  .btn-primary:hover{background:var(--brand-dark);}
+  .btn-secondary{background:#fff;border:1px solid var(--border-color);color:#444;padding:11px 20px;font-size:14px;font-weight:500;border-radius:6px;cursor:pointer;}
+  .btn-secondary:hover{border-color:#999;}
+
+  .result-box{margin-top:24px;border:1px solid var(--border-color);border-radius:8px;display:flex;flex-direction:column;max-height:340px;display:none;}
+  .result-score{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg-light);border-bottom:1px solid var(--border-color);border-radius:8px 8px 0 0;flex-shrink:0;}
+  .result-score .score-num{font-size:18px;font-weight:700;color:var(--brand-dark);}
+  #resultRows{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .result-row{display:flex;align-items:flex-start;gap:14px;padding:12px 18px;border-bottom:1px dashed var(--border-color);}
+  .result-row:last-child{border-bottom:none;}
+  .result-icon{min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;}
+  .result-icon.hit{background:var(--success-color);}
+  .result-icon.miss{background:var(--error-color);}
+  .result-text .expected{font-size:14.5px;color:#222;font-weight:500;}
+  .result-text .matched{font-size:12.5px;color:#888;margin-top:2px;}
+
+  footer{border-top:1px solid var(--border-color);background:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;flex-shrink:0;}
+  .nav-btn{background:#fff;border:1px solid var(--border-color);color:#333;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;}
+  .nav-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .total-pill{font-size:13.5px;color:#555;}
+  .total-pill b{color:var(--brand-dark);}
+  .switch-mode-btn{background:none;border:1px solid var(--border-color);color:#555;font-size:12.5px;padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .switch-mode-btn:hover{border-color:#999;}
+
+  /* ===== Start screen (Khan Academy style) ===== */
+  .start-screen{position:fixed;inset:0;background:#F7F8FA;z-index:200;overflow-y:auto;}
+  .ks-topbar{background:#fff;border-bottom:1px solid var(--border-color);height:56px;display:flex;align-items:center;padding:0 28px;gap:10px;position:sticky;top:0;z-index:2;}
+  .ks-logo{width:30px;height:30px;border-radius:8px;background:#1865F2;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;letter-spacing:.3px;}
+  .ks-brand{font-weight:700;font-size:16px;color:#0B2149;}
+  .ks-hero{background:linear-gradient(135deg,#0B2149 0%,#14366F 60%,#1B4B9B 100%);color:#fff;padding:44px 28px 92px;text-align:center;}
+  .ks-hero h1{font-family:'Roboto Slab',serif;font-weight:500;font-size:34px;line-height:1.2;margin-bottom:10px;}
+  .ks-hero p{font-size:16px;color:#C9D6EE;max-width:520px;margin:0 auto;}
+  .ks-body{max-width:960px;margin:-56px auto 0;padding:0 24px 56px;}
+  .ks-section{background:#fff;border:1px solid var(--border-color);border-radius:14px;padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(11,33,73,.06);}
+  .start-label{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;color:#0B2149;margin:0 0 18px;}
+  .start-label .step{width:26px;height:26px;border-radius:50%;background:#0B2149;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .start-label .hint{margin-left:auto;font-size:13px;font-weight:400;color:#6B7280;}
+
+  .module-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;}
+  .mod-btn{--c:#1865F2;position:relative;background:#fff;border:2px solid #DDE1E6;border-radius:12px;padding:0;cursor:pointer;text-align:left;display:flex;flex-direction:column;overflow:hidden;transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease;}
+  .mod-btn:hover{border-color:var(--c);transform:translateY(-2px);box-shadow:0 6px 16px rgba(11,33,73,.10);}
+  .mod-btn.selected{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent);}
+  .mod-banner{height:84px;background:var(--c);display:flex;align-items:center;padding:0 18px;position:relative;overflow:hidden;}
+  .mod-banner::after{content:"";position:absolute;right:-24px;top:-34px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.14);}
+  .mod-banner::before{content:"";position:absolute;right:38px;bottom:-40px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.10);}
+  .mod-num{font-family:'Roboto Slab',serif;font-size:40px;font-weight:500;color:#fff;line-height:1;position:relative;z-index:1;}
+  .mod-num small{display:block;font-family:'Roboto',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:.85;margin-bottom:4px;}
+  .mod-check{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;background:#fff;color:var(--c);display:none;align-items:center;justify-content:center;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+  .mod-btn.selected .mod-check{display:flex;}
+  .mod-info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1;}
+  .mod-btn .mod-name{font-size:16px;font-weight:700;color:#0B2149;line-height:1.3;}
+  .mod-btn .mod-desc{font-size:13px;color:#5F6B7A;line-height:1.45;}
+  .mod-count{margin-top:auto;padding-top:8px;font-size:12px;font-weight:700;color:var(--c);}
+  .mod-btn[data-mod="m1"]{--c:#1865F2;}
+  .mod-btn[data-mod="m2"]{--c:#0D923F;}
+  .mod-btn[data-mod="m3"]{--c:#9059FF;}
+  .mod-btn[data-mod="m4"]{--c:#E0641B;}
+  .mod-btn[data-mod="m5"]{--c:#D6336C;}
+
+  .mode-buttons{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .mode-btn{background:#fff;border:2px solid #DDE1E6;border-radius:12px;padding:20px;cursor:pointer;display:flex;align-items:flex-start;gap:16px;text-align:left;transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease;}
+  .mode-btn:hover{border-color:#1865F2;transform:translateY(-2px);box-shadow:0 6px 16px rgba(24,101,242,.14);}
+  .mode-icon{width:48px;height:48px;border-radius:12px;background:#E8F0FE;color:#1865F2;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .mode-text{display:flex;flex-direction:column;gap:4px;flex:1;}
+  .mode-title{font-size:17px;font-weight:700;color:#0B2149;}
+  .mode-sub{font-size:13px;color:#5F6B7A;line-height:1.45;}
+  .mode-go{margin-top:8px;font-size:13px;font-weight:700;color:#1865F2;}
+
+  .mcq-options{display:none;flex-direction:column;gap:10px;}
+  .mcq-option{border:1px solid var(--border-color);border-radius:8px;padding:12px 16px;font-size:14.5px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s ease;}
+  .mcq-option:hover{border-color:var(--brand-blue);}
+  .mcq-option.selected{border-color:var(--brand-blue);background:#EAF2FA;}
+  .mcq-option.disabled{cursor:default;}
+  .mcq-option .opt-letter{min-width:24px;height:24px;border-radius:50%;border:1.5px solid #999;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:#666;flex-shrink:0;}
+  .mcq-option.selected .opt-letter{border-color:var(--brand-blue);background:var(--brand-blue);color:#fff;}
+  .mcq-option.correct{border-color:var(--success-color);background:#EAF7EA;}
+  .mcq-option.correct .opt-letter{background:var(--success-color);border-color:var(--success-color);color:#fff;}
+  .mcq-option.incorrect{border-color:var(--error-color);background:#FDEAEA;}
+  .mcq-option.incorrect .opt-letter{background:var(--error-color);border-color:var(--error-color);color:#fff;}
+  .mcq-feedback{margin-top:16px;padding:12px 16px;border-radius:8px;font-size:14px;font-weight:500;display:none;}
+  .mcq-feedback.hit{background:#EAF7EA;color:var(--success-color);}
+  .mcq-feedback.miss{background:#FDEAEA;color:var(--error-color);}
+
+
+  .module-tabs{display:flex;gap:6px;margin-left:auto;margin-right:16px;}
+  .module-tab{background:#fff;border:1.5px solid var(--border-color);color:var(--brand-dark);font-size:13px;font-weight:700;padding:7px 16px;border-radius:20px;cursor:pointer;transition:all .15s ease;}
+  .module-tab:hover{border-color:var(--brand-blue);}
+  .module-tab.active{background:var(--brand-blue);border-color:var(--brand-blue);color:#fff;}
+  .header-actions{display:flex;align-items:center;gap:8px;padding-right:20px;}
+  .mode-chip{font-size:12px;font-weight:700;color:var(--brand-blue);background:#EAF2FA;padding:4px 10px;border-radius:12px;}
+
+  @media (max-width: 700px){
+    .ks-hero{padding:32px 18px 80px;}
+    .ks-hero h1{font-size:25px;}
+    .ks-body{padding:0 14px 40px;}
+    .ks-section{padding:18px 14px;}
+    .module-picker{grid-template-columns:1fr;}
+    .mode-buttons{grid-template-columns:1fr;}
+    header{height:auto;flex-wrap:wrap;padding:10px 14px;}
+    .header-left{flex-wrap:wrap;}
+    .logo-container{padding:0 12px 0 0;border-right:none;height:auto;}
+    .subject-title{padding-left:0;font-size:14px;}
+    .header-right{display:none;}
+    .module-tabs{margin:8px 0 0 0;width:100%;}
+    .module-tab{flex:1;}
+    .header-actions{padding-right:0;margin-top:8px;width:100%;justify-content:space-between;}
+    .navigation-bar{padding:10px 14px;}
+    main{padding:20px 16px 30px 16px;}
+    .question-text{font-size:15.5px;}
+    textarea{min-height:130px;font-size:14px;}
+    .actions-row{flex-wrap:wrap;}
+    .btn-primary,.btn-secondary{flex:1;text-align:center;padding:12px 14px;}
+    .result-box{max-height:none;}
+    #resultRows{max-height:45vh;}
+    footer{padding:12px 16px;flex-wrap:wrap;gap:10px;justify-content:center;}
+    .total-pill{order:3;width:100%;text-align:center;}
+    .nav-btn{flex:1;padding:10px 12px;font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="start-screen" id="startScreen">
+  <div class="ks-topbar"><div class="ks-logo">APE</div><div class="ks-brand">Advanced Professional English</div></div>
+  <div class="ks-hero">
+    <h1>What would you like to practise today?</h1>
+    <p>Pick a module, then choose how you'd like to study.</p>
+  </div>
+  <div class="ks-body">
+    <div class="ks-section">
+      <div class="start-label"><span class="step">1</span>Choose a module</div>
+      <div class="module-picker" id="modulePicker">
+        <button class="mod-btn selected" data-mod="m1">
+          <span class="mod-banner"><span class="mod-num"><small>Module</small>1</span>
+            <span class="mod-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+          <span class="mod-info">
+            <span class="mod-name">Techniques for Interpersonal Skills</span>
+            <span class="mod-desc">Decision frameworks, biases &amp; fallacies, emotional intelligence, group development, conflict resolution</span>
+            <span class="mod-count" data-count="m1"></span>
+          </span>
+        </button>
+        <button class="mod-btn" data-mod="m2">
+          <span class="mod-banner"><span class="mod-num"><small>Module</small>2</span>
+            <span class="mod-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+          <span class="mod-info">
+            <span class="mod-name">Discussion &amp; Cross-Cultural Communication</span>
+            <span class="mod-desc">Discussion techniques, the 3 Cs of cross cultural communication, CALM &amp; STEADY crisis frameworks</span>
+            <span class="mod-count" data-count="m2"></span>
+          </span>
+        </button>
+        <button class="mod-btn" data-mod="m3">
+          <span class="mod-banner"><span class="mod-num"><small>Module</small>3</span>
+            <span class="mod-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+          <span class="mod-info">
+            <span class="mod-name">Presentations &amp; Persuasion</span>
+            <span class="mod-desc">Good presentations, non-verbal communication, Aristotle's modes of persuasion</span>
+            <span class="mod-count" data-count="m3"></span>
+          </span>
+        </button>
+        <button class="mod-btn" data-mod="m4">
+          <span class="mod-banner"><span class="mod-num"><small>Module</small>4</span>
+            <span class="mod-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+          <span class="mod-info">
+            <span class="mod-name">Interviewing</span>
+            <span class="mod-desc">Behavioural &amp; situational interviews, the STAR and SCORE methods</span>
+            <span class="mod-count" data-count="m4"></span>
+          </span>
+        </button>
+        <button class="mod-btn" data-mod="m5">
+          <span class="mod-banner"><span class="mod-num"><small>Module</small>5</span>
+            <span class="mod-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span>
+          <span class="mod-info">
+            <span class="mod-name">Goal Setting</span>
+            <span class="mod-desc">Goal-setting frameworks, OKR and SMART goals</span>
+            <span class="mod-count" data-count="m5"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="ks-section">
+      <div class="start-label"><span class="step">2</span>Choose how to practise</div>
+      <div class="mode-buttons">
+        <button class="mode-btn" id="frqModeBtn">
+          <span class="mode-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+          <span class="mode-text">
+            <span class="mode-title">Free Response</span>
+            <span class="mode-sub">Type out each answer yourself. Capitalization and small typos don't matter.</span>
+            <span class="mode-go">Start →</span>
+          </span>
+        </button>
+        <button class="mode-btn" id="mcqModeBtn">
+          <span class="mode-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg></span>
+          <span class="mode-text">
+            <span class="mode-title">Multiple Choice</span>
+            <span class="mode-sub">Pick from 4 options, including sequencing and identification questions.</span>
+            <span class="mode-go">Start →</span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="appScreen" style="display:none;flex-direction:column;flex:1;min-height:0;">
+
+<header>
+  <div class="header-left">
+    <div class="logo-container">
+      <img class="brand-logo" id="brand-logo-img" src="examguard-logo.png" alt="Advanced Professional English"
+           onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1';this.src='examguard-logo.jpg';}else{this.style.display='none';document.getElementById('brand-logo-fallback').style.display='block';}">
+      <span class="brand-logo-fallback" id="brand-logo-fallback">APE</span>
+    </div>
+    <div class="subject-title" id="subjectTitle"></div>
+  </div>
+  <div class="module-tabs" id="moduleTabs">
+    <button class="module-tab" data-mod="m1">Module 1</button>
+    <button class="module-tab" data-mod="m2">Module 2</button>
+    <button class="module-tab" data-mod="m3">Module 3</button>
+    <button class="module-tab" data-mod="m4">Module 4</button>
+    <button class="module-tab" data-mod="m5">Module 5</button>
+  </div>
+  <div class="header-actions">
+    <span class="mode-chip" id="modeChip"></span>
+    <button class="switch-mode-btn" id="restartBtn">Restart</button>
+    <button class="switch-mode-btn" id="switchModeBtn">Switch Mode</button>
+  </div>
+</header>
+
+<div class="navigation-bar" id="navBar"></div>
+
+<main>
+  <div class="question-meta">
+    <div class="question-number" id="qNum"></div>
+    <div class="marks-badge" id="marksBadge"></div>
+  </div>
+  <div class="question-text" id="qText"></div>
+
+  <div id="frqInputArea">
+    <div class="question-hint" id="qHint">Type one answer per line, in any order. Then check your answers.</div>
+    <textarea id="answerBox" placeholder="Type each answer on its own line..."></textarea>
+  </div>
+
+  <div class="mcq-options" id="mcqOptions"></div>
+  <div class="mcq-feedback" id="mcqFeedback"></div>
+
+  <div class="actions-row">
+    <button class="btn-primary" id="checkBtn">Check Answer</button>
+    <button class="btn-secondary" id="clearBtn">Clear</button>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-score">
+      <span>Score</span>
+      <span class="score-num" id="scoreNum"></span>
+    </div>
+    <div id="resultRows"></div>
+  </div>
+</main>
+
+<footer>
+  <button class="nav-btn" id="prevBtn">← Previous</button>
+  <div class="total-pill">Overall: <b id="totalScore">0</b> / <b id="totalMax">0</b></div>
+  <button class="nav-btn" id="nextBtn">Next →</button>
+</footer>
+
+</div>
+
+<script>
+const M1_FRQ = [
+  { text:"What are the 4 analytical frameworks used for decision evaluation?", answers:["SWOT Analysis","Opportunity-Cost Analysis","Root Cause Analysis","Pareto Analysis"] },
+  { text:"What are common cognitive biases?", answers:["Anchoring Bias","Confirmation Bias","Hindsight Bias","Framing Bias","Overconfidence Bias"] },
+  { text:"What are common logical fallacies?", answers:["Sunk-Cost Fallacy","Authority Fallacy","Causal Fallacy"] },
+  { text:"What are the 5 components of emotional intelligence according to Daniel Goleman?", answers:["Self-awareness","Self-regulation","Intrinsic motivation","Empathy","Social Skills"] },
+  { text:"What are the 5 stages of Bruce Tuckman's Group Development?", answers:["Forming","Storming","Norming","Performing","Adjourning"] },
+  { text:"What are the 5 main conflict resolution techniques observed in relationships?", answers:["Collaboration","Compromise","Accommodation","Avoidance","Competition"] }
+];
+
+const M1_MCQ = [
+  // Analytical frameworks for decision evaluation
+  { text:"Which of the following is NOT one of the 4 analytical frameworks used for decision evaluation?", options:["SWOT Analysis","Root Cause Analysis","Pareto Analysis","Sunk-Cost Analysis"], correct:3 },
+  { text:"Which analytical framework focuses on identifying the underlying source of a problem rather than its symptoms?", options:["Root Cause Analysis","SWOT Analysis","Pareto Analysis","Opportunity-Cost Analysis"], correct:0 },
+  { text:"Which analytical framework is built on the idea that a small number of causes produce most of the effects (the 80/20 principle)?", options:["Pareto Analysis","Root Cause Analysis","SWOT Analysis","Opportunity-Cost Analysis"], correct:0 },
+  { text:"Which analytical framework evaluates a decision by considering the value of the next-best alternative you give up?", options:["Opportunity-Cost Analysis","SWOT Analysis","Pareto Analysis","Root Cause Analysis"], correct:0 },
+
+  // Cognitive biases
+  { text:"Which bias occurs when people rely too heavily on the first piece of information they receive?", options:["Anchoring Bias","Hindsight Bias","Framing Bias","Overconfidence Bias"], correct:0 },
+  { text:"Which bias is the tendency to seek out information that supports existing beliefs while ignoring contradicting evidence?", options:["Confirmation Bias","Anchoring Bias","Framing Bias","Hindsight Bias"], correct:0 },
+  { text:"Which bias describes the tendency to believe, after an outcome is known, that it was predictable all along?", options:["Hindsight Bias","Confirmation Bias","Overconfidence Bias","Anchoring Bias"], correct:0 },
+  { text:"Which bias occurs when the way information is presented (for example, as a gain versus a loss) changes the decision made?", options:["Framing Bias","Anchoring Bias","Hindsight Bias","Confirmation Bias"], correct:0 },
+  { text:"Which bias involves having more confidence in one's own judgement or abilities than is objectively justified?", options:["Overconfidence Bias","Framing Bias","Hindsight Bias","Anchoring Bias"], correct:0 },
+
+  // Logical fallacies
+  { text:"Which of the following is a logical fallacy rather than a cognitive bias?", options:["Anchoring Bias","Framing Bias","Sunk-Cost Fallacy","Overconfidence Bias"], correct:2 },
+  { text:"Which fallacy involves continuing with a course of action because of resources already invested, even though it is no longer beneficial?", options:["Sunk-Cost Fallacy","Authority Fallacy","Causal Fallacy","Framing Fallacy"], correct:0 },
+  { text:"Which fallacy involves accepting a claim as true simply because an authority figure said it?", options:["Authority Fallacy","Sunk-Cost Fallacy","Causal Fallacy","Confirmation Fallacy"], correct:0 },
+  { text:"Which fallacy involves wrongly assuming that because one event followed another, the first caused the second?", options:["Causal Fallacy","Authority Fallacy","Sunk-Cost Fallacy","Anchoring Fallacy"], correct:0 },
+
+  // Emotional intelligence (Goleman)
+  { text:"Which of the following is NOT one of the 5 components of emotional intelligence according to Daniel Goleman?", options:["Self-awareness","Empathy","Social Skills","Analytical Reasoning"], correct:3 },
+  { text:"Which component of emotional intelligence is the ability to recognise and understand other people's emotions?", options:["Empathy","Self-regulation","Social Skills","Self-awareness"], correct:0 },
+  { text:"Which component of emotional intelligence involves managing disruptive emotions and impulses?", options:["Self-regulation","Self-awareness","Empathy","Intrinsic motivation"], correct:0 },
+  { text:"Which component of emotional intelligence is a drive to achieve for inner reasons rather than for external rewards?", options:["Intrinsic motivation","Social Skills","Empathy","Self-regulation"], correct:0 },
+
+  // Tuckman
+  { text:"What is the correct order of Bruce Tuckman's stages of Group Development?", options:["Forming → Storming → Norming → Performing → Adjourning","Forming → Norming → Storming → Performing → Adjourning","Storming → Forming → Norming → Performing → Adjourning","Forming → Storming → Performing → Norming → Adjourning"], correct:0 },
+  { text:"Which stage of Tuckman's model is typically marked by disagreement, competition and conflict among team members?", options:["Storming","Forming","Norming","Performing"], correct:0 },
+  { text:"Which stage of Tuckman's model is when the team wraps up its work and disbands?", options:["Adjourning","Performing","Norming","Storming"], correct:0 },
+
+  // Conflict resolution
+  { text:"Which of the following is NOT one of the 5 main conflict resolution techniques?", options:["Collaboration","Compromise","Avoidance","Escalation"], correct:3 },
+  { text:"Which conflict resolution technique involves working together to find a win-win solution that fully satisfies both parties?", options:["Collaboration","Compromise","Avoidance","Competition"], correct:0 },
+  { text:"Which conflict resolution technique involves each party giving up something to reach a middle ground?", options:["Compromise","Collaboration","Accommodation","Competition"], correct:0 },
+  { text:"Which conflict resolution technique involves putting the other person's needs ahead of your own to keep the peace?", options:["Accommodation","Competition","Avoidance","Compromise"], correct:0 }
+];
+
+const M2_FRQ = [
+  { text:"What are the 3 commonly used discussion techniques?", answers:["Fishbowl Discussion","Socratic Questioning","Dialectical Reasoning"] },
+  { text:"What are the 3 \"Cs\" of cross cultural communication?", answers:["Curiosity","Clarity","Consideration"] },
+  { text:"What is the crisis framework CALM?", answers:["Communicate","Acknowledge","Listen","Manage"] },
+  { text:"What is the crisis framework STEADY?", answers:["Stabilize","Tell (Communicate)","Empathize","Address (Concerns)","Decide","Yield (Results)"] }
+];
+
+const M2_MCQ = [
+  // Discussion techniques
+  { text:"Which of the following is NOT one of the 3 commonly used discussion techniques?", options:["Fishbowl Discussion","Socratic Questioning","Dialectical Reasoning","Delphi Polling"], correct:3 },
+  { text:"Which discussion technique has a small inner group discussing while an outer group observes and later reflects?", options:["Fishbowl Discussion","Socratic Questioning","Dialectical Reasoning","Brainwriting"], correct:0 },
+  { text:"Which discussion technique uses probing, open-ended questions to stimulate critical thinking and expose assumptions?", options:["Socratic Questioning","Fishbowl Discussion","Dialectical Reasoning","Role Play"], correct:0 },
+  { text:"Which discussion technique tests opposing viewpoints against each other to reach a deeper, combined understanding?", options:["Dialectical Reasoning","Fishbowl Discussion","Socratic Questioning","Round-Robin Sharing"], correct:0 },
+
+  // 3 Cs of cross cultural communication
+  { text:"Which of the following is NOT one of the 3 \"Cs\" of cross cultural communication?", options:["Curiosity","Clarity","Consideration","Compliance"], correct:3 },
+  { text:"Which \"C\" of cross cultural communication involves asking open questions and showing genuine interest in other cultures?", options:["Curiosity","Clarity","Consideration","Confidence"], correct:0 },
+  { text:"Which \"C\" of cross cultural communication involves using simple, unambiguous language and avoiding idioms or slang?", options:["Clarity","Curiosity","Consideration","Conformity"], correct:0 },
+  { text:"Which \"C\" of cross cultural communication involves respecting other people's norms, values and feelings?", options:["Consideration","Clarity","Curiosity","Correction"], correct:0 },
+
+  // CALM
+  { text:"Which of the following correctly lists the steps of the crisis framework CALM?", options:["Communicate, Acknowledge, Listen, Manage","Control, Acknowledge, Listen, Mediate","Communicate, Assess, Learn, Manage","Clarify, Acknowledge, Listen, Motivate"], correct:0 },
+  { text:"In the crisis framework CALM, what does the letter \"A\" stand for?", options:["Acknowledge","Address","Assess","Adapt"], correct:0 },
+  { text:"Which of the following is NOT a step in the crisis framework CALM?", options:["Communicate","Listen","Manage","Decide"], correct:3 },
+
+  // STEADY
+  { text:"What is the correct order of the crisis framework STEADY?", options:["Stabilize → Tell → Empathize → Address → Decide → Yield","Stabilize → Empathize → Tell → Address → Decide → Yield","Tell → Stabilize → Empathize → Decide → Address → Yield","Stabilize → Tell → Address → Empathize → Yield → Decide"], correct:0 },
+  { text:"Which of the following is NOT a step in the crisis framework STEADY?", options:["Stabilize","Empathize","Decide","Acknowledge"], correct:3 },
+  { text:"In the crisis framework STEADY, what does the letter \"S\" stand for?", options:["Stabilize","Summarize","Strategize","Support"], correct:0 },
+  { text:"Which step comes immediately after \"Empathize\" in the crisis framework STEADY?", options:["Address (Concerns)","Decide","Stabilize","Yield (Results)"], correct:0 },
+  { text:"In the crisis framework STEADY, which step involves choosing a course of action?", options:["Decide","Tell (Communicate)","Stabilize","Yield (Results)"], correct:0 },
+  { text:"How many steps does the crisis framework STEADY have?", options:["6","4","5","7"], correct:0 }
+];
+
+const M3_FRQ = [
+  { text:"What are the 4 main aspects to creating a good presentation?", answers:["Audience Analysis","Storyboarding","Visual Appeal","Reduced Cognitive Overload"] },
+  { text:"What are the three main aspects for Non-Verbal Communication?", answers:["Body Language","Voice Modulation","Emotional Resonance"] },
+  { text:"What are Aristotle's three foundational modes of persuasion?", answers:["Ethos","Pathos","Logos"] }
+];
+
+const M3_MCQ = [
+  // Good presentations
+  { text:"Which of the following is NOT one of the 4 main aspects of creating a good presentation?", options:["Audience Analysis","Storyboarding","Visual Appeal","Increased Cognitive Load"], correct:3 },
+  { text:"Which aspect of a good presentation involves understanding your listeners' knowledge, needs and expectations before you begin?", options:["Audience Analysis","Storyboarding","Visual Appeal","Reduced Cognitive Overload"], correct:0 },
+  { text:"Which aspect of a good presentation involves planning the sequence and flow of slides before building them?", options:["Storyboarding","Audience Analysis","Visual Appeal","Reduced Cognitive Overload"], correct:0 },
+  { text:"Which aspect of a good presentation involves clean design, consistent layout and effective imagery?", options:["Visual Appeal","Storyboarding","Audience Analysis","Reduced Cognitive Overload"], correct:0 },
+  { text:"Which aspect of a good presentation involves limiting the amount of text and information per slide so the audience can process it?", options:["Reduced Cognitive Overload","Visual Appeal","Storyboarding","Audience Analysis"], correct:0 },
+
+  // Non-verbal communication
+  { text:"Which of the following is NOT one of the three main aspects of Non-Verbal Communication?", options:["Body Language","Voice Modulation","Emotional Resonance","Word Choice"], correct:3 },
+  { text:"Which aspect of Non-Verbal Communication includes posture, gestures, eye contact and facial expressions?", options:["Body Language","Voice Modulation","Emotional Resonance","Storyboarding"], correct:0 },
+  { text:"Which aspect of Non-Verbal Communication involves varying pitch, pace, volume and pauses?", options:["Voice Modulation","Body Language","Emotional Resonance","Audience Analysis"], correct:0 },
+  { text:"Which aspect of Non-Verbal Communication involves connecting with the audience's feelings through tone and expression?", options:["Emotional Resonance","Body Language","Voice Modulation","Visual Appeal"], correct:0 },
+
+  // Aristotle's modes of persuasion
+  { text:"Which of the following is NOT one of Aristotle's three foundational modes of persuasion?", options:["Ethos","Pathos","Logos","Mythos"], correct:3 },
+  { text:"Which of Aristotle's modes of persuasion appeals to the speaker's credibility and character?", options:["Ethos","Pathos","Logos","Kairos"], correct:0 },
+  { text:"Which of Aristotle's modes of persuasion appeals to the audience's emotions?", options:["Pathos","Ethos","Logos","Telos"], correct:0 },
+  { text:"Which of Aristotle's modes of persuasion appeals to logic, reasoning and evidence?", options:["Logos","Ethos","Pathos","Kairos"], correct:0 },
+  { text:"A presenter backs up their argument with statistics and a clear chain of reasoning. Which mode of persuasion is this?", options:["Logos","Pathos","Ethos","Kairos"], correct:0 }
+];
+
+const M4_FRQ = [
+  { text:"What are the two main types of interviewing methods?", answers:["Behavioural","Situational"] },
+  { text:"What methods can be employed to ace behavioural interviews?", answers:["STAR Method","SCORE Method"] },
+  { text:"What is the expansion of the STAR method?", answers:["Situation","Task","Action","Result"] },
+  { text:"What is the expansion of the SCORE method?", answers:["Situation","Complication","Outcome","Remedial Action","End Result"] }
+];
+
+const M4_MCQ = [
+  // Interview types
+  { text:"Which pair lists the two main types of interviewing methods?", options:["Behavioural and Situational","Behavioural and Technical","Situational and Panel","Structured and Stress"], correct:0 },
+  { text:"Which interviewing method asks about your past experiences to predict how you will behave in future?", options:["Behavioural","Situational","Panel","Stress"], correct:0 },
+  { text:"Which interviewing method asks how you would handle hypothetical scenarios?", options:["Situational","Behavioural","Group","Technical"], correct:0 },
+
+  // Methods for behavioural interviews
+  { text:"Which pair lists the methods that can be employed to ace behavioural interviews?", options:["STAR Method and SCORE Method","STAR Method and SWOT Method","SCORE Method and SMART Method","SMART Method and STEADY Method"], correct:0 },
+  { text:"Which method includes a step for a complication or problem that arose in the situation?", options:["SCORE Method","STAR Method","Situational Method","Pareto Method"], correct:0 },
+
+  // STAR
+  { text:"What does the STAR method stand for?", options:["Situation, Task, Action, Result","Situation, Target, Approach, Review","Scenario, Task, Action, Response","Strategy, Task, Analysis, Result"], correct:0 },
+  { text:"What is the correct order of the STAR method?", options:["Situation → Task → Action → Result","Task → Situation → Action → Result","Situation → Action → Task → Result","Situation → Task → Result → Action"], correct:0 },
+  { text:"In the STAR method, what does the letter \"T\" stand for?", options:["Task","Team","Timeline","Test"], correct:0 },
+  { text:"In the STAR method, which step describes the specific steps you personally took?", options:["Action","Situation","Task","Result"], correct:0 },
+  { text:"Which of the following is NOT a step in the STAR method?", options:["Situation","Task","Action","Complication"], correct:3 },
+
+  // SCORE
+  { text:"What does the SCORE method stand for?", options:["Situation, Complication, Outcome, Remedial Action, End Result","Situation, Challenge, Objective, Response, Evaluation","Scenario, Complication, Outcome, Recovery, End Result","Situation, Complication, Objective, Remedial Action, Evaluation"], correct:0 },
+  { text:"What is the correct order of the SCORE method?", options:["Situation → Complication → Outcome → Remedial Action → End Result","Situation → Outcome → Complication → Remedial Action → End Result","Situation → Complication → Remedial Action → Outcome → End Result","Complication → Situation → Outcome → Remedial Action → End Result"], correct:0 },
+  { text:"In the SCORE method, what does the letter \"C\" stand for?", options:["Complication","Conflict","Context","Challenge"], correct:0 },
+  { text:"In the SCORE method, which step describes the corrective steps taken to address the problem?", options:["Remedial Action","Outcome","End Result","Complication"], correct:0 },
+  { text:"Which of the following is NOT a step in the SCORE method?", options:["Situation","Outcome","End Result","Task"], correct:3 }
+];
+
+const M5_FRQ = [
+  { text:"What are two frameworks for goal setting?", answers:["OKR","SMART"] },
+  { text:"What is the expansion of SMART goal setting?", answers:["Specific","Measurable","Achievable","Relevant","Time-bound"] }
+];
+
+const M5_MCQ = [
+  // Frameworks
+  { text:"Which pair lists two frameworks for goal setting?", options:["OKR and SMART","OKR and STAR","SMART and SCORE","SMART and SWOT"], correct:0 },
+  { text:"Which of the following is a framework for goal setting?", options:["OKR","STAR","CALM","STEADY"], correct:0 },
+
+  // SMART
+  { text:"What does the SMART goal-setting framework stand for?", options:["Specific, Measurable, Achievable, Relevant, Time-bound","Specific, Meaningful, Achievable, Realistic, Timely","Simple, Measurable, Attainable, Relevant, Time-bound","Strategic, Measurable, Achievable, Relevant, Targeted"], correct:0 },
+  { text:"In SMART goals, what does the letter \"S\" stand for?", options:["Specific","Simple","Strategic","Sustainable"], correct:0 },
+  { text:"In SMART goals, what does the letter \"M\" stand for?", options:["Measurable","Meaningful","Motivating","Managed"], correct:0 },
+  { text:"In SMART goals, what does the letter \"A\" stand for?", options:["Achievable","Ambitious","Assigned","Approved"], correct:0 },
+  { text:"In SMART goals, what does the letter \"R\" stand for?", options:["Relevant","Realistic","Rewarding","Recorded"], correct:0 },
+  { text:"In SMART goals, what does the letter \"T\" stand for?", options:["Time-bound","Team-based","Tangible","Targeted"], correct:0 },
+  { text:"Which SMART criterion ensures a goal has a deadline?", options:["Time-bound","Specific","Relevant","Measurable"], correct:0 },
+  { text:"Which SMART criterion ensures progress can be tracked with numbers or clear indicators?", options:["Measurable","Achievable","Specific","Relevant"], correct:0 },
+  { text:"Which SMART criterion ensures a goal aligns with broader objectives?", options:["Relevant","Specific","Time-bound","Measurable"], correct:0 },
+  { text:"What is the correct order of the SMART framework?", options:["Specific → Measurable → Achievable → Relevant → Time-bound","Measurable → Specific → Achievable → Relevant → Time-bound","Specific → Achievable → Measurable → Relevant → Time-bound","Specific → Measurable → Relevant → Achievable → Time-bound"], correct:0 },
+  { text:"Which of the following is NOT part of the SMART framework?", options:["Specific","Measurable","Time-bound","Objective"], correct:3 }
+];
+
+const MODULES = {
+  m1: { name:"Module 1 - Techniques for Interpersonal Skills", frq:M1_FRQ, mcq:M1_MCQ },
+  m2: { name:"Module 2", frq:M2_FRQ, mcq:M2_MCQ },
+  m3: { name:"Module 3", frq:M3_FRQ, mcq:M3_MCQ },
+  m4: { name:"Module 4", frq:M4_FRQ, mcq:M4_MCQ },
+  m5: { name:"Module 5", frq:M5_FRQ, mcq:M5_MCQ }
+};
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleMCQOptions(q){
+  const tagged = q.options.map((opt, i) => ({ opt, isCorrect: i === q.correct }));
+  const shuffled = shuffle(tagged);
+  return { type:'mcq', text:q.text, options: shuffled.map(o => o.opt), correct: shuffled.findIndex(o => o.isCorrect) };
+}
+
+function buildFRQQuestions(mod){
+  return shuffle(MODULES[mod].frq);
+}
+
+function buildMCQQuestions(mod){
+  return shuffle(MODULES[mod].mcq.map(shuffleMCQOptions));
+}
+
+let mode = null;
+let currentModule = 'm1';
+const sessions = {};
+let questions = [];
+let state = [];
+let activeIdx = 0;
+
+const DOM = {
+  navBar: document.getElementById('navBar'),
+  qNum: document.getElementById('qNum'),
+  marksBadge: document.getElementById('marksBadge'),
+  qText: document.getElementById('qText'),
+  answerBox: document.getElementById('answerBox'),
+  checkBtn: document.getElementById('checkBtn'),
+  clearBtn: document.getElementById('clearBtn'),
+  resultBox: document.getElementById('resultBox'),
+  scoreNum: document.getElementById('scoreNum'),
+  resultRows: document.getElementById('resultRows'),
+  prevBtn: document.getElementById('prevBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  totalScore: document.getElementById('totalScore'),
+  totalMax: document.getElementById('totalMax'),
+  frqInputArea: document.getElementById('frqInputArea'),
+  mcqOptions: document.getElementById('mcqOptions'),
+  mcqFeedback: document.getElementById('mcqFeedback'),
+  startScreen: document.getElementById('startScreen'),
+  appScreen: document.getElementById('appScreen')
+};
+
+function sessionKey(){ return currentModule + '-' + mode; }
+
+function captureText(){
+  if (!mode || !questions.length) return;
+  const q = questions[activeIdx];
+  if (q && q.type !== 'mcq' && !state[activeIdx].checked){ state[activeIdx].text = DOM.answerBox.value; }
+}
+
+function saveSession(){
+  if (!mode) return;
+  sessions[sessionKey()] = { questions, state, activeIdx };
+}
+
+function freshSession(){
+  const qs = (mode === 'frq' ? buildFRQQuestions(currentModule) : buildMCQQuestions(currentModule))
+    .map(q => Object.assign({}, q, { maxMarks: q.type === 'mcq' ? 1 : q.answers.length }));
+  return {
+    questions: qs,
+    state: qs.map(() => ({ text:"", checked:false, score:0, selected: undefined, matches: null })),
+    activeIdx: 0
+  };
+}
+
+function loadSession(fresh){
+  const key = sessionKey();
+  if (fresh || !sessions[key]) sessions[key] = freshSession();
+  questions = sessions[key].questions;
+  state = sessions[key].state;
+  activeIdx = sessions[key].activeIdx;
+  DOM.startScreen.style.display = 'none';
+  DOM.appScreen.style.display = 'flex';
+  document.getElementById('subjectTitle').innerText = MODULES[currentModule].name;
+  document.getElementById('modeChip').innerText = mode === 'frq' ? 'Free Response' : 'Multiple Choice';
+  document.querySelectorAll('.module-tab').forEach(b => b.classList.toggle('active', b.dataset.mod === currentModule));
+  buildNav();
+  render();
+}
+
+function startQuiz(selectedMode){
+  mode = selectedMode;
+  loadSession(false);
+}
+
+function switchModule(mod){
+  if (mod === currentModule || !mode) return;
+  captureText();
+  saveSession();
+  currentModule = mod;
+  loadSession(false);
+}
+
+document.querySelectorAll('.mod-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentModule = btn.dataset.mod;
+    document.querySelectorAll('.mod-btn').forEach(b => b.classList.toggle('selected', b === btn));
+  });
+});
+document.querySelectorAll('.module-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchModule(btn.dataset.mod));
+});
+
+document.querySelectorAll('.mod-count').forEach(el => {
+  const m = MODULES[el.dataset.count];
+  if (m) el.textContent = m.frq.length + ' free response · ' + m.mcq.length + ' multiple choice';
+});
+
+document.getElementById('frqModeBtn').addEventListener('click', () => startQuiz('frq'));
+document.getElementById('mcqModeBtn').addEventListener('click', () => startQuiz('mcq'));
+document.getElementById('switchModeBtn').addEventListener('click', () => {
+  captureText();
+  saveSession();
+  document.querySelectorAll('.mod-btn').forEach(b => b.classList.toggle('selected', b.dataset.mod === currentModule));
+  DOM.appScreen.style.display = 'none';
+  DOM.startScreen.style.display = 'flex';
+});
+document.getElementById('restartBtn').addEventListener('click', () => {
+  if (confirm('Restart this module and mode with a fresh round? Your current progress here will be cleared.')) loadSession(true);
+});
+
+function normalize(s){
+  return s.toLowerCase().trim().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ');
+}
+
+function levenshtein(a, b){
+  const m = a.length, n = b.length;
+  if (m === 0) return n;
+  if (n === 0) return m;
+  const dp = Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for (let j=0;j<=n;j++) dp[0][j]=j;
+  for (let i=1;i<=m;i++){
+    for (let j=1;j<=n;j++){
+      const cost = a[i-1]===b[j-1] ? 0 : 1;
+      dp[i][j] = Math.min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+cost);
+    }
+  }
+  return dp[m][n];
+}
+
+function isFuzzyMatch(userText, expected){
+  const a = normalize(userText), b = normalize(expected);
+  if (!a) return false;
+  if (a === b) return true;
+  const threshold = Math.max(1, Math.floor(b.length * 0.25));
+  return levenshtein(a, b) <= threshold;
+}
+
+function buildNav(){
+  DOM.navBar.innerHTML = '';
+  questions.forEach((q, idx) => {
+    const b = document.createElement('div');
+    b.className = 'nav-bubble';
+    b.innerText = idx + 1;
+    b.addEventListener('click', () => { captureText(); activeIdx = idx; saveSession(); render(); });
+    DOM.navBar.appendChild(b);
+  });
+}
+
+function updateNav(){
+  const bubbles = DOM.navBar.querySelectorAll('.nav-bubble');
+  bubbles.forEach((b, idx) => {
+    b.classList.remove('active','answered');
+    if (idx === activeIdx) b.classList.add('active');
+    if (state[idx].checked) b.classList.add('answered');
+  });
+}
+
+function updateTotals(){
+  const scored = state.reduce((sum, s) => sum + s.score, 0);
+  const max = questions.reduce((sum, q) => sum + q.maxMarks, 0);
+  DOM.totalScore.innerText = scored;
+  DOM.totalMax.innerText = max;
+}
+
+function renderMCQOptions(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+  const letters = ['A','B','C','D','E','F'];
+
+  DOM.mcqOptions.innerHTML = '';
+  q.options.forEach((opt, idx) => {
+    const row = document.createElement('div');
+    row.className = 'mcq-option';
+    if (s.selected === idx) row.classList.add('selected');
+    if (s.checked){
+      row.classList.add('disabled');
+      if (idx === q.correct) row.classList.add('correct');
+      else if (idx === s.selected) row.classList.add('incorrect');
+    } else {
+      row.addEventListener('click', () => { s.selected = idx; renderMCQOptions(); });
+    }
+    row.innerHTML = '<span class="opt-letter">' + letters[idx] + '</span><span>' + opt + '</span>';
+    DOM.mcqOptions.appendChild(row);
+  });
+
+  if (s.checked){
+    const correct = s.selected === q.correct;
+    DOM.mcqFeedback.style.display = 'block';
+    DOM.mcqFeedback.className = 'mcq-feedback ' + (correct ? 'hit' : 'miss');
+    DOM.mcqFeedback.innerText = (correct ? 'Correct! ' : 'Incorrect — correct answer: ' + q.options[q.correct] + '. ') + '(' + s.score + '/1)';
+  } else {
+    DOM.mcqFeedback.style.display = 'none';
+  }
+}
+
+function render(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+
+  DOM.qNum.innerText = 'Question ' + (activeIdx + 1) + ' of ' + questions.length;
+  DOM.marksBadge.innerText = q.maxMarks + (q.maxMarks === 1 ? ' mark' : ' marks');
+  DOM.qText.innerText = q.text;
+
+  if (q.type === 'mcq'){
+    DOM.frqInputArea.style.display = 'none';
+    DOM.mcqOptions.style.display = 'flex';
+    DOM.checkBtn.innerText = 'Check Answer';
+    DOM.resultBox.style.display = 'none';
+    renderMCQOptions();
+  } else {
+    DOM.frqInputArea.style.display = 'block';
+    DOM.mcqOptions.style.display = 'none';
+    DOM.mcqFeedback.style.display = 'none';
+    DOM.checkBtn.innerText = 'Check Answer';
+    DOM.answerBox.value = s.text;
+    DOM.answerBox.placeholder = q.type === 'numeric' ? 'Type your numeric answer...' : 'Type each answer on its own line...';
+    document.getElementById('qHint').innerText = q.type === 'numeric'
+      ? 'Enter a single number as your answer.'
+      : 'Type one answer per line, in any order. Then check your answers.';
+
+    if (s.checked){
+      showResults(false);
+    } else {
+      DOM.resultBox.style.display = 'none';
+    }
+  }
+
+  DOM.prevBtn.disabled = (activeIdx === 0);
+  DOM.nextBtn.disabled = (activeIdx === questions.length - 1);
+
+  updateNav();
+  updateTotals();
+}
+
+function checkMCQAnswer(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+  if (s.selected === undefined || s.selected === null) return;
+  s.checked = true;
+  s.score = (s.selected === q.correct) ? 1 : 0;
+  renderMCQOptions();
+  updateNav();
+  updateTotals();
+}
+
+function checkAnswer(){
+  const q = questions[activeIdx];
+  if (q.type === 'mcq'){ checkMCQAnswer(); return; }
+
+  const s = state[activeIdx];
+  s.text = DOM.answerBox.value;
+
+  if (q.type === 'numeric'){
+    const raw = s.text.trim();
+    const userNum = parseInt(raw.replace(/[^\d-]/g, ''), 10);
+    const expectedNum = parseInt(q.answers[0], 10);
+    const correct = raw.length > 0 && !isNaN(userNum) && userNum === expectedNum;
+    s.score = correct ? 1 : 0;
+    s.checked = true;
+    s.matches = [correct ? raw : null];
+    showResults(true);
+    updateNav();
+    updateTotals();
+    return;
+  }
+
+  const lines = s.text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const usedLine = new Array(lines.length).fill(false);
+  const matches = q.answers.map(() => null);
+
+  const pairs = [];
+  q.answers.forEach((expected, qi) => {
+    const b = normalize(expected);
+    const threshold = Math.max(1, Math.floor(b.length * 0.25));
+    lines.forEach((line, li) => {
+      const dist = levenshtein(normalize(line), b);
+      if (dist <= threshold) pairs.push({ qi, li, dist });
+    });
+  });
+  pairs.sort((x, y) => x.dist - y.dist);
+  pairs.forEach(p => {
+    if (matches[p.qi] === null && !usedLine[p.li]){
+      matches[p.qi] = lines[p.li];
+      usedLine[p.li] = true;
+    }
+  });
+
+  s.score = matches.filter(m => m !== null).length;
+  s.checked = true;
+  s.matches = matches;
+
+  showResults(true);
+  updateNav();
+  updateTotals();
+}
+
+function showResults(){
+  const q = questions[activeIdx];
+  const s = state[activeIdx];
+
+  DOM.resultBox.style.display = 'flex';
+  DOM.scoreNum.innerText = s.score + ' / ' + q.answers.length;
+  DOM.resultRows.innerHTML = '';
+
+  q.answers.forEach((expected, i) => {
+    const matched = s.matches ? s.matches[i] : null;
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    const icon = document.createElement('div');
+    icon.className = 'result-icon ' + (matched ? 'hit' : 'miss');
+    icon.innerText = matched ? '✓' : '✕';
+    const text = document.createElement('div');
+    text.className = 'result-text';
+    text.innerHTML = '<div class="expected">' + expected + '</div>' +
+      (matched ? '<div class="matched">You wrote: "' + matched + '"</div>' : '<div class="matched">Not found in your answers</div>');
+    row.appendChild(icon);
+    row.appendChild(text);
+    DOM.resultRows.appendChild(row);
+  });
+}
+
+DOM.checkBtn.addEventListener('click', checkAnswer);
+DOM.clearBtn.addEventListener('click', () => {
+  const s = state[activeIdx];
+  s.text = ''; s.checked = false; s.score = 0; s.matches = null; s.selected = undefined;
+  render();
+});
+
+DOM.prevBtn.addEventListener('click', () => { if (activeIdx > 0){ captureText(); activeIdx--; saveSession(); render(); } });
+DOM.nextBtn.addEventListener('click', () => { if (activeIdx < questions.length - 1){ captureText(); activeIdx++; saveSession(); render(); } });
+
+document.addEventListener('keydown', (e) => {
+  if (document.activeElement === DOM.answerBox) return;
+  if (e.key === 'ArrowLeft'){ e.preventDefault(); DOM.prevBtn.click(); }
+  else if (e.key === 'ArrowRight'){ e.preventDefault(); DOM.nextBtn.click(); }
+});
+</script>
+</body>
+</html>

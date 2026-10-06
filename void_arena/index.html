@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover,maximum-scale=1">
 <title>VOID ARENA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&display=swap">
 <style>
@@ -161,6 +161,17 @@ kbd{font:clamp(11px,1.6vmin,14px)/1 var(--mono);padding:.3em .55em;border:1px so
 .lr i{font-style:normal;font-family:var(--mono);color:var(--mut)}.lr b{font-weight:600}.lr em{font:normal clamp(11px,1.6vmin,14px) var(--mono);color:var(--mut)}
 .lr.me{border-color:var(--amb);color:var(--amb)}.lr:nth-child(1) i{color:#ffd54a}.lr:nth-child(2) i{color:#d9e2ec}.lr:nth-child(3) i{color:#d08a4e}
 .lnote{color:var(--mut);text-align:center}
+#tc{display:none;position:absolute;inset:0;z-index:6;pointer-events:none;--pad:clamp(104px,34vmin,168px);--mg:max(16px,env(safe-area-inset-bottom,0px));--ml:max(16px,env(safe-area-inset-left,0px));--mr:max(16px,env(safe-area-inset-right,0px))}
+.touch.playing #tc{display:block}.touch #keys{display:none}#thint{display:none;font-size:clamp(12px,1.8vmin,15px);color:var(--mut);text-align:center;max-width:34em;line-height:1.4}.touch #thint{display:block}
+.pad{position:absolute;bottom:var(--mg);width:var(--pad);height:var(--pad);border-radius:50%;pointer-events:auto;touch-action:none;display:flex;align-items:center;justify-content:center;border:2px solid var(--ln);background:radial-gradient(circle,rgba(125,255,178,.12),rgba(6,16,12,.5));-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pad.on{filter:brightness(1.5)}#padL{left:var(--ml)}#padR{right:var(--mr);border-color:rgba(255,179,71,.5);background:radial-gradient(circle,rgba(255,179,71,.15),rgba(6,16,12,.5))}
+.knob{width:42%;height:42%;border-radius:50%;background:rgba(125,255,178,.35);border:2px solid var(--ph);pointer-events:none}#padR .knob{background:rgba(255,179,71,.35);border-color:var(--amb)}
+.pad i{position:absolute;bottom:9%;font:600 10px var(--ui);letter-spacing:.14em;color:var(--mut);pointer-events:none}
+#tbt{position:absolute;right:calc(var(--mr) + var(--pad) + 12px);bottom:var(--mg);display:grid;grid-template-columns:repeat(2,50px);gap:8px}
+.tb{pointer-events:auto;touch-action:none;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 10px/1 var(--ui);letter-spacing:.05em;color:var(--ph);border:1px solid var(--ln);background:var(--pn);-webkit-user-select:none;user-select:none}
+.tb.on{background:rgba(255,179,71,.3);color:var(--amb);border-color:var(--amb)}
+.touch #gunp{left:50%;right:auto;transform:translateX(-50%);bottom:var(--mg,16px);min-width:0;text-align:center;padding:.6vmin 1.4vmin}.touch #am{font-size:clamp(20px,4.6vmin,34px)}
+@media (orientation:portrait){.touch #tbt{right:var(--mr);bottom:calc(var(--mg) + var(--pad) + 14px)}.touch #gunp{left:var(--ml,16px);transform:none;bottom:calc(var(--mg,16px) + var(--pad,130px) + 14px);text-align:left}}
 </style>
 </head>
 <body>
@@ -177,9 +188,10 @@ kbd{font:clamp(11px,1.6vmin,14px)/1 var(--mono);padding:.3em .55em;border:1px so
  <div id="gunp" class="pn"><div id="gn"></div><div id="am"></div><div id="rl" class="rl"><i id="rlb"></i></div></div>
 </div>
 <div id="banner"></div><div id="toast"></div>
+<div id="tc"><div id="padL" class="pad"><div class="knob"></div><i>MOVE</i></div><div id="tbt"><div id="tDash" class="tb">DASH</div><div id="tRl" class="tb">RELOAD</div><div id="tAb" class="tb">ABILITY</div><div id="tSw" class="tb">SWAP</div></div><div id="padR" class="pad"><div class="knob"></div><i>FIRE</i></div></div>
 <div id="menu" class="ov">
  <div id="side"><div class="sh">SQUAD</div><div id="chars"></div><p id="cdesc"></p></div>
- <div id="ctr"><h1 id="title">VOID<br><span class="o">ARENA</span></h1><p id="msg">Hold the line against endless waves.</p><button id="go">PLAY</button><button id="ab" class="sm">ACHIEVEMENTS</button><button id="lb" class="sm">LEADERBOARD</button><div id="stat"></div><div id="acct"></div><div id="keys"><span><kbd>WASD</kbd> move</span><span><kbd>MOUSE</kbd> aim + fire</span><span><kbd>SHIFT</kbd> dash</span><span><kbd>R</kbd> reload</span></div></div>
+ <div id="ctr"><h1 id="title">VOID<br><span class="o">ARENA</span></h1><p id="msg">Hold the line against endless waves.</p><button id="go">PLAY</button><button id="ab" class="sm">ACHIEVEMENTS</button><button id="lb" class="sm">LEADERBOARD</button><div id="stat"></div><div id="acct"></div><div id="keys"><span><kbd>WASD</kbd> move</span><span><kbd>MOUSE</kbd> aim + fire</span><span><kbd>SHIFT</kbd> dash</span><span><kbd>R</kbd> reload</span></div><div id="thint"><b>LEFT PAD</b> move and turn &bull; <b>RIGHT PAD</b> hold to fire, drag to aim &bull; buttons for dash, reload and abilities</div></div>
  <div id="side2"><div class="sh">SKINS</div><div id="skins"></div><p id="sname"></p></div>
  <button id="ib" class="sm" title="How to play">i</button>
 </div>
@@ -201,16 +213,33 @@ const W=2400,H=2400;let vw=0,vh=0;
 function rs(){vw=cv.width=cv.clientWidth;vh=cv.height=cv.clientHeight}addEventListener('resize',rs);rs();
 let hi=0;try{hi=+localStorage.getItem('va-hi')||0}catch(e){}$('hi').textContent=hi;
 // audio
-let ac;function beep(f,d,t='square',v=.05,s=0){try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();
+let ac;function beep(f,d,t='square',v=.05,s=0){try{ac=ac||new AudioContext();if(ac.state==='suspended')ac.resume();const o=ac.createOscillator(),g=ac.createGain();
 o.type=t;o.frequency.setValueAtTime(f,ac.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(30,f+s),ac.currentTime+d);
 g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
 // input
 const K={};let mx=0,my=0,md=false;
+let TOUCH=false;const TC={l:{id:null,m:0,a:0},r:{id:null,m:0,a:0}};
+function setTouch(v){TOUCH=v;$('screen').classList.toggle('touch',v)}
+setTouch(matchMedia('(pointer:coarse)').matches);
+addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&!TOUCH)setTouch(true)},true);
+addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&TOUCH)setTouch(false)},true);
+addEventListener('contextmenu',e=>{if(TOUCH)e.preventDefault()});
+function stick(el,k){const s=TC[k],kn=el.firstElementChild;
+ const upd=e=>{const q=el.getBoundingClientRect(),R=q.width/2,dx=e.clientX-q.left-R,dy=e.clientY-q.top-R,d=Math.hypot(dx,dy),c=Math.min(d,R*.8);
+  s.m=Math.min(1,d/(R*.8));if(d>4)s.a=Math.atan2(dy,dx);kn.style.transform=d?'translate('+dx/d*c+'px,'+dy/d*c+'px)':''};
+ el.addEventListener('pointerdown',e=>{if(s.id!==null)return;s.id=e.pointerId;try{el.setPointerCapture(e.pointerId)}catch(x){}el.classList.add('on');upd(e);e.preventDefault()});
+ el.addEventListener('pointermove',e=>{if(e.pointerId===s.id)upd(e)});
+ const up=e=>{if(e.pointerId!==s.id)return;s.id=null;s.m=0;el.classList.remove('on');kn.style.transform=''};
+ ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,up))}
+stick($('padL'),'l');stick($('padR'),'r');
+function hold(id,fn){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();el.classList.add('on');fn(1)});['pointerup','pointercancel','pointerleave'].forEach(t=>el.addEventListener(t,()=>{el.classList.remove('on');fn(0)}))}
+hold('tDash',v=>K.ShiftLeft=v);hold('tRl',v=>K.KeyR=v);hold('tAb',v=>{if(v)place()});hold('tSw',v=>{if(v)swapGun()});
+function tbtn(){$('tAb').style.display=p.ch==='yu'||p.ch==='sa'?'':'none';$('tSw').style.display=p.ch==='ne'?'':'none'}
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;K[e.code]=1;if(e.code==='Space')e.preventDefault();if(e.code==='KeyQ')discard();if(e.code==='KeyE')place();if(e.code==='KeyF')swapGun()});addEventListener('keyup',e=>K[e.code]=0);
 cv.addEventListener('mousemove',e=>{mx=e.offsetX;my=e.offsetY});
 cv.addEventListener('mousedown',e=>{md=true;mx=e.offsetX;my=e.offsetY});addEventListener('mouseup',()=>md=false);
-cv.addEventListener('touchstart',e=>{const t=e.touches[0],r=cv.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;md=true;e.preventDefault()},{passive:false});
-cv.addEventListener('touchmove',e=>{const t=e.touches[0],r=cv.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;e.preventDefault()},{passive:false});
+cv.addEventListener('touchstart',e=>{if(TOUCH)return;const t=e.touches[0],r=cv.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;md=true;e.preventDefault()},{passive:false});
+cv.addEventListener('touchmove',e=>{if(TOUCH)return;const t=e.touches[0],r=cv.getBoundingClientRect();mx=t.clientX-r.left;my=t.clientY-r.top;e.preventDefault()},{passive:false});
 cv.addEventListener('touchend',()=>md=false);
 // state
 let S='menu',p,en,bl,eb,pa,pk,ob,fx=[],cam={x:0,y:0},shake=0,score=0,wave=0,toSpawn=0,spT=0,brk=0,t0=0,clr=0,SK={},sid=0;
@@ -228,7 +257,9 @@ m870:{n:'M870',c:'#ff6b6b',cd:.85,d:1.4,sp:.2,pel:7,v:680,lf:.45,w:3,mag:5,rl:2,
 b1301:{n:'B1301',c:'#6fa8ff',cd:.85/1.1,d:1.4*.9,sp:.2,pel:7,v:680,lf:.45,w:3,mag:5,rl:2,auto:0,pr:0,f:145,t:'sawtooth',k:6,wt:3.75,sg:1,ms:1,am:2},
 deagle:{n:'Desert Eagle',c:'#e6e6e6',cd:.38,d:3.2,sp:.015,pel:1,v:950,lf:.9,w:4,mag:8,rl:1.5,auto:0,pr:0,f:200,t:'square',k:4,wt:6,hg:1,ms:1},
 magnum:{n:'Magnum 50',c:'#ff4dd2',cd:.55,d:6,sp:.01,pel:1,v:1000,lf:1,w:4.5,mag:6,rl:2.5,auto:0,pr:1,f:110,t:'sawtooth',k:7,wt:3,hg:1,ms:.95,rv:1},
-mosin:{n:'Mosin-Nagant',c:'#c77dff',cd:1.05,d:9,sp:0,pel:1,v:1400,lf:1.1,w:3.5,mag:5,rl:2.6,auto:0,pr:3,f:90,t:'sawtooth',k:8,wt:3,ms:.92,sn:1}};
+mosin:{n:'Mosin-Nagant',c:'#c77dff',cd:1.05,d:9,sp:0,pel:1,v:1400,lf:1.1,w:3.5,mag:5,rl:2.6,auto:0,pr:3,f:90,t:'sawtooth',k:8,wt:3,ms:.92,sn:1},
+mac11:{n:'MAC-11',c:'#d4ff4d',cd:.048,d:.55,sp:.07,pel:1,v:720,lf:.6,w:2.2,mag:32,rl:1.4,auto:1,pr:0,f:620,t:'square',k:.45,wt:9,smg:1,ms:1.1,bk:.022,bm:.2},
+dtt:{n:'Dual TT-30',c:'#ffd166',cd:.15,d:1.4,sp:.03,pel:1,v:980,lf:.9,w:3.2,mag:16,rl:1.9,auto:1,pr:0,f:260,t:'square',k:1.8,wt:5,hg:1,dual:1,ms:1,bk:.012,bm:.1}};
 // achievements + persistent stats
 let ST={kills:{},arm:0,snp:0,multi:0,hand:0,clean:0,vr:0,un:{},maxw:0,bs:0,bar:0,loot:0,luck:0,swp:0,blk:0,vsn:0,tnk:0,elt:0,swm:0,med:0,dsh:0,prx:0,phz:0,cw:{},char:'vi',skin:'ph'};
 const ST0=JSON.stringify(ST);
@@ -331,10 +362,8 @@ function drawGunPk(k,t){const G=GUNS[k.g];if(k.l<5&&(t*8|0)%2)return;ctx.shadowC
  const y=k.y+Math.sin(t*4)*3;ctx.beginPath();ctx.rect(k.x-18,y-11,36,22);ctx.fill();ctx.stroke();
  ctx.fillStyle=G.c;ctx.fillRect(k.x-12,y-3,24,6);ctx.fillRect(k.x-4,y+2,6,8);ctx.font='18px monospace';ctx.textAlign='center';ctx.fillText(G.n,k.x,y-18)}
 function reset(){
- p={x:W/2,y:H/2,vx:0,vy:0,r:13,hp:100,cd:0,dash:0,dcd:0,rapid:0,spread:0,inv:0,a:0,g:'pistol',mag:99,res:0,rl:0,rel:true,bloom:0,ho:true,used:new Set(),hit:0,bc:0,bk:null,pc:0,dc:null,ph:false,pt:R(2,3),stuck:false,iw:false};p.ch=(CH.find(x=>x.id===ST.char)||CH[1]).id;p.mhp=CH.find(x=>x.id===p.ch).h;p.hp=p.mhp;
- en=[];bl=[];eb=[];pa=[];pk=[];fx=[];ob=genObs();score=0;wave=0;toSpawn=0;brk=1.5;clr=0;SK={};
- 
- hud();
+ p={x:W/2,y:H/2,vx:0,vy:0,r:13,hp:100,cd:0,dash:0,dcd:0,rapid:0,spread:0,inv:0,a:0,g:'pistol',mag:99,res:0,rl:0,rel:true,bloom:0,ho:true,used:new Set(),hit:0,bc:0,bk:null,pc:0,dc:null,ph:false,pt:R(2,3),stuck:false,iw:false,ds:0};p.ch=(CH.find(x=>x.id===ST.char)||CH[1]).id;p.mhp=CH.find(x=>x.id===p.ch).h;p.hp=p.mhp;
+ en=[];bl=[];eb=[];pa=[];pk=[];fx=[];ob=genObs();score=0;wave=0;toSpawn=0;brk=1.5;clr=0;SK={};tbtn();hud();
 }
 const hs={};function sx(id,v){const e=$(id);if(hs[id]!==v){hs[id]=v;e.innerHTML=v}}
 function hud(){const G=GUNS[p.g],pc=Math.max(0,p.hp/p.mhp);
@@ -361,7 +390,7 @@ function hitOb(x,y){for(const o of ob)if(x>o.x&&x<o.x+o.w&&y>o.y&&y<o.y+o.h)retu
 const ET={grunt:{r:12,hp:2,sp:115,c:'#ff4d5e',pts:10,dm:10},shooter:{r:13,hp:3,sp:75,c:'#c77dff',pts:25,dm:10},tank:{r:25,hp:12,sp:55,c:'#ffb347',pts:60,dm:20},
 armored:{r:18,hp:9,sp:62,c:'#9aa7b8',pts:40,dm:15,ar:.7},swarm:{r:8,hp:1,sp:185,c:'#ff8f5a',pts:5,dm:5},sniper:{r:12,hp:3,sp:70,c:'#4dffea',pts:45,dm:10}};
 function spPos(){const a=R(0,6.28),d=Math.max(vw,vh)*.6+60;return[Math.max(40,Math.min(W-40,p.x+Math.cos(a)*d)),Math.max(40,Math.min(H-40,p.y+Math.sin(a)*d))]}
-const POOL={shooter:w=>w<4?['glock','p90','thompson']:['glock','p90','thompson','m416','akm','deagle','m870'],armored:()=>['m416','akm','b1301','m249'],tank:()=>['m249','m870','akm'],sniper:()=>['mosin']};
+const POOL={shooter:w=>w<4?['glock','p90','thompson','mac11']:['glock','p90','thompson','mac11','dtt','m416','akm','deagle','m870'],armored:()=>['m416','akm','b1301','m249'],tank:()=>['m249','m870','akm'],sniper:()=>['mosin']};
 function mk(tp,x,y){const T=ET[tp],e={x,y,tp,...T,mhp:T.hp,cd:R(.5,1.5),fl:0,gc:R(.6,1.6)};
  if(POOL[tp])e.gn=POOL[tp](wave)[Math.random()*POOL[tp](wave).length|0];else if(tp==='grunt'&&wave>=2&&Math.random()<Math.min(.3,.08+wave*.03))e.gn='sawed';
  if(e.gn){const G=GUNS[e.gn];e.rg=Math.min(560,G.lf*G.v*.8)}
@@ -380,13 +409,13 @@ function spawnNext(){
 function shoot(){
  const G=GUNS[p.g],n=G.pel+(p.spread>0?2:0),ca=Math.cos(p.a),sa=Math.sin(p.a);
  if(!G.hg)p.ho=false;if(!p.used.has(p.g)){p.used.add(p.g);ST.vr=Math.max(ST.vr,p.used.size);ck()}
- const sd=++sid,ba=aimAssist(),dm=(p.ch==='vi'&&G.sg?1.1:1)*(p.ch==='pa'&&(G.rv||G.sn)?1.5:1);p.bloom=Math.min(p.bloom,G.bm||0);const sp=G.sp+p.bloom;
+ const sd=++sid,ba=aimAssist(),dm=(p.ch==='vi'&&G.sg?1.1:1)*(p.ch==='pa'&&(G.rv||G.sn)?1.5:1);p.bloom=Math.min(p.bloom,G.bm||0);const sp=G.sp+p.bloom,sd2=G.dual?((p.ds^=1)?9:-9):0,ox=-sa*sd2,oy=ca*sd2;
  for(let i=0;i<n;i++){let a=ba+R(-sp,sp);if(i>=G.pel)a=ba+(i===G.pel?-.2:.2);const v=G.v*R(.94,1.06);
-  bl.push({x:p.x+ca*18,y:p.y+sa*18,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:G.lf,d:G.d*dm,pr:G.pr,c:G.c,w:G.w,g:p.g,s:sd})}
+  bl.push({x:p.x+ca*18+ox,y:p.y+sa*18+oy,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:G.lf,d:G.d*dm,pr:G.pr,c:G.c,w:G.w,g:p.g,s:sd})}
  p.bloom=Math.min(G.bm||0,p.bloom+(G.bk||0));
  p.cd=G.cd*(p.rapid>0?.55:1)*(p.ch==='ov'&&G.smg?.8:1);if(p.g!=='pistol')p.mag--;
  beep(G.f*R(.9,1.1),.1,G.t,.04,-G.f*.5);shake=Math.max(shake,G.k);
- p.vx-=ca*G.k*4;p.vy-=sa*G.k*4;boom(p.x+ca*24,p.y+sa*24,G.c,3,130);
+ p.vx-=ca*G.k*4;p.vy-=sa*G.k*4;boom(p.x+ca*24+ox,p.y+sa*24+oy,G.c,3,130);
 }
 const BR=95;
 function genObs(){const TOL=14,GAP=64,out=[];
@@ -412,7 +441,7 @@ function explode(e){const x=e.x,y=e.y;fx.push({x,y,mr:BR,l:.4,m:.4});
 function hurt(d){if(p.inv>0)return;p.hp-=d;p.hit=1;p.inv=.5;shake=10;beep(110,.25,'sawtooth',.08,-60);boom(p.x,p.y,'#7dffb2',8);const hf=$('hurt');hf.classList.remove('on');void hf.offsetWidth;hf.classList.add('on')}
 function end(){S='over';sv();buildHome();if(score>hi){hi=score;try{localStorage.setItem('va-hi',hi)}catch(e){}$('hi').textContent=hi}
  $('title').innerHTML='SIGNAL<br><span class="o">LOST</span>';$('msg').innerHTML='You reached <b>wave '+wave+'</b> with <b>'+score+'</b> points.';
- $('go').textContent='RETRY';$('menu').style.display='flex';$('hud').style.display='none';boom(p.x,p.y,'#ff4d5e',50,350);beep(80,.9,'sawtooth',.1,-50);submitScore()}
+ $('go').textContent='RETRY';$('menu').style.display='flex';$('hud').style.display='none';$('screen').classList.remove('playing');boom(p.x,p.y,'#ff4d5e',50,350);beep(80,.9,'sawtooth',.1,-50);submitScore()}
 function onClear(){if(p.ho)ST.hand=Math.max(ST.hand,wave);if(wave>=5&&!p.hit)ST.clean=1;ck();sv()}
 function onKill(e){const g=e.lg;if(!g)return;const G=GUNS[g];ST.kills[g]=(ST.kills[g]||0)+1;
  if(e.tp==='armored'&&(g==='deagle'||g==='magnum'||g==='mosin'))ST.arm++;
@@ -433,7 +462,8 @@ function update(dt){
  // player
  let ix=(K.KeyD||K.ArrowRight?1:0)-(K.KeyA||K.ArrowLeft?1:0),iy=(K.KeyS||K.ArrowDown?1:0)-(K.KeyW||K.ArrowUp?1:0);
  const l=Math.hypot(ix,iy)||1;ix/=l;iy/=l;
- if((K.ShiftLeft||K.Space)&&p.dcd<=0&&!p.stuck&&(ix||iy)){p.dash=.14;p.dcd=.8;p.vx=ix*800;p.vy=iy*800;p.inv=.2;ST.dsh++;ck();beep(300,.15,'sine',.05,400)}
+ if(TOUCH&&TC.l.m>.15){const q=Math.min(1,(TC.l.m-.15)/.6);ix=Math.cos(TC.l.a)*q;iy=Math.sin(TC.l.a)*q}
+ if((K.ShiftLeft||K.Space)&&p.dcd<=0&&!p.stuck&&(ix||iy)){p.dash=.14;p.dcd=.8;{const dl=Math.hypot(ix,iy)||1;p.vx=ix/dl*800;p.vy=iy/dl*800}p.inv=.2;ST.dsh++;ck();beep(300,.15,'sine',.05,400)}
  p.dcd-=dt;p.inv-=dt;
  if(p.dash>0)p.dash-=dt;else{const ms=260*(GUNS[p.g].ms||1)*(p.ch==='sh'?.85:1);p.vx+=(ix*ms-p.vx)*Math.min(1,dt*10);p.vy+=(iy*ms-p.vy)*Math.min(1,dt*10)}
  if(p.stuck){p.vx=p.vy=0;p.dash=0}
@@ -446,6 +476,7 @@ function update(dt){
   if(p.ph){const iw=!!hitOb(p.x,p.y);if(iw&&!p.iw){ST.phz++;ck()}p.iw=iw}
   if(p.stuck){if(!hitOb(p.x,p.y))p.stuck=false;else{p.hp-=2*dt;p.hit=1}}}
  p.pc=Math.max(0,p.pc-dt);if(p.dc){p.dc.l-=dt;if(p.dc.l<=0||p.dc.hp<=0){boom(p.dc.x,p.dc.y,'#8ef0d0',16,220);beep(200,.2,'sawtooth',.05,-100);p.dc=null}}
+ if(TOUCH){let a=p.a;if(TC.r.id!==null&&TC.r.m>.15)a=TC.r.a;else if(TC.l.m>.15)a=TC.l.a;mx=p.x-cam.x+Math.cos(a)*220;my=p.y-cam.y+Math.sin(a)*220;md=TC.r.id!==null}
  p.a=Math.atan2(my+cam.y-p.y,mx+cam.x-p.x);
  p.cd-=dt;if(!md)p.rel=true;
  if(p.g!=='pistol'&&p.mag<=0&&p.rl<=0){if(p.res>0)startRl();else if(p.bk){const b=p.bk;p.g=b.g;p.mag=b.mag;p.res=b.res;p.bk=null;p.rl=0;beep(420,.1,'triangle',.05,200)}else{p.g='pistol';p.mag=99;beep(200,.2,'square',.05)}}
@@ -526,7 +557,7 @@ function draw(t){
   ctx.globalAlpha=.5;ctx.lineWidth=2;ctx.setLineDash([4,5]);ctx.beginPath();ctx.arc(0,0,26,-1.5708,-1.5708+6.2832*Math.max(0,d.l/d.m));ctx.stroke();ctx.setLineDash([]);
   ctx.globalAlpha=.9;ctx.shadowBlur=0;ctx.fillStyle='#8ef0d0';ctx.font='bold 15px monospace';ctx.textAlign='center';ctx.fillText('PRESENT',0,-36);ctx.restore()}
  if(S==='play'){const pal=p.ch==='ma'?(p.stuck?.85:p.ph?(p.pt<.7&&((t*20|0)%2)?.9:.38):(p.pt<.5&&((t*20|0)%2)?.6:1)):1;ctx.save();ctx.globalAlpha=pal;ctx.translate(p.x,p.y);ctx.rotate(p.a);const pc=skc(t);ctx.shadowColor=pc;ctx.strokeStyle=p.inv>0&&((t*30|0)%2)?'#fff':p.stuck&&((t*12|0)%2)?'#ff4d5e':pc;ctx.fillStyle=pc;ctx.lineWidth=3;
-  ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(-13,-13);ctx.lineTo(-7,0);ctx.lineTo(-13,13);ctx.closePath();ctx.fill();{const sk=SKN.find(x=>x.id===ST.skin);if(sk&&sk.pat){ctx.save();ctx.clip();skFx(ctx,sk.id,t);ctx.restore()}}ctx.stroke();ctx.restore();
+  ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(-13,-13);ctx.lineTo(-7,0);ctx.lineTo(-13,13);ctx.closePath();ctx.fill();{const sk=SKN.find(x=>x.id===ST.skin);if(sk&&sk.pat){ctx.save();ctx.clip();skFx(ctx,sk.id,t);ctx.restore()}}ctx.stroke();if(GUNS[p.g].dual){ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(8,-9);ctx.lineTo(24,-9);ctx.moveTo(8,9);ctx.lineTo(24,9);ctx.stroke()}ctx.restore();
   {const ea=Math.atan2(my+cam.y-p.y,mx+cam.x-p.x),k=Math.min(4,Math.hypot(mx+cam.x-p.x,my+cam.y-p.y)/20);ctx.shadowBlur=0;ctx.globalAlpha=pal;ctx.fillStyle='#000';ctx.beginPath();ctx.arc(p.x+Math.cos(ea)*k,p.y+Math.sin(ea)*k,3.4,0,6.28);ctx.fill();ctx.globalAlpha=1;
    if(p.stuck){ctx.fillStyle='#ff4d5e';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('STUCK',p.x,p.y-26)}}
   ctx.shadowBlur=0;ctx.strokeStyle='rgba(125,255,178,.25)';ctx.setLineDash([4,8]);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+Math.cos(p.a)*260,p.y+Math.sin(p.a)*260);ctx.stroke();ctx.setLineDash([])}
@@ -542,7 +573,7 @@ $('chars').onclick=e=>{const b=e.target.closest('[data-c]');if(b){ST.char=b.data
 $('skins').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;const k=SKN.find(x=>x.id===b.dataset.s);
  if(skOn(k)){ST.skin=k.id;sv();buildHome()}else if(k.only)buildHome('LOCKED: the '+k.n+' is for EMBS / SSN accounts. Sign in with your @ssn.edu.in email to unlock it.');else{const a=ACH.find(x=>x.id===k.req);buildHome('LOCKED: earn "'+a.n+'" to unlock the '+k.n+' skin.')}};
 $('ib').onclick=()=>{const C=CH.map(c=>'<b>'+c.d.split(':')[0]+'</b>'+c.d.slice(c.d.indexOf(':'))).join('<br>');
- $('ilist').innerHTML='<div class="sh">CONTROLS</div><b>WASD</b> move, <b>MOUSE</b> aim and hold to fire, <b>SHIFT / SPACE</b> dash, <b>R</b> reload, <b>Q</b> drop your gun, <b>E</b> place barricade (Yuva) or drop a proxy decoy (Sanjanaa), <b>F</b> swap to your backpack gun (Neha).'
+ $('ilist').innerHTML='<div class="sh">CONTROLS</div><b>WASD</b> move, <b>MOUSE</b> aim and hold to fire, <b>SHIFT / SPACE</b> dash, <b>R</b> reload, <b>Q</b> drop your gun, <b>E</b> place barricade (Yuva) or drop a proxy decoy (Sanjanaa), <b>F</b> swap to your backpack gun (Neha). <b>Touch:</b> left pad moves and turns you, right pad fires (drag it to aim), plus DASH, RELOAD and ability buttons.'
  +'<div class="sh">GUNS</div>Walk over a gun to equip it; pick up the same gun again for ammo. The M1911 is your free fallback. Enemies carry guns and drop them. Automatic guns lose accuracy as you hold fire.'
  +'<div class="sh">POWER-UPS</div><b>+</b> repair, <b>R</b> rapid fire, <b>S</b> spread shot.'
  +'<div class="sh">ENEMIES</div><b>Grunts</b> rush you, some with sawed-offs. <b>Shooters</b> strafe and shoot. <b>Swarms</b> are fast explosive balls: they blow up when killed or when they touch you, damaging everything nearby, other enemies included. Pop them at range and chain them into each other. <b>Armored</b> units blunt weak bullets, so use heavy hitters. <b>Snipers</b> flash a red laser before firing, so dodge. <b>Tanks</b> are slow and tough. <b>Elites</b> (thick outline) always drop their gun.'
@@ -551,15 +582,19 @@ $('ib').onclick=()=>{const C=CH.map(c=>'<b>'+c.d.split(':')[0]+'</b>'+c.d.slice(
 $('ix').onclick=()=>{$('info').style.display='none';$('menu').style.display='flex'};
 addEventListener('mousemove',e=>{if(S==='play')return;document.querySelectorAll('.eye').forEach(el=>{const r=el.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,d=Math.hypot(dx,dy)||1,k=Math.min(4.5,d/15);el.style.setProperty('--x',dx/d*k+'px');el.style.setProperty('--y',dy/d*k+'px')})});
 $('ab').onclick=showAch;$('ax').onclick=()=>{$('achp').style.display='none';$('menu').style.display='flex'};
-$('go').onclick=()=>{reset();S='play';$('menu').style.display='none';$('hud').style.display='block';mx=vw/2;my=vh/2;beep(440,.3,'triangle',.06,440)};
+$('go').onclick=()=>{reset();S='play';$('menu').style.display='none';$('hud').style.display='block';$('screen').classList.add('playing');mx=vw/2;my=vh/2;beep(440,.3,'triangle',.06,440)};
 
 // ===== accounts + leaderboard (Google Apps Script backend) =====
 const ACC_URL='https://script.google.com/macros/s/AKfycbwlodXEbZuSrNHm-B2891Jj0dhJSV6QAI4UHk_yxXLziN1reBPwVUvVsdXQmrtna2XH3g/exec',SC_URL='https://script.google.com/macros/s/AKfycbwmNK9w1uySSejT_4XbDbNlCfFsPl8E7tC1Xgnor3SQ_VRwV3ENsZdllHM0gXv6PDvyug/exec';
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function api0(url,body){const ac=new AbortController(),to=setTimeout(()=>ac.abort(),20000);
+async function api0(url,body){const ac=new AbortController(),to=setTimeout(()=>ac.abort(),45000);
  try{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),signal:ac.signal});const tx=await r.text();try{return JSON.parse(tx)}catch(x){return{ok:false,error:'Server sent a bad reply. The Apps Script probably is not deployed with the latest Code.gs yet.'}}}
  catch(e){return{ok:false,error:'Could not reach the server ('+(e&&e.name||'blocked')+'). Open the game from a normal browser tab, check your connection, and make sure the script is deployed for Anyone.'}}finally{clearTimeout(to)}}
-async function api(url,body){let r=await api0(url,body);if(!r.ok&&body.action!=='signup'&&/spreadsheet|timed out|service|unexpected|exception/i.test(r.error||'')){await new Promise(z=>setTimeout(z,800));r=await api0(url,body)}return r}
+const TRANSIENT=/Could not reach|bad reply|spreadsheet|timed out|service|unexpected|exception|lock|busy|try again|too many/i;
+async function api(url,body,onRetry){const tries=body.action==='signup'?1:3;let r;
+ for(let i=0;i<tries;i++){if(i){if(onRetry)onRetry(i);await new Promise(z=>setTimeout(z,600+700*i*i))}
+  r=await api0(url,body);if(r.ok||!TRANSIENT.test(r.error||''))return r}
+ return r}
 async function apiTry(urls,body){let r;for(const u of urls){r=await api(u,body);if(r.ok||!/Unknown action|Could not reach|bad reply/.test(r.error||''))return r}return r}
 const BAD_STRONG=['fuck','phuck','shit','bitch','nigg','fagg','whore','slut','pussy','dickhead','asshole','cocksuck','motherfu','bollock','twat','retard','hitler','kkk','cunt','porn','molest','blowjob','handjob','jizz','cumshot','pedophile','paedo','tranny'];
 const BAD_WEAK=['ass','arse','tit','cum','cock','dick','anus','rape','rapist','fag','coon','paki','spic','kike','chink','gook','tard','dyke','sex','sexy','nude','piss','wank','wanker','nazi','pedo','hoe','thot','dildo','penis','vagina','boob','fuk','fck','fvck','sht','btch','cnt','dck','nig'];
@@ -607,16 +642,20 @@ let amode='login';
 function setMode(m){amode=m;document.querySelectorAll('#atabs button').forEach(b=>b.classList.toggle('act',b.dataset.m===m));
  $('anm').style.display=m==='signup'?'':'none';$('asub').textContent=m==='signup'?'CREATE ACCOUNT':'SIGN IN';
  $('apw').placeholder=m==='signup'?'Password (8+ characters)':'Password';$('apw').autocomplete=m==='signup'?'new-password':'current-password';$('aerr').textContent=''}
-function showAuth(){hideAll();setMode('login');$('authp').style.display='flex';$('aem').focus()}
+function showAuth(){if(!warmed){warmed=true;fetch(ACC_URL).catch(()=>{})}hideAll();setMode('login');$('authp').style.display='flex';$('aem').focus()}
 $('atabs').onclick=e=>{const b=e.target.closest('[data-m]');if(b)setMode(b.dataset.m)};
 $('ax2').onclick=()=>{hideAll();$('menu').style.display='flex'};
-async function doAuth(){const b=$('asub'),er=$('aerr'),email=$('aem').value.trim(),pw=$('apw').value;
+let authBusy=false,warmed=false;
+async function doAuth(){if(authBusy)return;const b=$('asub'),er=$('aerr'),email=$('aem').value.trim(),pw=$('apw').value;
  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){er.textContent='Enter a valid email address.';return}
  if(amode==='signup'&&pw.length<8){er.textContent='Password must be at least 8 characters.';return}
  if(!pw){er.textContent='Enter your password.';return}
  if(amode==='signup'){const ne=nameCheck($('anm').value);if(ne){er.textContent=ne;return}}
- b.disabled=true;er.textContent=amode==='signup'?'Creating account...':'Signing in...';
- const r=await api(ACC_URL,{action:amode,email,password:pw,name:$('anm').value.trim()});b.disabled=false;
+ b.disabled=true;authBusy=true;er.textContent=amode==='signup'?'Creating account...':'Signing in...';
+ const msg=n=>{er.textContent='Server is slow, retrying ('+(n+1)+'/3)...'};let r;
+ try{r=await api(ACC_URL,{action:amode,email,password:pw,name:$('anm').value.trim()},msg);
+  if(!r.ok&&amode==='signup'&&/Could not reach|bad reply/.test(r.error||'')){er.textContent='Checking whether the account was created...';const r2=await api(ACC_URL,{action:'login',email,password:pw},msg);if(r2.ok)r=r2}}
+ finally{b.disabled=false;authBusy=false}
  if(!r.ok){er.textContent=r.error||'Something went wrong.';return}
  SESS={token:r.token,name:r.name,email};try{localStorage.setItem('va-sess',JSON.stringify(SESS))}catch(e){}
  mergeSt(r.state);$('apw').value='';sv();hideAll();$('menu').style.display='flex';buildHome('Signed in as '+r.name+'.'+(isEmbs()?' EMBS Jumpsuit skin unlocked!':''))}

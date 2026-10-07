@@ -183,8 +183,6 @@ canvas,#tc{touch-action:none}#screen{overscroll-behavior:none;-webkit-tap-highli
 #hud{padding-left:max(2.6vmin,14px,env(safe-area-inset-left,0px));padding-right:max(2.6vmin,14px,env(safe-area-inset-right,0px))}
 #tbt{right:var(--mr);bottom:calc(var(--mg) + var(--pad) + 12px);grid-template-columns:repeat(2,auto)}
 .tb{width:clamp(46px,13vmin,58px);height:clamp(46px,13vmin,58px)}
-#tShoot{display:none;position:absolute;pointer-events:auto;touch-action:none;align-items:center;justify-content:center;right:calc(var(--mr) + var(--pad) + 10px);bottom:calc(var(--mg) + var(--pad)*.1);width:calc(var(--pad)*.64);height:calc(var(--pad)*.64);border-radius:50%;font:700 clamp(11px,1.9vmin,15px) var(--ui);letter-spacing:.12em;color:var(--amb);border:2px solid var(--amb);background:radial-gradient(circle,rgba(255,179,71,.3),rgba(6,16,12,.55));-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.semi #tShoot{display:flex}#tShoot.on{filter:brightness(1.6);transform:scale(.94)}
 @media (max-width:720px){#ctr{order:-1}}
 @media (max-width:720px) and (orientation:landscape){#menu{flex-direction:row;gap:1.4vmin}#ctr{order:0}
  #side,#side2{width:clamp(150px,27vw,230px);align-self:center;border:1px solid var(--ln);padding:1.2vmin}#skins{grid-template-columns:repeat(5,1fr)}}
@@ -206,7 +204,7 @@ canvas,#tc{touch-action:none}#screen{overscroll-behavior:none;-webkit-tap-highli
  <div id="gunp" class="pn"><div id="gn"></div><div id="am"></div><div id="rl" class="rl"><i id="rlb"></i></div></div>
 </div>
 <div id="banner"></div><div id="toast"></div>
-<div id="tc"><div id="padL" class="pad"><div class="knob"></div><i>MOVE</i></div><div id="tbt"><div id="tDash" class="tb">DASH</div><div id="tRl" class="tb">RELOAD</div><div id="tAb" class="tb">ABILITY</div><div id="tSw" class="tb">SWAP</div></div><div id="tShoot">SHOOT</div><div id="padR" class="pad"><div class="knob"></div><i id="padRl">FIRE</i></div></div>
+<div id="tc"><div id="padL" class="pad"><div class="knob"></div><i>MOVE</i></div><div id="tbt"><div id="tDash" class="tb">DASH</div><div id="tRl" class="tb">RELOAD</div><div id="tAb" class="tb">ABILITY</div><div id="tSw" class="tb">SWAP</div></div><div id="padR" class="pad"><div class="knob"></div><i id="padRl">FIRE</i></div></div>
 <div id="menu" class="ov">
  <div id="side"><div class="sh">SQUAD</div><div id="chars"></div><p id="cdesc"></p></div>
  <div id="ctr"><h1 id="title">VOID<br><span class="o">ARENA</span></h1><p id="msg">Hold the line against endless waves.</p><button id="go">PLAY</button><div class="br"><button id="ab" class="sm">ACHIEVEMENTS</button><button id="lb" class="sm">LEADERBOARD</button></div><button id="ib" class="sm">HOW TO PLAY</button><div id="stat"></div></div>
@@ -227,7 +225,7 @@ canvas,#tc{touch-action:none}#screen{overscroll-behavior:none;-webkit-tap-highli
 <script>
 (()=>{
 const cv=document.getElementById('c'),ctx=cv.getContext('2d'),$=id=>document.getElementById(id);
-const W=2400,H=2400;let vw=0,vh=0;
+const W=2400,H=2400;let vw=0,vh=0,Z=1;
 function rs(){vw=cv.width=cv.clientWidth;vh=cv.height=cv.clientHeight}addEventListener('resize',rs);rs();
 let hi=0;try{hi=+localStorage.getItem('va-hi')||0}catch(e){}$('hi').textContent=hi;
 // audio
@@ -235,9 +233,9 @@ let ac;function beep(f,d,t='square',v=.05,s=0){try{ac=ac||new AudioContext();if(
 o.type=t;o.frequency.setValueAtTime(f,ac.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(30,f+s),ac.currentTime+d);
 g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
 // input
-const K={};let mx=0,my=0,md=false,ta=0,aimSet=false,TSH=0,TSHeld=false,lastSemi=null;
+const K={};let mx=0,my=0,md=false,ta=0,aimSet=false,TSH=0,wasAim=false,lastSemi=null;
 let TOUCH=false;const TC={l:{id:null,m:0,a:0},r:{id:null,m:0,a:0}};
-function setTouch(v){TOUCH=v;$('screen').classList.toggle('touch',v)}
+function setTouch(v){TOUCH=v;Z=v?.6:1;$('screen').classList.toggle('touch',v)}
 setTouch(matchMedia('(pointer:coarse)').matches);
 addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&!TOUCH)setTouch(true)},true);
 addEventListener('pointermove',e=>{if(e.pointerType==='mouse'&&TOUCH)setTouch(false)},true);
@@ -252,8 +250,6 @@ function stick(el,k){const s=TC[k],kn=el.firstElementChild;
 stick($('padL'),'l');stick($('padR'),'r');
 function hold(id,fn){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();el.classList.add('on');fn(1)});['pointerup','pointercancel','pointerleave'].forEach(t=>el.addEventListener(t,()=>{el.classList.remove('on');fn(0)}))}
 hold('tDash',v=>K.ShiftLeft=v);hold('tRl',v=>K.KeyR=v);hold('tAb',v=>{if(v)place()});hold('tSw',v=>{if(v)swapGun()});
-{const el=$('tShoot');el.addEventListener('pointerdown',e=>{e.preventDefault();TSH=1;TSHeld=true;el.classList.add('on');try{navigator.vibrate&&navigator.vibrate(12)}catch(x){}});
- ['pointerup','pointercancel','pointerleave'].forEach(t=>el.addEventListener(t,()=>{TSHeld=false;el.classList.remove('on')}))}
 function tbtn(){$('tAb').style.display=p.ch==='yu'||p.ch==='sa'?'':'none';$('tSw').style.display=p.ch==='ne'?'':'none'}
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;K[e.code]=1;if(e.code==='Space')e.preventDefault();if(e.code==='KeyQ')discard();if(e.code==='KeyE')place();if(e.code==='KeyF')swapGun()});addEventListener('keyup',e=>K[e.code]=0);
 cv.addEventListener('mousemove',e=>{mx=e.offsetX;my=e.offsetY});
@@ -386,7 +382,7 @@ function startRl(){p.rl=GUNS[p.g].rl;beep(250,.15,'sawtooth',.04,100)}
 function drawGunPk(k,t){const G=GUNS[k.g];if(k.l<5&&(t*8|0)%2)return;ctx.shadowColor=G.c;ctx.strokeStyle=G.c;ctx.fillStyle='rgba(0,0,0,.7)';ctx.lineWidth=2;
  const y=k.y+Math.sin(t*4)*3;ctx.beginPath();ctx.rect(k.x-18,y-11,36,22);ctx.fill();ctx.stroke();
  ctx.fillStyle=G.c;ctx.fillRect(k.x-12,y-3,24,6);ctx.fillRect(k.x-4,y+2,6,8);ctx.font='18px monospace';ctx.textAlign='center';ctx.fillText(G.n,k.x,y-18)}
-function reset(){ta=0;aimSet=false;TSH=0;
+function reset(){ta=0;aimSet=false;TSH=0;wasAim=false;
  p={x:W/2,y:H/2,vx:0,vy:0,r:13,hp:100,cd:0,dash:0,dcd:0,rapid:0,spread:0,inv:0,a:0,g:'pistol',mag:99,res:0,rl:0,rel:true,bloom:0,ho:true,used:new Set(),hit:0,bc:0,bk:null,pc:0,dc:null,ph:false,pt:R(2,3),stuck:false,iw:false,ds:0,bq:0};p.ch=(CH.find(x=>x.id===ST.char)||CH[1]).id;p.mhp=CH.find(x=>x.id===p.ch).h;p.hp=p.mhp;
  en=[];bl=[];eb=[];pa=[];pk=[];fx=[];ob=genObs();score=0;wave=0;toSpawn=0;brk=1.5;clr=0;SK={};tbtn();hud();
 }
@@ -414,7 +410,7 @@ function push(e,o){const cx=Math.max(o.x,Math.min(e.x,o.x+o.w)),cy=Math.max(o.y,
 function hitOb(x,y){for(const o of ob)if(x>o.x&&x<o.x+o.w&&y>o.y&&y<o.y+o.h)return o;return false}
 const ET={grunt:{r:12,hp:2,sp:115,c:'#ff4d5e',pts:10,dm:10},shooter:{r:13,hp:3,sp:75,c:'#c77dff',pts:25,dm:10},tank:{r:25,hp:12,sp:55,c:'#ffb347',pts:60,dm:20},
 armored:{r:18,hp:9,sp:62,c:'#9aa7b8',pts:40,dm:15,ar:.7},swarm:{r:8,hp:1,sp:185,c:'#ff8f5a',pts:5,dm:5},sniper:{r:12,hp:3,sp:70,c:'#4dffea',pts:45,dm:10}};
-function spPos(){const a=R(0,6.28),d=Math.max(vw,vh)*.6+60;return[Math.max(40,Math.min(W-40,p.x+Math.cos(a)*d)),Math.max(40,Math.min(H-40,p.y+Math.sin(a)*d))]}
+function spPos(){const a=R(0,6.28),d=Math.max(vw,vh)/Z*.6+60;return[Math.max(40,Math.min(W-40,p.x+Math.cos(a)*d)),Math.max(40,Math.min(H-40,p.y+Math.sin(a)*d))]}
 const POOL={shooter:w=>w<4?['glock','p90','thompson','mac11','ump45']:['glock','p90','thompson','mac11','ump45','dtt','m416','akm','deagle','m870','famas','aug'],armored:()=>['m416','akm','b1301','m249','mcx','scar'],tank:()=>['m249','m870','akm'],sniper:()=>['mosin']};
 function mk(tp,x,y){const T=ET[tp],e={x,y,tp,...T,mhp:T.hp,cd:R(.5,1.5),fl:0,gc:R(.6,1.6)};
  if(POOL[tp])e.gn=POOL[tp](wave)[Math.random()*POOL[tp](wave).length|0];else if(tp==='grunt'&&wave>=2&&Math.random()<Math.min(.3,.08+wave*.03))e.gn='sawed';
@@ -501,11 +497,12 @@ function update(dt){
   if(p.ph){const iw=!!hitOb(p.x,p.y);if(iw&&!p.iw){ST.phz++;ck()}p.iw=iw}
   if(p.stuck){if(!hitOb(p.x,p.y))p.stuck=false;else{p.hp-=2*dt;p.hit=1}}}
  p.pc=Math.max(0,p.pc-dt);if(p.dc){p.dc.l-=dt;if(p.dc.l<=0||p.dc.hp<=0){boom(p.dc.x,p.dc.y,'#8ef0d0',16,220);beep(200,.2,'sawtooth',.05,-100);p.dc=null}}
- if(TOUCH){const semi=!GUNS[p.g].auto;if(semi!==lastSemi){lastSemi=semi;$('tc').classList.toggle('semi',semi);$('padRl').textContent=semi?'AIM + LOCK':'FIRE'}
+ if(TOUCH){const semi=!GUNS[p.g].auto;if(semi!==lastSemi){lastSemi=semi;$('tc').classList.toggle('semi',semi);$('padRl').textContent=semi?'RELEASE = FIRE':'FIRE'}
   let a=ta;if(TC.r.id!==null&&TC.r.m>.15){a=TC.r.a;aimSet=true}else if((!semi||!aimSet)&&TC.l.m>.15)a=TC.l.a;
-  ta=a;mx=p.x-cam.x+Math.cos(a)*220;my=p.y-cam.y+Math.sin(a)*220;
-  md=semi?TSH>0:TC.r.id!==null;if(!TSHeld)TSH=0}
- p.a=Math.atan2(my+cam.y-p.y,mx+cam.x-p.x);
+  const aiming=TC.r.id!==null&&TC.r.m>.15;if(semi&&wasAim&&!aiming)TSH=.45;wasAim=aiming;if(!semi)TSH=0;
+  ta=a;mx=(p.x-cam.x+Math.cos(a)*260)*Z;my=(p.y-cam.y+Math.sin(a)*260)*Z;
+  md=semi?TSH>0:TC.r.id!==null;TSH=Math.max(0,TSH-dt)}
+ p.a=Math.atan2(my/Z+cam.y-p.y,mx/Z+cam.x-p.x);
  p.cd-=dt;if(!md)p.rel=true;
  if(p.g!=='pistol'&&p.mag<=0&&p.rl<=0){if(p.res>0)startRl();else if(p.bk){const b=p.bk;p.g=b.g;p.mag=b.mag;p.res=b.res;p.bk=null;p.rl=0;beep(420,.1,'triangle',.05,200)}else{p.g='pistol';p.mag=99;beep(200,.2,'square',.05)}}
  const G=GUNS[p.g];
@@ -529,7 +526,7 @@ function update(dt){
  for(const e of en){
   const T=p.dc||p,dx=T.x-e.x,dy=T.y-e.y,d=Math.hypot(dx,dy)||1;e.fl-=dt;
   let m=1;if(e.tp==='shooter'){m=d>320?1:d<220?-1:0;e.st=(e.st||0)-dt;if(e.st<=0){e.st=R(1,2.2);e.sd=Math.random()<.5?-1:1}}
-  else if(e.tp==='sniper'){const so=Math.min(520,Math.min(vw,vh)*.45);m=d>so?1:d<so-110?-1:0;const inr=d<so+140;if(inr)e.cd-=dt;e.tel=inr&&e.cd<.7;
+  else if(e.tp==='sniper'){const so=Math.min(520,Math.min(vw,vh)/Z*.45);m=d>so?1:d<so-110?-1:0;const inr=d<so+140;if(inr)e.cd-=dt;e.tel=inr&&e.cd<.7;
    if(inr&&e.cd<=0){e.cd=2.6;eb.push({x:e.x,y:e.y,vx:dx/d*600,vy:dy/d*600,l:1.6,d:18,big:1});beep(700,.12,'square',.05,-500)}}
   if(e.gn&&e.tp!=='sniper'){e.gc-=dt;if(e.gc<=0&&d<e.rg)efire(e,GUNS[e.gn],dx,dy,d)}
   const sv=e.tp==='shooter'&&e.sd?e.sd*e.sp*.8:0;e.x+=(dx/d*m*e.sp-dy/d*sv)*dt;e.y+=(dy/d*m*e.sp+dx/d*sv)*dt;
@@ -548,13 +545,13 @@ function update(dt){
  shake*=.88;hud();if(p.hp<=0)end();
 }
 function draw(t){
- cam.x+=(p.x-vw/2-cam.x)*.12;cam.y+=(p.y-vh/2-cam.y)*.12;
- cam.x=Math.max(-40,Math.min(W-vw+40,cam.x));cam.y=Math.max(-40,Math.min(H-vh+40,cam.y));
+ cam.x+=(p.x-vw/Z/2-cam.x)*.12;cam.y+=(p.y-vh/Z/2-cam.y)*.12;
+ cam.x=Math.max(-40,Math.min(W-vw/Z+40,cam.x));cam.y=Math.max(-40,Math.min(H-vh/Z+40,cam.y));
  ctx.fillStyle='#04100b';ctx.fillRect(0,0,vw,vh);
- ctx.save();ctx.translate(-cam.x+R(-shake,shake),-cam.y+R(-shake,shake));
+ ctx.save();ctx.scale(Z,Z);ctx.translate(-cam.x+R(-shake,shake),-cam.y+R(-shake,shake));
  ctx.strokeStyle='rgba(125,255,178,.09)';ctx.lineWidth=1;ctx.beginPath();
- for(let x=Math.floor(cam.x/80)*80;x<cam.x+vw+80;x+=80){ctx.moveTo(x,cam.y-80);ctx.lineTo(x,cam.y+vh+80)}
- for(let y=Math.floor(cam.y/80)*80;y<cam.y+vh+80;y+=80){ctx.moveTo(cam.x-80,y);ctx.lineTo(cam.x+vw+80,y)}ctx.stroke();
+ for(let x=Math.floor(cam.x/80)*80;x<cam.x+vw/Z+80;x+=80){ctx.moveTo(x,cam.y-80);ctx.lineTo(x,cam.y+vh/Z+80)}
+ for(let y=Math.floor(cam.y/80)*80;y<cam.y+vh/Z+80;y+=80){ctx.moveTo(cam.x-80,y);ctx.lineTo(cam.x+vw/Z+80,y)}ctx.stroke();
  ctx.strokeStyle='#ff4d5e';ctx.lineWidth=4;ctx.shadowColor='#ff4d5e';ctx.shadowBlur=14;ctx.strokeRect(0,0,W,H);
  ctx.shadowColor='#7dffb2';ctx.strokeStyle='#7dffb2';ctx.lineWidth=2;
  for(const o of ob){ctx.strokeStyle=o.tmp?'#4de2ff':'#7dffb2';ctx.fillStyle=o.tmp?'#0a2f3a':'#07261a';ctx.fillRect(o.x,o.y,o.w,o.h);ctx.strokeRect(o.x,o.y,o.w,o.h);if(o.w>16&&o.h>16){ctx.save();ctx.globalAlpha=.22;ctx.shadowBlur=0;ctx.strokeRect(o.x+6,o.y+6,o.w-12,o.h-12);ctx.restore()}}
@@ -587,7 +584,7 @@ function draw(t){
   ctx.globalAlpha=.9;ctx.shadowBlur=0;ctx.fillStyle='#8ef0d0';ctx.font='bold 15px monospace';ctx.textAlign='center';ctx.fillText('PRESENT',0,-36);ctx.restore()}
  if(S==='play'){const pal=p.ch==='ma'?(p.stuck?.85:p.ph?(p.pt<.7&&((t*20|0)%2)?.9:.38):(p.pt<.5&&((t*20|0)%2)?.6:1)):1;ctx.save();ctx.globalAlpha=pal;ctx.translate(p.x,p.y);ctx.rotate(p.a);const pc=skc(t);ctx.shadowColor=pc;ctx.strokeStyle=p.inv>0&&((t*30|0)%2)?'#fff':p.stuck&&((t*12|0)%2)?'#ff4d5e':pc;ctx.fillStyle=pc;ctx.lineWidth=3;
   ctx.beginPath();ctx.moveTo(20,0);ctx.lineTo(-13,-13);ctx.lineTo(-7,0);ctx.lineTo(-13,13);ctx.closePath();ctx.fill();{const sk=SKN.find(x=>x.id===ST.skin);if(sk&&sk.pat){ctx.save();ctx.clip();skFx(ctx,sk.id,t);ctx.restore()}}ctx.stroke();if(GUNS[p.g].dual){ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(8,-9);ctx.lineTo(24,-9);ctx.moveTo(8,9);ctx.lineTo(24,9);ctx.stroke()}ctx.restore();
-  {const ea=Math.atan2(my+cam.y-p.y,mx+cam.x-p.x),k=Math.min(4,Math.hypot(mx+cam.x-p.x,my+cam.y-p.y)/20);ctx.shadowBlur=0;ctx.globalAlpha=pal;ctx.fillStyle='#000';ctx.beginPath();ctx.arc(p.x+Math.cos(ea)*k,p.y+Math.sin(ea)*k,3.4,0,6.28);ctx.fill();ctx.globalAlpha=1;
+  {const ea=Math.atan2(my/Z+cam.y-p.y,mx/Z+cam.x-p.x),k=Math.min(4,Math.hypot(mx/Z+cam.x-p.x,my/Z+cam.y-p.y)/20);ctx.shadowBlur=0;ctx.globalAlpha=pal;ctx.fillStyle='#000';ctx.beginPath();ctx.arc(p.x+Math.cos(ea)*k,p.y+Math.sin(ea)*k,3.4,0,6.28);ctx.fill();ctx.globalAlpha=1;
    if(p.stuck){ctx.fillStyle='#ff4d5e';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('STUCK',p.x,p.y-26)}}
   ctx.shadowBlur=0;ctx.strokeStyle='rgba(125,255,178,.25)';ctx.setLineDash([4,8]);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+Math.cos(p.a)*260,p.y+Math.sin(p.a)*260);ctx.stroke();ctx.setLineDash([])}
  ctx.restore();
@@ -602,7 +599,7 @@ $('chars').onclick=e=>{const b=e.target.closest('[data-c]');if(b){ST.char=b.data
 $('skins').onclick=e=>{const b=e.target.closest('[data-s]');if(!b)return;const k=SKN.find(x=>x.id===b.dataset.s);
  if(skOn(k)){ST.skin=k.id;sv();buildHome()}else if(k.only)buildHome('LOCKED: the '+k.n+' is for EMBS / SSN accounts. Sign in with your @ssn.edu.in email to unlock it.');else{const a=ACH.find(x=>x.id===k.req);buildHome('LOCKED: earn "'+a.n+'" to unlock the '+k.n+' skin.')}};
 $('ib').onclick=()=>{const C=CH.map(c=>'<b>'+c.d.split(':')[0]+'</b>'+c.d.slice(c.d.indexOf(':'))).join('<br>');
- $('ilist').innerHTML='<div class="sh">CONTROLS</div><b>WASD</b> move, <b>MOUSE</b> aim and hold to fire, <b>SHIFT / SPACE</b> dash, <b>R</b> reload, <b>Q</b> drop your gun, <b>E</b> place barricade (Yuva) or drop a proxy decoy (Sanjanaa), <b>F</b> swap to your backpack gun (Neha). <b>Touch:</b> left pad moves and turns you, right pad holds to fire and drags to aim, plus DASH, RELOAD and ability buttons. <b>Single-shot guns</b> (shotguns, Desert Eagle, Magnum, Mosin) switch the right pad to aim-only: drag to rotate, let go and your aim stays locked, then tap the big <b>SHOOT</b> button. Burst and automatic guns keep hold-to-fire.'
+ $('ilist').innerHTML='<div class="sh">CONTROLS</div><b>WASD</b> move, <b>MOUSE</b> aim and hold to fire, <b>SHIFT / SPACE</b> dash, <b>R</b> reload, <b>Q</b> drop your gun, <b>E</b> place barricade (Yuva) or drop a proxy decoy (Sanjanaa), <b>F</b> swap to your backpack gun (Neha). <b>Touch:</b> left pad moves and turns you, right pad holds to fire and drags to aim, plus DASH, RELOAD and ability buttons. <b>Single-shot guns</b> (shotguns, Desert Eagle, Magnum, Mosin) switch the right pad to aim-and-release: drag to rotate, then let go: the shot fires the instant you release and your aim stays locked on that direction. Burst and automatic guns keep hold-to-fire.'
  +'<div class="sh">GUNS</div>Walk over a gun to equip it; pick up the same gun again for ammo. The M1911 is your free fallback. Enemies carry guns and drop them. Automatic guns lose accuracy as you hold fire. Burst guns (FAMAS, UMP45, MCX Spear) fire 3 rounds per trigger pull, and the MCX Spear is the hardest-hitting, most accurate and pierces enemies; the SCAR-H is a slow, hard-hitting automatic DMR.'
  +'<div class="sh">POWER-UPS</div><b>+</b> repair, <b>R</b> rapid fire, <b>S</b> spread shot.'
  +'<div class="sh">ENEMIES</div><b>Grunts</b> rush you, some with sawed-offs. <b>Shooters</b> strafe and shoot. <b>Swarms</b> are fast explosive balls: they blow up when killed or when they touch you, damaging everything nearby, other enemies included. Pop them at range and chain them into each other. <b>Armored</b> units blunt weak bullets, so use heavy hitters. <b>Snipers</b> flash a red laser before firing, so dodge. <b>Tanks</b> are slow and tough. <b>Elites</b> (thick outline) always drop their gun.'

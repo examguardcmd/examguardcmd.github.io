@@ -351,7 +351,7 @@ const ACH=[
 {id:'prx',n:'Present, Sir!',d:'Drop 25 proxies (Sanjanaa).',m:25,pr:()=>ST.prx},
 {id:'phz',n:'Noclip Enthusiast',d:'Phase into walls 40 times (Manjeet).',m:40,pr:()=>ST.phz},
 {id:'ann',n:'Annihilator',d:'Defeat 2000 enemies in total.',m:2000,pr:()=>Object.values(ST.kills).reduce((a,b)=>a+b,0)},
-{id:'drg',n:'Dragonslayer',d:'Defeat a Void Dragon (first one arrives on Wave 15).',m:1,pr:()=>ST.drg}];
+{id:'drg',n:'Dragonslayer',d:'Defeat a Void Dragon (first one arrives on Wave 10).',m:1,pr:()=>ST.drg}];
 const CH=[{id:'ov',n:'OVIYA',e:'#ff7ad9',h:75,d:'Oviya: 75 HP, but SMGs fire 25% faster.'},
 {id:'vi',n:'VISHWA',e:'#ff6b6b',h:100,d:'Vishwa: shotguns deal 10% extra damage.'},
 {id:'vs',n:'VISHAL',e:'#6fa8ff',h:125,d:'Vishal: 125 HP and the Marksman perk deals 5x damage to snipers.'},
@@ -360,7 +360,7 @@ const CH=[{id:'ov',n:'OVIYA',e:'#ff7ad9',h:75,d:'Oviya: 75 HP, but SMGs fire 25%
 {id:'yu',n:'YUVA',e:'#ff9f43',h:100,d:'Yuva: press E to place barricades that block enemies and bullets.'},
 {id:'sh',n:'SHRUTHI',e:'#ffe14d',h:100,d:'Shruthi: moves slower, has aim assist, and lucky shots that auto-aim.'},
 {id:'sa',n:'SANJANAA',e:'#8ef0d0',h:90,d:'Sanjanaa: 90 HP. Never in class, so a friend marks her present. Press E to drop a Proxy decoy that soaks up bullets and pulls enemy aggro for 5s (12s cooldown).'},
-{id:'an',n:'ANISH',e:'#b6ff3d',h:100,d:'Anish: Pet Finder. Slay a dragon and he finds either Dragon Scales (+50 armor, burned through before his HP, and shotguns do half damage to it) or a Dragon Egg that hatches after one round into a mini dragon that shoots enemies.'},
+{id:'an',n:'ANISH',e:'#b6ff3d',h:100,d:'Anish: Pet Finder. Slay a dragon and he always finds a Dragon Egg that hatches after one round into a baby dragon that shoots enemies. If he already has a baby dragon he finds Dragon Scales instead (+50 armor, burned through before his HP, and shotguns do half damage to it).'},
 {id:'ma',n:'MANJEET',e:'#b8c0ff',h:100,d:'Manjeet: walks through walls, but the power flickers. He turns translucent while phased. If it cuts out while he is inside a wall, he is stuck and takes 2 damage per second until it comes back.'}];
 const SKN=[{id:'ph',n:'Phosphor',c:'#7dffb2'},{id:'am',n:'Amber',c:'#ffb347',req:'rain'},{id:'cy',n:'Cyan',c:'#4de2ff',req:'smg'},{id:'mg',n:'Magenta',c:'#ff4dd2',req:'hand'},
 {id:'cr',n:'Crimson',c:'#ff4d5e',req:'snp'},{id:'gd',n:'Gold',c:'#ffe14d',req:'surv'},{id:'vi',n:'Violet',c:'#c77dff',req:'arch'},{id:'ic',n:'Ice',c:'#e8f4ff',req:'loot'},
@@ -511,7 +511,7 @@ function place(){if(S==='play'&&p.ch==='sa')return proxy();if(S!=='play'||p.ch!=
 function discard(){if(S==='play'&&p.g!=='pistol'){if(p.bk){const b=p.bk;p.g=b.g;p.mag=b.mag;p.res=b.res;p.bk=null;p.rl=0}else{p.g='pistol';p.mag=99;p.res=0;p.rl=0}beep(220,.15,'square',.05,-80)}}
 
 // ===== VOID DRAGON (boss, every 5th wave) =====
-const isDW=w=>w===100||(w>=15&&w%10===5);
+const isDW=w=>w===100||w===10||(w>=15&&w%10===5);
 function spawnDragon(){const sup=wave===100,n=sup?10:((wave-5)/10|0),[x,y]=spPos(),hp=sup?6000:500+170*(n-1),a=Math.atan2(p.y-y,p.x-x),r=sup?42:32,gap=26*r/32;
  const e={x,y,tp:'dragon',r,hp,mhp:hp,sp:0,c:'#7dffb2',pts:sup?20000:500+n*250,dm:sup?45:25,sup,mul:sup?1.5:1,fd:sup?22:14,gap,fl:0,a,st:'intro',stt:1.8,atk:0,wt:1,vc:0,lk:0,ca:a,rage:sup?1:0,rg:sup?1:0,orb:Math.random()<.5?1:-1,n,segs:[]};
  for(let i=0;i<(sup?20:14);i++)e.segs.push({x:x-Math.cos(a)*(i+1)*gap,y:y-Math.sin(a)*(i+1)*gap,r:Math.max(9,e.r*(.82-i*(sup?.03:.045)))});
@@ -551,12 +551,16 @@ function dragonAI(e,dt){
  let px=e.x,py=e.y;for(const s of e.segs){const sx=px-s.x,sy=py-s.y,sd=Math.hypot(sx,sy)||1,k=sd-e.gap;if(k>0){s.x+=sx/sd*k;s.y+=sy/sd*k}px=s.x;py=s.y}
  if(Math.hypot(p.x-e.x,p.y-e.y)<e.r+p.r)hurt(e.dm);else for(const s of e.segs)if(Math.hypot(p.x-s.x,p.y-s.y)<s.r+p.r){hurt(15);break}
 }
+const DT_S=['mosin','magnum','scar','mcx','akm','m249'],DT_B=['famas','aug','ump45','thompson','p90','dtt','m870','mac11','deagle'];
 function dragonDie(e){
- let msg='';if(p.ch==='an'){if(!p.pet&&!p.egg&&Math.random()<.5){p.egg={w:wave};msg='DRAGON EGG FOUND'}else{p.ar=Math.min(100,p.ar+50);msg='DRAGON SCALES +50 ARMOR'}}
+ let msg='';if(p.ch==='an'){if(!p.pet&&!p.egg){p.egg={w:wave};msg='DRAGON EGG FOUND'}else{p.ar=Math.min(100,p.ar+50);msg='DRAGON SCALES +50 ARMOR'}}
  [e,...e.segs].forEach((s,i)=>{setTimeout(()=>{if(S!=='play'&&S!=='over')return;boom(s.x,s.y,i%2?'#7dffb2':'#b6ff3d',22,340);fx.push({x:s.x,y:s.y,mr:i?90:170,l:.55,m:.55});beep(70+i*8,.25,'sawtooth',.08,-30)},i*70)});
  shake=Math.max(shake,22);beep(50,1.2,'sawtooth',.14,-20);eb=eb.filter(b=>!b.fb);ST.drg++;
- for(let i=0;i<2;i++){pk.push({x:e.x+R(-60,60),y:e.y+R(-60,60),k:'h',l:25});pk.push({x:e.x+R(-60,60),y:e.y+R(-60,60),k:'g',g:pickGun(true),l:30})}
- pk.push({x:e.x,y:e.y,k:Math.random()<.5?'r':'s',l:25});banner('DRAGON SLAIN'+(msg?' // '+msg:''));ck()}
+ const dp=()=>({x:Math.max(30,Math.min(W-30,e.x+R(-120,120))),y:Math.max(30,Math.min(H-30,e.y+R(-120,120)))}),
+  nh=3+(Math.random()*3|0),ng=2+(Math.random()*4|0),tier=ng<=3?DT_S:DT_B;
+ for(let i=0;i<nh;i++)pk.push({...dp(),k:'h',l:35});
+ for(let i=0;i<ng;i++)pk.push({...dp(),k:'g',g:tier[Math.random()*tier.length|0],l:35});
+ pk.push({...dp(),k:Math.random()<.5?'r':'s',l:35});banner('DRAGON SLAIN'+(msg?' // '+msg:''));ck()}
 function drawDragon(e,t){
  const rg=e.rage,c=e.fl>0?'#fff':rg?'#b6ff3d':'#7dffb2',c2=rg?'#f4ffd0':'#c9ffe0',S=e.segs,n=S.length,hl=rg?'#a3ff3d':'#4dff9a',sc=e.r/32,k=Math.min(1,Math.max(.4,sc));
  ctx.save();ctx.lineJoin='round';ctx.lineCap='round';ctx.shadowColor=hl;ctx.shadowBlur=16;
@@ -642,7 +646,7 @@ function update(dt){
   else if(md&&p.cd<=0&&(G.auto||p.rel)){shoot();p.rel=false}}
  if(p.pet)petAI(dt);p.bloom=Math.max(0,p.bloom-dt*.3);p.bc=Math.max(0,p.bc-dt);ob=ob.filter(o=>!o.tmp||(o.l-=dt)>0);p.rapid=Math.max(0,p.rapid-dt);p.spread=Math.max(0,p.spread-dt);
  // waves
- if(toSpawn<=0&&!en.length){if(wave>0&&!clr){clr=1;onClear()}brk-=dt;if(brk<=0){wave++;clr=0;p.hit=0;ST.maxw=Math.max(ST.maxw,wave);ST.cw[p.ch]=Math.max(ST.cw[p.ch]||0,wave);ck();toSpawn=4+wave*3;const bw=isDW(wave);if(bw){toSpawn=Math.round(toSpawn*.4);spawnDragon()}spT=0;brk=3;banner(bw?'WAVE '+wave+(wave===100?' // ELDER VOID DRAGON':' // VOID DRAGON'):'WAVE '+wave);crate();if(bw)crate();beep(220,.4,'triangle',.06,220)}}
+ if(toSpawn<=0&&!en.length){if(wave>0&&!clr){clr=1;onClear()}brk-=dt;if(brk<=0){wave++;clr=0;p.hit=0;ST.maxw=Math.max(ST.maxw,wave);ST.cw[p.ch]=Math.max(ST.cw[p.ch]||0,wave);ck();toSpawn=4+wave*3;const bw=isDW(wave);if(bw){toSpawn=Math.round(toSpawn*.4);spawnDragon()}spT=0;brk=3;banner(bw?'WAVE '+wave+(wave===100?' // ELDER VOID DRAGON':' // VOID DRAGON'):wave===7?'WAVE 7 // SUPPLY DROP':'WAVE '+wave);crate();if(bw)crate();if(wave===7)for(let i=0,n=0;i<10&&n<200;n++){const x=Math.max(30,Math.min(W-30,p.x+R(-380,380))),y=Math.max(30,Math.min(H-30,p.y+R(-380,380)));if(hitOb(x,y))continue;pk.push({x,y,k:'h',l:45});i++}beep(220,.4,'triangle',.06,220)}}
  if(toSpawn>0){spT-=dt;if(spT<=0){spT=Math.max(.25,1-wave*.06);spawnNext()}}
  // bullets
  for(const b of bl){b.x+=b.vx*dt;b.y+=b.vy*dt;b.l-=dt;if(hitOb(b.x,b.y)){b.l=0;boom(b.x,b.y,'#4de2ff',3,80)}
@@ -735,7 +739,7 @@ $('ib').onclick=()=>{const C=CH.map(c=>'<b>'+c.d.split(':')[0]+'</b>'+c.d.slice(
  $('ilist').innerHTML='<div class="sh">CONTROLS</div><b>WASD</b> move, <b>MOUSE</b> aim and hold to fire, <b>SHIFT / SPACE</b> dash, <b>R</b> reload, <b>Q</b> drop your gun, <b>E</b> place barricade (Yuva) or drop a proxy decoy (Sanjanaa), <b>F</b> swap to your backpack gun (Neha). <b>Touch:</b> left pad moves and turns you, right pad holds to fire and drags to aim, plus DASH, RELOAD and ability buttons. <b>Single-shot guns</b> (shotguns, Desert Eagle, Magnum, Mosin) switch the right pad to aim-and-release: drag to rotate, then let go: the shot fires the instant you release and your aim stays locked on that direction. Burst and automatic guns keep hold-to-fire.'
  +'<div class="sh">GUNS</div>Walk over a gun to equip it; pick up the same gun again for ammo. The M1911 is your free fallback. Enemies carry guns and drop them. Automatic guns lose accuracy as you hold fire. Burst guns (FAMAS, UMP45, MCX Spear) fire 3 rounds per trigger pull, and the MCX Spear is the hardest-hitting, most accurate and pierces enemies; the SCAR-H is a slow, hard-hitting automatic DMR.'
  +'<div class="sh">POWER-UPS</div><b>+</b> repair, <b>R</b> rapid fire, <b>S</b> spread shot.'
- +'<div class="sh">ENEMIES</div><b>Grunts</b> rush you, some with sawed-offs. <b>Shooters</b> strafe and shoot. <b>Swarms</b> are fast explosive balls: they blow up when killed or when they touch you, damaging everything nearby, other enemies included. Pop them at range and chain them into each other. <b>Armored</b> units blunt weak bullets, so use heavy hitters. <b>Snipers</b> flash a red laser before firing, so dodge. <b>Tanks</b> are slow and tough. <b>Elites</b> (thick outline) always drop their gun. <b>Void Dragons</b> descend on Wave 15, 25, 35 and so on. Wave 100 brings the Elder Void Dragon, a far bigger and deadlier beast. Shoot the head for bonus damage, dodge the red charge line, stay out of the flame cone, and watch for fireball volleys. It gets faster and angrier below half health.'
+ +'<div class="sh">ENEMIES</div><b>Grunts</b> rush you, some with sawed-offs. <b>Shooters</b> strafe and shoot. <b>Swarms</b> are fast explosive balls: they blow up when killed or when they touch you, damaging everything nearby, other enemies included. Pop them at range and chain them into each other. <b>Armored</b> units blunt weak bullets, so use heavy hitters. <b>Snipers</b> flash a red laser before firing, so dodge. <b>Tanks</b> are slow and tough. <b>Elites</b> (thick outline) always drop their gun. <b>Void Dragons</b> descend on Wave 10, 15, 25, 35 and so on. Wave 7 is a supply drop with lots of repair packs, so stock up. Wave 100 brings the Elder Void Dragon, a far bigger and deadlier beast. Shoot the head for bonus damage, dodge the red charge line, stay out of the flame cone, and watch for fireball volleys. It gets faster and angrier below half health.'
  +'<div class="sh">SQUAD</div>'+C+'<div class="sh">ACHIEVEMENTS</div>Complete challenges to earn achievements. Many unlock new skins for your character.';
  $('menu').style.display='none';$('info').style.display='flex'};
 $('ix').onclick=()=>{$('info').style.display='none';$('menu').style.display='flex'};

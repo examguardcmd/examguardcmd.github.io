@@ -149,6 +149,7 @@ footer p{margin:0;line-height:1.7}
 .project-image{display:block;width:100%;height:100%;object-fit:cover}
 .thumb.portrait,.thumb.landscape{aspect-ratio:16/9;background:#f4f6fa}
 .thumb .project-image{object-fit:cover}
+.thumb .no-thumb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#eef1f6;color:#8a93a3;font-size:15px;font-weight:600;letter-spacing:.02em}
 .shot .fr{background:#f4f6fa}
 .shot .project-image{object-fit:cover}
 .shot:not(.wide){width:220px}.shot:not(.wide) .fr{aspect-ratio:9/16}
@@ -297,6 +298,7 @@ function customThumbnail(p){
   return null;
 }
 function imageTag(p,i=1,cls="project-image",alt=""){
+  if(p.nopreview)return `<div class="no-thumb" role="img" aria-label="No Preview">No Preview</div>`;
   const d=imageData(p,i);if(!d)return "";
   const src=`${d.base}_${String(i).padStart(2,"0")}.jpg`;
   const fallbacks=IMAGE_EXTS.map(e=>`${d.base}_${String(i).padStart(2,"0")}.${e}`);

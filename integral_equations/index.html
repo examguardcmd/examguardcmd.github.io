@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MHS | Integral Equations, Unit 1</title>
+<style>:root{--bg:#fff;--bg2:#f5f8fe;--ink:#18223a;--mut:#5c6781;--line:#e3e9f4;--acc:#1557d0;--acc2:#e9f1fd;--acc3:#c8dcf8;--on:#fff;--ok:#0e9f6e;--ok2:#e2f6ee;--bad:#d23c35;--bad2:#fdecea;--warn:#a9610c;--warn2:#fff2d9;--vio:#7c3aed;--hd:rgba(255,255,255,.88);--glow:0 10px 36px rgba(59,130,246,.13),0 1px 3px rgba(21,87,208,.07);--grid:rgba(21,87,208,.055);--fx:.55;--btn:0 6px 18px rgba(21,87,208,.25);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1322;--bg2:#121b30;--ink:#e8edf8;--mut:#9aa8c3;--line:#23304d;--acc:#6aa2ff;--acc2:#16264a;--acc3:#2a4a82;--on:#0a1020;--ok:#3fd6a0;--ok2:#12291f;--bad:#ff8c84;--bad2:#2c1818;--warn:#fbbf24;--warn2:#2b2210;--vio:#a78bfa;--hd:rgba(13,19,34,.88);--glow:0 10px 36px rgba(0,0,0,.35);--grid:rgba(106,162,255,.07);--fx:.3;--btn:none}}
+:root[data-theme="dark"]{--bg:#0d1322;--bg2:#121b30;--ink:#e8edf8;--mut:#9aa8c3;--line:#23304d;--acc:#6aa2ff;--acc2:#16264a;--acc3:#2a4a82;--on:#0a1020;--ok:#3fd6a0;--ok2:#12291f;--bad:#ff8c84;--bad2:#2c1818;--warn:#fbbf24;--warn2:#2b2210;--vio:#a78bfa;--hd:rgba(13,19,34,.88);--glow:0 10px 36px rgba(0,0,0,.35);--grid:rgba(106,162,255,.07);--fx:.3;--btn:none}
+html{scroll-padding-top:calc(80px + env(safe-area-inset-top,0px))}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.65 Outfit,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:60}
+a{color:var(--acc)}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0;letter-spacing:-.015em}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:6px}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:96px 96px}
+.fm{position:absolute;white-space:nowrap;opacity:var(--fx);font-size:1.45rem}
+.fm.big{font-size:2.6rem;opacity:var(--fx)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;height:64px;background:var(--hd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:22px;padding:0 28px}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--acc)}
+.logo b{font-weight:800;font-size:1.7rem;letter-spacing:-.01em;line-height:1}
+.logo small{font-size:.92rem;color:var(--mut);font-weight:500;border-left:1px solid var(--line);padding-left:14px;margin-left:6px}
+.sp{flex:1}
+.tn{display:flex;gap:30px;height:100%}
+.tn a{display:flex;align-items:center;height:100%;padding-top:2px;font-size:.82rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);text-decoration:none;border-bottom:2px solid transparent}
+.tn a:hover{color:var(--ink)}.tn a.on{color:var(--acc);border-bottom-color:var(--acc)}
+.pp{font-size:.85rem;font-weight:500;background:var(--acc2);color:var(--acc);border-radius:99px;padding:5px 14px;white-space:nowrap}
+.ib{background:transparent;border:0;color:var(--mut);width:38px;height:38px;border-radius:10px;display:grid;place-items:center;cursor:pointer;padding:0}
+.ib:hover{background:var(--acc2);color:var(--acc)}.menu{display:none}
+.shell{display:grid;grid-template-columns:292px minmax(0,1fr);align-items:start;position:relative;z-index:1}
+#nav{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));max-height:calc(100vh - 64px - env(safe-area-inset-top,0px));overflow-y:auto;background:var(--hd);border-right:1px solid var(--line);padding:18px 14px 28px;min-height:calc(100vh - 64px)}
+.nv{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;color:var(--ink);text-decoration:none;font-size:.95rem;font-weight:500;line-height:1.3}
+.nv:hover{background:var(--acc2)}.nv.on{background:var(--acc2);color:var(--acc);font-weight:600}
+.nv .st{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--mut);background:var(--bg);border:1px solid var(--line);flex:none}
+.nv .st .ic{width:13px;height:13px}
+.nv.dn .st{background:var(--ok);border-color:var(--ok);color:var(--on)}
+.nv.on .st{border-color:var(--acc);color:var(--acc)}.nv.dn.on .st{color:var(--on)}
+.nv.lock{opacity:.55}
+.mg{margin:10px 0}.mg summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 12px;font-weight:600;font-size:.95rem;color:var(--ink);border-bottom:0;margin:0}
+.mg summary::-webkit-details-marker{display:none}
+.mt{font-size:.95rem}
+.mp{font-size:.75rem;font-weight:500;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:1px 9px;color:var(--mut)}
+.mg .nv{margin-left:8px}
+.mg{border:0;padding:0;background:none;border-radius:0}
+.content{max-width:1020px;width:100%;margin:0 auto;padding:36px 32px 100px}
+.pw{max-width:760px;margin:0 auto}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.88rem;color:var(--mut);margin-bottom:18px}
+.crumbs a{color:var(--mut);text-decoration:none}.crumbs a:hover{color:var(--acc);text-decoration:underline}.crumbs .ic{width:12px;height:12px}
+.card{background:var(--bg);border:1px solid var(--line);border-radius:20px;box-shadow:var(--glow);padding:26px 28px;margin:18px 0}
+.hero{text-align:center;padding:30px 0 4px}
+.hero h1{font-size:clamp(2.7rem,7vw,4.5rem);font-weight:800;color:var(--acc);letter-spacing:-.025em}
+.sline{margin-top:12px;font-size:.78rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--mut)}
+.setpill{display:inline-block;margin:28px 0 6px;padding:9px 24px;border-radius:26px;background:var(--acc2);border:1px solid var(--acc3);color:var(--acc);font-size:1.08rem;line-height:1.5;max-width:100%}
+.lead{color:var(--mut);max-width:54ch;margin:14px auto 24px}
+.prog{max-width:420px;margin:20px auto 0;font-size:.88rem;color:var(--mut)}
+.bar{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:8px}.bar div{height:100%;background:var(--acc);border-radius:9px;transition:width .4s}
+.trunk{width:2px;height:34px;background:var(--line);margin:26px auto 0}
+.mods{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:20px;position:relative;padding-top:34px}
+.mods::before{content:"";position:absolute;top:0;left:calc((100% - (var(--n) - 1)*20px)/(var(--n)*2));right:calc((100% - (var(--n) - 1)*20px)/(var(--n)*2));border-top:2px solid var(--line)}
+.mcard{margin:0;position:relative;padding:22px 20px}
+.mcard::before{content:"";position:absolute;left:50%;top:-34px;height:34px;border-left:2px solid var(--line)}
+.mn{font-size:.88rem;color:var(--mut);font-weight:500}
+.mcard h2{font-size:1.2rem;margin:2px 0 0}
+.mhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.tag{font-size:.76rem;font-weight:600;padding:3px 11px;border-radius:99px;background:var(--acc2);color:var(--acc);white-space:nowrap}
+.tag.ok{background:var(--ok2);color:var(--ok)}.tag.ch{background:var(--warn2);color:var(--warn)}
+.rows{margin-top:14px;display:flex;flex-direction:column;gap:2px}
+.row{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:12px;text-decoration:none;color:var(--ink);font-size:.93rem;line-height:1.3}
+.row:hover{background:var(--acc2)}.row .meta{margin-left:auto;font-size:.76rem;color:var(--mut);white-space:nowrap}.row>.ic:last-child{display:none}
+.row .st{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line);color:var(--mut);flex:none}.row .st .ic{width:12px;height:12px}
+.row.dn .st{background:var(--ok);border-color:var(--ok);color:var(--on)}
+.sub{color:var(--mut)}
+.pageh{margin-bottom:6px}.pageh h1{font-size:2.15rem;font-weight:800;margin-top:4px}
+.lab{font-size:.92rem;color:var(--mut);font-weight:500}
+.steps{display:flex;gap:4px;margin:16px 0 4px}.steps i{flex:1;height:6px;border-radius:9px;background:var(--line)}.steps i.d{background:var(--ok)}.steps i.c{background:var(--acc)}
+.prose{font-size:1.08rem;line-height:1.78}.prose p{margin:.8em 0}.prose ul{padding-left:1.3em}.prose li{margin:.3em 0}
+.prose b{font-weight:650}
+.prose .step{border-left:3px solid var(--acc3);padding-left:16px}.prose .step b:first-child{color:var(--acc)}
+.eq{text-align:center;overflow-x:auto;overflow-y:hidden;margin:14px 0;padding:4px 0;font-size:1.1rem}
+.eq mjx-container{margin:.2em 0!important}
+.eq.q{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.box{border-left:4px solid var(--acc);padding:10px 18px;background:var(--acc2);border-radius:0 14px 14px 0;margin:18px 0;font-size:1rem}
+.nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{font:inherit;font-weight:600;font-size:.97rem;cursor:pointer;border:1px solid transparent;border-radius:12px;padding:11px 20px;background:var(--acc);color:var(--on);display:inline-flex;align-items:center;gap:8px;text-decoration:none;box-shadow:var(--btn)}
+.btn:hover{filter:brightness(1.08)}.btn.ghost{background:var(--bg);color:var(--acc);border-color:var(--acc3);box-shadow:none}.btn.ghost:hover{background:var(--acc2)}
+.btn:disabled{opacity:.4;cursor:default;filter:none;box-shadow:none}
+.prob{padding:0;overflow:hidden}.prob .ph{display:flex;align-items:center;gap:10px;padding:13px 26px;background:var(--bg2);border-bottom:1px solid var(--line)}.prob .ph b{color:var(--acc);font-size:1.05rem}
+.prob .pb{padding:8px 26px 20px}
+.src{font-size:.84rem;color:var(--mut);margin:12px 0 0}
+details{margin:10px 0;border:1px solid var(--line);border-radius:14px;padding:0 16px;background:var(--bg)}
+summary{cursor:pointer;color:var(--acc);font-weight:600;padding:10px 0;font-size:.97rem}
+details[open]>summary{border-bottom:1px solid var(--line);margin-bottom:8px}
+.qinfo{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.qn{display:flex;gap:12px;font-weight:600;margin-bottom:12px;align-items:flex-start}.qn span:first-child{width:30px;height:30px;border-radius:50%;background:var(--acc2);color:var(--acc);display:grid;place-items:center;flex:none;font-size:.88rem}
+label.o{display:flex;gap:12px;align-items:center;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;margin:8px 0;cursor:pointer;background:var(--bg)}
+label.o:hover{border-color:var(--acc)}label.o:has(input:checked){border-color:var(--acc);background:var(--acc2)}label.o:has(input:focus-visible){outline:2px solid var(--acc);outline-offset:2px}
+label.o input{position:absolute;opacity:0;pointer-events:none}
+label.o .lt{width:28px;height:28px;border-radius:9px;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.8rem;font-weight:700;color:var(--mut);flex:none}
+label.o:has(input:checked) .lt{background:var(--acc);border-color:var(--acc);color:var(--on)}
+label.o.right{border-color:var(--ok)!important;background:var(--ok2)!important}label.o.right .lt{background:var(--ok);border-color:var(--ok);color:var(--on)}
+label.o.wrong{border-color:var(--bad)!important;background:var(--bad2)!important}label.o.wrong .lt{background:var(--bad);border-color:var(--bad);color:var(--on)}
+.fb{display:none;font-size:.95rem;margin-top:10px;padding:10px 14px;border-radius:12px;color:var(--ink)}.fb.show{display:block}.fb.ok{background:var(--ok2)}.fb.bad{background:var(--bad2)}
+.fb.ok b{color:var(--ok)}.fb.bad b{color:var(--bad)}
+.res{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.ring{--p:0;width:92px;height:92px;border-radius:50%;background:conic-gradient(var(--c,var(--acc)) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;flex:none}
+.ring b{width:72px;height:72px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:1.3rem}
+.cert{border:6px double var(--acc);border-radius:16px;padding:40px 20px;text-align:center;background:var(--bg);color:var(--ink)}
+.cert .nm{font:italic 2.2rem Georgia,"Times New Roman",serif;border-bottom:1px solid var(--mut);display:inline-block;padding:0 20px;margin:10px 0}
+input[type=text]{font:inherit;padding:11px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);width:100%;max-width:360px}
+input[type=text]:focus{outline:0;border-color:var(--acc)}
+.scrim{display:none}
+@media (max-width:980px){.mods{grid-template-columns:1fr}.mods::before,.mcard::before{display:none}.fm{display:none}.fm.keep{display:block}}
+@media (max-width:900px){
+.menu{display:grid}.logo small{display:none}.shell{grid-template-columns:minmax(0,1fr)}.top{padding:0 14px;gap:10px}
+#nav{position:fixed;z-index:55;left:0;top:calc(64px + env(safe-area-inset-top,0px));bottom:0;width:min(86vw,320px);max-height:none;transform:translateX(-102%);transition:transform .22s;background:var(--bg)}
+.nav-open #nav{transform:none;box-shadow:0 0 40px #0006}
+.nav-open .scrim{display:block;position:fixed;inset:0;z-index:52;background:#0006}
+.content{padding:22px 14px 80px}.card{padding:18px}.prob .ph,.prob .pb{padding-left:16px;padding-right:16px}}
+@media (max-width:640px){.tn{display:none}.hero h1{font-size:clamp(2rem,10.5vw,3rem)}.pageh h1{font-size:1.7rem}.setpill{padding:8px 16px;font-size:.98rem}}
+@media (max-width:480px){.pp{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{body *{visibility:hidden}.cert,.cert *{visibility:visible}.cert{position:absolute;inset:0;margin:20px}}
+.o:has(input:disabled){cursor:default}input[type=password]:focus{outline:0;border-color:var(--acc)}#et{font-variant-numeric:tabular-nums}
+</style>
+<script>window.MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']],processEscapes:true},svg:{fontCache:'none'},options:{enableMenu:false}};</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" async></script></head><body><div class="bgfx" aria-hidden="true"><span class="fm " style="bottom:24%;left:22%;color:#f0a074;transform:rotate(-4deg)">$\lim_{\Delta x\to0}\frac{\Delta f}{\Delta x}$</span><span class="fm " style="top:9.5%;right:3%;color:#7ac9a8;font-size:1.6rem">$\varphi(x)=f(x)+\int_a^bK(x,t)\varphi(t)\,dt$</span><span class="fm " style="top:44%;right:3%;color:#6f8fe0;transform:rotate(3deg)">$e^{xt}\approx1+xt+\tfrac{(xt)^2}{2!}$</span><span class="fm " style="top:62%;left:30%;color:#9b8be8;transform:rotate(-6deg);font-size:1.7rem">$\det(I-\lambda A)=0$</span><span class="fm big keep" style="bottom:2%;right:1%;color:#7c3aed">$\sum_{i=1}^{n}a_i(x)\,b_i(t)$</span><span class="fm " style="bottom:14%;right:6%;color:#e8a889;transform:rotate(-3deg)">$c_i=\int_a^bb_i(t)\varphi(t)\,dt$</span><span class="fm " style="top:78%;right:30%;color:#78b8d8">$K(x,t)$</span></div>
+<header class="top"><button class="ib menu" aria-label="Menu" onclick="document.body.classList.toggle('nav-open')"><svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><a class="logo" href="#" onclick="home();return false" aria-label="MHS Integral Equations, course home"><svg width="36" height="32" viewBox="0 0 40 36" aria-hidden="true" style="fill:none;stroke:var(--acc);stroke-width:2.2;stroke-linejoin:round"><path d="M4 21 31 4 37 30Z" style="fill:var(--acc2)"/><path d="M4 21 20 28 37 30M31 4 20 28"/></svg><b>MHS</b><small>Integral Equations</small></a><div class="sp"></div><nav class="tn" aria-label="Primary"><a href="#" id="tn1" onclick="home();return false">Course</a><a href="#" id="tn2" onclick="certGo();return false">Certificate</a></nav><div class="pp" id="gp"></div><button class="ib" id="th" aria-label="Toggle theme"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></header>
+<div class="shell"><nav id="nav" aria-label="Course contents"></nav><main id="app" class="content"></main></div><div class="scrim" onclick="document.body.classList.remove('nav-open')"></div>
+<script>
+const $=s=>document.querySelector(s),app=$('#app');
+let S={done:{},seen:{},name:'',exam:null};
+try{S=Object.assign(S,JSON.parse(localStorage.getItem('ie1')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('ie1',JSON.stringify(S))}catch(e){}};
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const fr=(n,d)=>{if(d<0){n=-n;d=-d}const g=gcd(n,d)||1;n/=g;d/=g;const s=n<0?'-':'';n=Math.abs(n);return d===1?s+n:s+'\\frac{'+n+'}{'+d+'}'};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+function mk(q,right,wrong,why){const o=[...new Set([right,...wrong])];const s=shuf(o);return{q,opts:s,a:s.indexOf(right),why}}
+
+const R=String.raw,M=s=>'$'+s+'$',par=l=>l<0?'('+l+')':''+l;
+const q_sep=()=>mk(R`Which kernel on $[0,1]$ is separable?`,M('xt+x^2t^2'),[M('e^{xt}'),M('\\sin(xt)'),M('|x-t|')],R`Only $xt+x^2t^2$ splits into sums of products of a function of $x$ and a function of $t$.`);
+const q_sys=()=>mk('A kernel with 3 separable terms leads to a linear system of:','3 equations in 3 unknown constants',['1 equation','3 differential equations','an infinite system'],R`One constant $c_i$ per term, so a $3\times3$ linear system.`);
+
+const MODS=[
+{id:'m1',title:'Module 1 – Separable kernels',lessons:[
+{t:'What is a Fredholm equation?',h:R`<p>A <b>Fredholm integral equation of the second kind</b> has the unknown $\varphi$ both outside and inside the integral, with <b>fixed limits</b> $a$ and $b$:</p>
+<div class="eq">$$\varphi(x)=f(x)+\int_a^b K(x,t)\,\varphi(t)\,dt$$</div>
+<p>Here $f(x)$ is known, $K(x,t)$ is the <b>kernel</b>, and $\varphi(x)$ is what we want.</p>
+<div class="box">There is <b>no parameter $\lambda$</b> in front of the integral in this unit, so a solution simply comes out whenever the equation for the constants can be solved.</div>
+<p>Fixed limits make it Fredholm. If the upper limit were the variable $x$, it would be a Volterra equation.</p>`},
+{t:'Separable (degenerate) kernels',h:R`<p>A kernel is <b>separable</b> if it splits into a sum of products of a function of $x$ and a function of $t$:</p>
+<div class="eq">$$K(x,t)=\sum_{i=1}^{n}a_i(x)\,b_i(t)$$</div>
+<p>Examples: $xt$, $x+t$ (two terms), $x^2t+xt^2$. Non-examples: $e^{xt}$, $\sin(xt)$, $|x-t|$.</p>
+<p>Pull the $x$-parts out of the integral:</p>
+<div class="eq">$$\varphi(x)=f(x)+\sum_{i=1}^{n}c_i\,a_i(x),\qquad c_i=\int_a^b b_i(t)\,\varphi(t)\,dt$$</div>
+<p>The $c_i$ are <b>constants</b>. Plug $\varphi$ back into their definitions to get $n$ linear equations in $n$ unknowns. Solve, then substitute.</p>`},
+{t:'Worked example (one term)',h:R`<p>Solve $\varphi(x)=x+\int_0^1 xt\,\varphi(t)\,dt$.</p>
+<p><b>Step 1.</b> $K=x\cdot t$, so there is one constant $c=\int_0^1 t\varphi(t)\,dt$, and $\varphi(x)=x+cx=x(1+c)$.</p>
+<p><b>Step 2.</b> Use the definition of $c$:</p>
+<div class="eq">$$c=\int_0^1 t\cdot t(1+c)\,dt=\frac{1+c}{3}\ \Rightarrow\ c=\frac12$$</div>
+<p><b>Step 3.</b> Substitute back:</p>
+<div class="eq">$$\varphi(x)=\frac{3x}{2}$$</div>
+<div class="box"><b>Check:</b> $x+\int_0^1 xt\cdot\frac{3t}{2}\,dt=x+\frac x2=\frac{3x}{2}$ ✓</div>`},
+{t:'Worked example (two terms)',h:R`<p>Solve $\varphi(x)=1+\int_0^1 (x+t)\,\varphi(t)\,dt$.</p>
+<p><b>Step 1.</b> $K=x\cdot1+1\cdot t$. Let $c_1=\int_0^1\varphi\,dt$ and $c_2=\int_0^1 t\varphi\,dt$. Then $\varphi(x)=1+c_1x+c_2$.</p>
+<p><b>Step 2.</b> Plug into the definitions:</p>
+<div class="eq">$$\begin{aligned}c_1&=\int_0^1(1+c_1t+c_2)\,dt=1+\tfrac{c_1}{2}+c_2\\ c_2&=\int_0^1 t(1+c_1t+c_2)\,dt=\tfrac12+\tfrac{c_1}{3}+\tfrac{c_2}{2}\end{aligned}$$</div>
+<p><b>Step 3.</b> Solve the $2\times2$ system: $c_1=-12$, $c_2=-7$.</p>
+<div class="eq">$$\varphi(x)=-6-12x$$</div>
+<div class="box"><b>Check:</b> $\int_0^1\varphi=-12$ and $\int_0^1 t\varphi=-7$, so $1-12x-7=-6-12x$ ✓</div>`}],
+quiz:[q_sep,
+()=>{const k=pick([2,3,4,-2,5,6]);return mk(R`For $\varphi(x)=${k}x+\int_0^1 xt\,\varphi(t)\,dt$, what is $\varphi(1)$?`,M(fr(3*k,2)),[M(fr(k,2)),M(fr(3*k,4)),M(''+3*k)],R`$c=\frac{${k}+c}{3}$ gives $c=${fr(k,2)}$, so $\varphi(x)=${fr(3*k,2)}\,x$ and $\varphi(1)=${fr(3*k,2)}$.`)},
+()=>mk(R`The solution of $\varphi(x)=1+\int_0^1 A(x)\,t\,\varphi(t)\,dt$ is $\varphi(x)=1+\frac23x^2$. Which of these could be $A(x)$?`,M('x^2'),[M('\\frac23x^2'),M('2x^2'),M('x^3')],R`Write $\varphi=1+cA(x)$ with $c=\int_0^1 t\varphi\,dt$. With $A=x^2$: $c=\frac12+\frac c4$, so $c=\frac23$ and $\varphi=1+\frac23x^2$ ✓. The others give $1+\frac25x^2$, $1+2x^2$ and $1+\frac58x^3$ instead.`),
+q_sys]},
+{id:'ms',title:'Module 2 – Summing series with Fredholm equations',lessons:[
+{t:'The idea: find $C$ two ways',h:R`<p>Some infinite series are awkward to sum directly but fall out of a Fredholm equation. The trick is to compute one constant $C$ <b>two ways</b>: exactly, and through a Maclaurin series.</p>
+<p>Take an equation of the form</p>
+<div class="eq">$$u(x)=1+h(x)\int_0^1 w(t)\,u(t)\,dt$$</div>
+<p>where $h$ has a known Maclaurin series and $w$ is a simple weight such as $1$, $t$ or $t^2$. The kernel $h(x)\,w(t)$ is separable with one term, so Module 1 applies. Let $m=\int_0^1w(t)\,dt$.</p>
+<p><b>Step 1.</b> Solve explicitly. With $C=\int_0^1w\,u\,dt$ we get $u(x)=1+C\,h(x)$, and substituting back gives a closed form for $C$.</p>
+<p><b>Step 2.</b> Expand $h(x)$ as a Maclaurin series and put it into $u(x)=1+C\,h(x)$.</p>
+<p><b>Step 3.</b> Put that series into $C=\int_0^1wu\,dt$ and integrate term by term. The result has the shape $C=m+C\,S$, where $S$ is the series you want.</p>
+<p><b>Step 4.</b> Solve for $S$ and insert the closed form of $C$:</p>
+<div class="eq">$$S=1-\frac{m}{C}$$</div>
+<div class="box">Integrating term by term is legitimate here because the Maclaurin series of $e^x$, $\sin x$ and $\sinh x$ converge uniformly on $[0,1]$.</div>`},
+{t:'Worked example',h:R`<p>Solve $u(x)=1+\int_0^1 e^{-x}\,u(t)\,dt$ and deduce the sum of $S=\sum_{k=0}^{\infty}\frac{(-1)^k}{k!\,(k+1)}$.</p>
+<p><b>Step 1.</b> Here $w=1$, $m=1$. Let $C=\int_0^1u\,dt$, so $u(x)=1+Ce^{-x}$. Then</p>
+<div class="eq">$$C=\int_0^1\left(1+Ce^{-t}\right)dt=1+C\left(1-e^{-1}\right)\ \Rightarrow\ Ce^{-1}=1\ \Rightarrow\ C=e$$</div>
+<p><b>Step 2.</b> $e^{-x}=\sum_{k\ge0}\frac{(-1)^kx^k}{k!}$, so $u(x)=1+C\sum_{k\ge0}\frac{(-1)^k}{k!}x^k$.</p>
+<p><b>Step 3.</b> Integrate term by term, using $\int_0^1t^k\,dt=\frac1{k+1}$:</p>
+<div class="eq">$$C=1+C\sum_{k=0}^{\infty}\frac{(-1)^k}{k!\,(k+1)}=1+CS$$</div>
+<p><b>Step 4.</b> $S=1-\frac1C$, and $C=e$, so</p>
+<div class="eq">$$S=1-\frac1e$$</div>
+<div class="box"><b>Check:</b> the partial sums $1,\ 0.5,\ 0.667,\ 0.625,\ 0.6333,\ 0.6319,\dots$ approach $1-\frac1e\approx0.6321$ ✓</div>`},
+{t:'Matching a series to an equation',h:R`<p>You can read the equation off the series.</p>
+<ul><li><b>The function $h$.</b> $\sum\frac{x^{2k+1}}{(2k+1)!}$ is $\sinh x$. With $(-1)^k$ in front it is $\sin x$. $\sum\frac{x^k}{k!}$ is $e^x$, and with $(-1)^k$ it is $e^{-x}$.</li>
+<li><b>The weight $w$.</b> With $w(t)=t^p$ and a term $t^n$, the integral is $\int_0^1t^{p+n}\,dt=\frac1{p+n+1}$. So the last factor in the denominator equals $n+p+1$.</li></ul>
+<p><b>Example.</b> For $\sum\frac{(-1)^k}{(2k+1)!\,(2k+4)}$ the power is $n=2k+1$, so $2k+1+p+1=2k+4$ gives $p=2$. The equation uses $\sin x$ and the weight $t^2$.</p>
+<div class="box"><b>Watch the denominator of $C$.</b> If $1-\int_0^1w\,h\,dt=0$ the equation for $C$ cannot be solved, so always confirm that step first. A quick numerical partial sum is a good final check on $S$.</div>`}],
+quiz:[
+()=>{const p=pick([0,1,2,3,4]);return mk(R`The series from $u(x)=1+\int_0^1\sin(x)\,t^{${p}}\,u(t)\,dt$ is $\sum\frac{(-1)^k}{(2k+1)!\,(\ ?\ )}$. What is the missing factor?`,M('2k+'+(p+2)),[M('2k+'+(p+1)),M('2k+'+(p+3)),M('k+'+(p+2))],R`The term is $t^{2k+1}$ times $t^{${p}}$, so the integral is $\frac1{2k+${p}+2}=\frac1{2k+${p+2}}$.`)},
+()=>mk(R`Which function's Maclaurin series produces $\sum_{k\ge0}\frac{x^{2k+1}}{(2k+1)!}$?`,M('\\sinh x'),[M('\\sin x'),M('\\cosh x'),M('e^x')],R`$\sinh x=x+\frac{x^3}{3!}+\frac{x^5}{5!}+\cdots$ has odd powers and no alternating sign.`),
+()=>mk(R`For $u(x)=1+\int_0^1e^{-x}u(t)\,dt$, the constant $C=\int_0^1u\,dt$ equals:`,M('e'),[M('\\frac1e'),M('e-1'),M('\\frac{1}{e-1}')],R`$C=1+C(1-e^{-1})$, so $Ce^{-1}=1$ and $C=e$.`),
+()=>mk(R`The general formula for the series in terms of $C$ and $m=\int_0^1w\,dt$ is:`,M('S=1-\\frac mC'),[M('S=1+\\frac mC'),M('S=\\frac Cm-1'),M('S=mC')],R`Integrating term by term gives $C=m+CS$, so $S=1-\frac mC$.`),
+()=>mk(R`$\int_0^1t\sinh t\,dt$ equals:`,M('e^{-1}'),[M('e'),M('\\cosh 1'),M('1-e^{-1}')],R`By parts: $[t\cosh t]_0^1-\int_0^1\cosh t\,dt=\cosh1-\sinh1=e^{-1}$.`),
+()=>mk(R`If $m=\frac12$ and $C=\frac e4$, the series equals:`,M('1-\\frac2e'),[M('1-\\frac e2'),M('\\frac2e'),M('1-\\frac1e')],R`$S=1-\frac mC=1-\frac{1/2}{e/4}=1-\frac2e$.`),
+()=>mk('Why may we integrate the Maclaurin series term by term on $[0,1]$?'.replace('$[0,1]$','[0, 1]'),'The series converges uniformly there',['Because the kernel is separable','Because the integral has fixed limits','Because $C$ is a constant'],'Uniform convergence lets the integral and the infinite sum be swapped.')]},
+{id:'m2',title:'Module 3 – Non-separable kernels via Maclaurin',lessons:[
+{t:'The idea',h:R`<p>Many kernels, like $e^{xt}$ or $\sin(xt)$, are <b>not</b> separable. But their Maclaurin series are sums of powers of the product $xt$, and $(xt)^n=x^n\cdot t^n$ <b>is</b> separable.</p>
+<div class="eq">$$e^{xt}=1+xt+\frac{(xt)^2}{2!}+\frac{(xt)^3}{3!}+\cdots$$</div>
+<p><b>Strategy:</b> truncate after $N+1$ terms to get an approximate separable kernel $K_N$, then solve exactly as in Module 1. The result is an <i>approximate</i> solution.</p>
+<div class="box">Other useful series: $\sin(xt)=xt-\frac{(xt)^3}{3!}+\cdots$ and $\cos(xt)=1-\frac{(xt)^2}{2!}+\cdots$</div>`},
+{t:'Worked example',h:R`<p>Approximate the solution of $\varphi(x)=1+\int_0^1\sin(xt)\,\varphi(t)\,dt$.</p>
+<p><b>Step 1 (one term).</b> $\sin(xt)\approx xt$. With $c=\int_0^1 t\varphi\,dt$ we get $\varphi(x)=1+cx$, and</p>
+<div class="eq">$$\begin{aligned}c&=\int_0^1 t(1+ct)\,dt=\frac12+\frac c3\ \Rightarrow\ c=\frac34\\ \varphi(x)&\approx1+0.75x\end{aligned}$$</div>
+<p><b>Step 2 (two terms).</b> $\sin(xt)\approx xt-\frac{x^3t^3}{6}$. Let $c_1=\int_0^1 t\varphi\,dt$ and $c_2=\int_0^1 t^3\varphi\,dt$, so $\varphi(x)=1+c_1x-\frac{c_2}{6}x^3$:</p>
+<div class="eq">$$\begin{aligned}\tfrac23c_1+\tfrac{1}{30}c_2&=\tfrac12\\ -\tfrac15c_1+\tfrac{43}{42}c_2&=\tfrac14\end{aligned}$$</div>
+<p>Solving: $c_1\approx0.7307$, $c_2\approx0.3869$.</p>
+<div class="eq">$$\varphi(x)\approx1+0.731x-0.064x^3$$</div>
+<div class="box">The two answers are close, which suggests the approximation has converged. Adding terms refines the answer.</div>`},
+{t:'How accurate is it?',h:R`<p>Keeping terms through $(xt)^N$, the Lagrange remainder for $e^{xt}$ on $[0,1]^2$ is at most</p>
+<div class="eq">$$|K-K_N|\le\frac{e}{(N+1)!}$$</div>
+<p>For $N=1$ that is about $1.36$, which is crude. For $N=3$ it is about $0.11$, and for $N=5$ about $0.004$. More terms give a bigger linear system ($N+1$ unknowns) but a better answer.</p>
+<div class="box">Practical tip: solve with $N$ and $N+1$ terms. If $\varphi$ barely changes, you have converged. Convergence is faster when $|xt|$ is small, so Maclaurin works best on small intervals.</div>`},
+{t:'Choosing terms and using shortcuts',h:R`<p>Substitute $u=xt$ into a standard series, then split each power $(xt)^k$ into $x^k\cdot t^k$.</p>
+<ul><li>$e^{u}=\sum_{k\ge0}\frac{u^k}{k!}$, valid for all $u$.</li>
+<li>$\sin u$ has only odd powers and $\cos u$ only even powers, so a two-term sine uses $xt$ and $x^3t^3$.</li>
+<li>$\frac{1}{1+u}=1-u+u^2-\cdots$ and $\ln(1+u)=u-\frac{u^2}{2}+\cdots$ need $|u|\lt1$, so they are poor on $[0,1]^2$ near the corner $x=t=1$.</li></ul>
+<p><b>Parity shortcut.</b> On a symmetric interval $[-1,1]$ with an even $f$, an odd integrand integrates to $0$, so some constants vanish immediately. For $e^{xt}\approx1+xt+\frac{x^2t^2}{2}$ the constant $c_2=\int t\varphi\,dt$ is $0$ because $t\varphi(t)$ is odd.</p>
+<div class="box"><b>Watch out.</b> For $\varphi(x)=x+\int_0^1\cos(xt)\varphi(t)\,dt$, truncating $\cos(xt)\approx1$ gives $c=\frac12+c$, which has no solution. The constant $c$ cancels from both sides, leaving $0=\frac12$. Keep another term and the system is solvable again (see Problem 8).</div>`}],
+quiz:[
+()=>mk(R`The first three Maclaurin terms of $e^{xt}$ are:`,M('1+xt+\\frac{x^2t^2}{2}'),[M('1+x+t'),M('xt+x^2t^2+x^3t^3'),M('1+xt+\\frac{xt}{2}')],R`$e^u=1+u+\frac{u^2}{2}+\cdots$ with $u=xt$.`),
+()=>{const k=pick([1,2,3,4,-2,5]);return mk(R`Approximate $\sin(xt)\approx xt$ in $\varphi(x)=${k}+\int_0^1\sin(xt)\,\varphi(t)\,dt$. Then $c=\int_0^1 t\varphi(t)\,dt$ equals:`,M(fr(3*k,4)),[M(fr(k,2)),M(fr(3*k,2)),M(fr(k,4))],R`$\varphi=${k}+cx$, so $c=${fr(k,2)}+\frac c3$, giving $c=${fr(3*k,4)}$.`)},
+()=>mk(R`Why can a Maclaurin series turn $e^{xt}$ into a separable kernel?`,R`Each term $(xt)^n=x^n\cdot t^n$ is a product of a function of $x$ and one of $t$`,['It removes the integral','It makes the limits variable','It turns the kernel into a constant'],R`Powers of $xt$ factor into an $x$-part times a $t$-part.`),
+()=>mk('To improve the approximation you should:','Keep more Maclaurin terms',[R`Increase $\lambda$`,R`Change the limits to $x$`,R`Drop $f(x)$`],R`More terms shrink the remainder $\frac{e}{(N+1)!}$, at the cost of a bigger linear system.`),
+()=>mk(R`Using the bound $\frac{e}{(N+1)!}$, what is the smallest $N$ that guarantees an error below $0.01$ for $e^{xt}$ on $[0,1]^2$?`,M('N=5'),[M('N=3'),M('N=4'),M('N=6')],R`$N=4$ gives $e/120\approx0.023$, which is too large. $N=5$ gives $e/720\approx0.0038$.`),
+()=>mk(R`Keeping two terms of $\sin(xt)$ gives the kernel:`,M('xt-\\frac{x^3t^3}{6}'),[M('xt-\\frac{x^2t^2}{2}'),M('xt+\\frac{x^3t^3}{6}'),M('1-\\frac{x^2t^2}{2}')],R`$\sin u=u-\frac{u^3}{6}+\cdots$ with $u=xt$.`),
+()=>mk(R`Keeping the terms of $e^{xt}$ up to $(xt)^3$ leads to a linear system of size:`,M('4\\times4'),[M('3\\times3'),M('2\\times2'),M('6\\times6')],R`The powers $k=0,1,2,3$ give four separable terms, so four constants $c_k$.`),
+()=>mk(R`On $[-1,1]$ take $K\approx1+xt+\frac{x^2t^2}{2}$ with $f$ even, and let $c_k=\int_{-1}^{1}t^k\varphi(t)\,dt$. Which constant is automatically $0$?`,M('c_1'),[M('c_0'),M('c_2'),'None of them'],R`$\varphi$ is even, so $t\varphi(t)$ is odd and integrates to $0$ over $[-1,1]$. The constants $c_0$ and $c_2$ have even integrands.`),
+()=>{const k=pick([2,4,6,-2,3,5]);return mk(R`For $\varphi(x)=${k}-\int_0^1\cos(xt)\,\varphi(t)\,dt$, replace $\cos(xt)$ by $1$. Then $c=\int_0^1\varphi\,dt$ equals:`,M(fr(k,2)),[M(''+k),M(fr(2*k,1)),M(fr(k,4))],R`$\varphi=${k}-c$, so $c=\int_0^1(${k}-c)\,dt=${k}-c$, giving $c=${fr(k,2)}$.`)},
+()=>mk(R`Which kernel on $[0,\pi]$ needs <b>no</b> Maclaurin approximation?`,M('\\sin(x+t)'),[M('\\sin(xt)'),M('e^{xt}'),M('\\ln(1+xt)')],R`$\sin(x+t)=\sin x\cos t+\cos x\sin t$ is already separable with two terms.`)]}
+];
+
+const HW={
+m1:[
+{q:R`$$\varphi(x)=(x^2-x^4)+\int_{-1}^{1}\left(x^4+5x^3y\right)\varphi(y)\,dy$$`,hint:R`$K(x,y)=x^4\cdot1+5x^3\cdot y$ has two terms. The interval $[-1,1]$ is symmetric, so every odd integrand integrates to $0$.`,sol:R`<p>Let $c_1=\int_{-1}^{1}\varphi\,dy$ and $c_2=\int_{-1}^{1}y\varphi\,dy$. Then</p>
+<div class="eq">$$\varphi(x)=x^2-x^4+c_1x^4+5c_2x^3$$</div>
+<p>Use $\int_{-1}^{1}y^2\,dy=\frac23$, $\int_{-1}^{1}y^4\,dy=\frac25$, and the fact that odd powers integrate to $0$:</p>
+<div class="eq">$$\begin{aligned}c_1&=\int_{-1}^{1}\left(y^2-y^4+c_1y^4\right)dy=\tfrac23-\tfrac25+\tfrac{2c_1}{5}\ \Rightarrow\ c_1=\tfrac49\\ c_2&=\int_{-1}^{1}\left(y^3-y^5+c_1y^5+5c_2y^4\right)dy=2c_2\ \Rightarrow\ c_2=0\end{aligned}$$</div>
+<div class="eq">$$\varphi(x)=x^2-\frac59x^4$$</div>
+<div class="box"><b>Check:</b> $\int_{-1}^{1}\left(y^2-\frac59y^4\right)dy=\frac23-\frac29=\frac49=c_1$ ✓</div>`},
+{q:R`$$y(x)=1+\int_0^1\left[y(t)+y(t)\,e^{x+t}\right]dt$$`,hint:R`Write $e^{x+t}=e^x\cdot e^t$. The kernel has two separable terms.`,sol:R`<p>$K(x,t)=1+e^xe^t$. Let $c_1=\int_0^1y\,dt$ and $c_2=\int_0^1e^ty\,dt$, so $y(x)=1+c_1+c_2e^x$.</p>
+<div class="eq">$$\begin{aligned}c_1&=1+c_1+c_2(e-1)\ \Rightarrow\ c_2=-\frac{1}{e-1}\\ c_2&=(1+c_1)(e-1)+c_2\,\frac{e^2-1}{2}\ \Rightarrow\ 1+c_1=\frac{e^2-3}{2(e-1)^2}\end{aligned}$$</div>
+<div class="eq">$$y(x)=\frac{e^2-3}{2(e-1)^2}-\frac{e^x}{e-1}\approx0.7433-0.5820\,e^x$$</div>`},
+{q:R`$$\varphi(x)=x+\int_0^1(x+t)\,\varphi(t)\,dt$$`,hint:R`$K=x\cdot1+1\cdot t$, so two constants: $\int\varphi\,dt$ and $\int t\varphi\,dt$.`,sol:R`<p>Let $c_1=\int_0^1\varphi\,dt$ and $c_2=\int_0^1t\varphi\,dt$. Then $\varphi(x)=(1+c_1)x+c_2$.</p>
+<div class="eq">$$\begin{aligned}c_1&=\tfrac{1+c_1}{2}+c_2\ \Rightarrow\ c_1-2c_2=1\\ c_2&=\tfrac{1+c_1}{3}+\tfrac{c_2}{2}\ \Rightarrow\ -2c_1+3c_2=2\end{aligned}$$</div>
+<p>Solving gives $c_1=-7$, $c_2=-4$.</p>
+<div class="eq">$$\varphi(x)=-6x-4$$</div>`},
+{q:R`$$f(x)=x+\int_0^1 f(t)\sqrt{xt+x+t+1}\;dt$$`,hint:R`Factor the expression under the root: $xt+x+t+1=(x+1)(t+1)$.`,sol:R`<p>$\sqrt{(x+1)(t+1)}=\sqrt{x+1}\cdot\sqrt{t+1}$, a one-term separable kernel. Let $c=\int_0^1\sqrt{t+1}\,f(t)\,dt$, so $f(x)=x+c\sqrt{x+1}$.</p>
+<div class="eq">$$c=\int_0^1t\sqrt{t+1}\,dt+c\int_0^1(t+1)\,dt=\frac{4+4\sqrt2}{15}+\frac32c$$</div>
+<p>Hence $c=-\frac{8(1+\sqrt2)}{15}$.</p>
+<div class="eq">$$f(x)=x-\frac{8(1+\sqrt2)}{15}\sqrt{x+1}\approx x-1.2876\sqrt{x+1}$$</div>`},
+{q:R`$$g(s)=s+\int_0^1 s\,x^2\,g(x)\,dx$$`,hint:R`The variable names are just different: $s$ plays the role of $x$, and $x$ is the dummy integration variable.`,sol:R`<p>Let $c=\int_0^1x^2g(x)\,dx$. Then $g(s)=s(1+c)$.</p>
+<div class="eq">$$c=(1+c)\int_0^1x^3\,dx=\frac{1+c}{4}\ \Rightarrow\ c=\frac13$$</div>
+<div class="eq">$$g(s)=\frac{4s}{3}$$</div>`},
+{pre:R`<p>Here the kernel is <b>piecewise</b>:</p><div class="eq">$$K(x,t)=\begin{cases}xt,&0\le t\le\tfrac12\\[2pt] x(1-t),&\tfrac12\le t\le1\end{cases}$$</div>`,q:R`$$\varphi(x)=1+\int_0^1K(x,t)\,\varphi(t)\,dt$$`,hint:R`The $x$-part is just $x$ in both pieces, so $K=x\cdot h(t)$ with a piecewise $h(t)$. Only the $t$-part is piecewise, so split the integrals for the constant at $t=\frac12$.`,sol:R`<p>$K(x,t)=x\,h(t)$, where $h(t)=t$ on $[0,\frac12]$ and $h(t)=1-t$ on $[\frac12,1]$. Each piece is separable with the <i>same</i> $x$-factor, so the kernel is separable with one term whose $b(t)$ is piecewise. Let $c=\int_0^1h(t)\varphi(t)\,dt$, so $\varphi(x)=1+cx$.</p>
+<p>Split every integral at the breakpoint $t=\frac12$:</p>
+<div class="eq">$$\begin{aligned}\int_0^1h\,dt&=\int_0^{1/2}t\,dt+\int_{1/2}^{1}(1-t)\,dt=\tfrac18+\tfrac18=\tfrac14\\ \int_0^1t\,h\,dt&=\int_0^{1/2}t^2\,dt+\int_{1/2}^{1}t(1-t)\,dt=\tfrac1{24}+\tfrac1{12}=\tfrac18\end{aligned}$$</div>
+<div class="eq">$$c=\int_0^1h(1+ct)\,dt=\frac14+\frac c8\ \Rightarrow\ c=\frac27$$</div>
+<div class="eq">$$\varphi(x)=1+\frac{2x}{7}$$</div>
+<div class="box"><b>Check:</b> $\int_0^1h\varphi\,dt=\frac14+\frac27\cdot\frac18=\frac27$ ✓</div>`},
+{q:R`$$\varphi(x)=1+\int_1^e\ln(xt)\,\varphi(t)\,dt$$`,hint:R`Use $\ln(xt)=\ln x+\ln t$ to separate the kernel (this needs $x,t\gt0$, which is why the interval is $[1,e]$). You will need $\int_1^e\ln t\,dt=1$ and $\int_1^e(\ln t)^2\,dt=e-2$.`,sol:R`<p>$\ln(xt)=\ln x\cdot1+1\cdot\ln t$ is a <b>two-term separable kernel</b>. Let $c_1=\int_1^e\varphi\,dt$ and $c_2=\int_1^e\ln t\,\varphi\,dt$. Then</p>
+<div class="eq">$$\varphi(x)=1+c_2+c_1\ln x$$</div>
+<p>Plug into the definitions, using the two integrals from the hint:</p>
+<div class="eq">$$\begin{aligned}c_1&=(1+c_2)(e-1)+c_1\ \Rightarrow\ c_2=-1\\ c_2&=(1+c_2)+c_1(e-2)\ \Rightarrow\ c_1=-\frac{1}{e-2}\end{aligned}$$</div>
+<p>The $c_1$ terms cancel in the first equation, so it fixes $c_2$ on its own. The $2\times2$ system is still uniquely solvable because its determinant, $-(e-1)(e-2)$, is not zero.</p>
+<div class="eq">$$\varphi(x)=-\frac{\ln x}{e-2}\approx-1.392\ln x$$</div>
+<div class="box"><b>Check:</b> $1+\frac{-1}{e-2}\int_1^e(\ln x+\ln t)\ln t\,dt=1-\frac{\ln x+(e-2)}{e-2}=-\frac{\ln x}{e-2}$ ✓</div>`},
+{q:R`$$f(x)-\int_0^1 10\,x^2t^2\,f(t)\,dt=4x+x^2$$`,hint:R`First move the integral to the right: $f(x)=4x+x^2+\int_0^1 10x^2t^2f(t)\,dt$. The kernel has one term, $x^2\cdot t^2$.`,sol:R`<p>Rewrite as $f(x)=4x+x^2+10x^2\int_0^1t^2f(t)\,dt$. Let $c=\int_0^1t^2f(t)\,dt$, so</p>
+<div class="eq">$$f(x)=4x+(1+10c)\,x^2$$</div>
+<p>Substitute into the definition of $c$:</p>
+<div class="eq">$$c=\int_0^1t^2\left[4t+(1+10c)t^2\right]dt=1+\frac{1+10c}{5}\ \Rightarrow\ c=-\frac65$$</div>
+<p>Then $1+10c=1-12=-11$.</p>
+<div class="eq">$$f(x)=4x-11x^2$$</div>
+<div class="box">Here the coefficient of $c$ is $1-10\int_0^1t^4\,dt=1-2=-1\ne0$, so the equation for $c$ has exactly one solution. <b>Check:</b> $\int_0^1t^2\left(4t-11t^2\right)dt=1-\frac{11}{5}=-\frac65=c$ ✓</div>`},
+{ch:1,pre:R`<p>$A$ and $B$ are continuous and <b>periodic with period 1</b>, i.e. $A(x+1)=A(x)$ and $B(x+1)=B(x)$, and</p><div class="eq">$$\int_0^1B(t)\,dt=\frac12,\qquad\int_0^1A(t)B(t)\,dt=\frac13$$</div><p>You are never told what $A$ and $B$ are. Find $\varphi(x)$ in terms of $A(x)$.</p>`,q:R`$$\varphi(x)=1+\int_0^2A(x)B(t)\,\varphi(t)\,dt$$`,hint:R`Let $c=\int_0^2B(t)\varphi(t)\,dt$ so $\varphi=1+cA(x)$. You need $\int_0^2B$ and $\int_0^2AB$. What does periodicity say about an integral over two full periods? Note that $AB$ is also periodic.`,sol:R`<p>With $c=\int_0^2B\varphi\,dt$, $\varphi(x)=1+cA(x)$, and</p>
+<div class="eq">$$c=\int_0^2B\,dt+c\int_0^2AB\,dt$$</div>
+<p>$B$ and $AB$ both have period 1, so an integral over $[0,2]$ is twice the integral over $[0,1]$:</p>
+<div class="eq">$$c=2\cdot\frac12+c\cdot2\cdot\frac13=1+\frac{2c}{3}\ \Rightarrow\ c=3$$</div>
+<div class="eq">$$\varphi(x)=1+3A(x)$$</div>
+<div class="box"><b>Sanity check:</b> take $A\equiv\frac23$ and $B\equiv\frac12$ (they satisfy all the conditions). Then $\varphi$ is the constant $3$, and $1+3\cdot\frac23=3$ ✓</div>`},
+{ch:1,pre:R`<p>$A$ and $B$ are <b>odd</b> functions on $[-1,1]$, i.e. $A(-x)=-A(x)$ and $B(-t)=-B(t)$, and</p><div class="eq">$$\int_0^1tB(t)\,dt=\frac14,\qquad\int_0^1A(t)B(t)\,dt=\frac18$$</div><p>Find $\varphi(x)$ in terms of $A(x)$.</p>`,q:R`$$\varphi(x)=x^2+x+\int_{-1}^{1}A(x)B(t)\,\varphi(t)\,dt$$`,hint:R`Let $c=\int_{-1}^{1}B\varphi\,dt$. Decide for each of $B\cdot t^2$, $B\cdot t$ and $A\cdot B$ whether the integrand is odd or even.`,sol:R`<p>With $c=\int_{-1}^{1}B\varphi\,dt$, $\varphi(x)=x^2+x+cA(x)$, and</p>
+<div class="eq">$$c=\int_{-1}^{1}t^2B\,dt+\int_{-1}^{1}tB\,dt+c\int_{-1}^{1}AB\,dt$$</div>
+<ul><li>$t^2B$ is even times odd = <b>odd</b>, so its integral is $0$.</li><li>$tB$ is odd times odd = <b>even</b>, so its integral is $2\cdot\frac14=\frac12$.</li><li>$AB$ is odd times odd = <b>even</b>, so its integral is $2\cdot\frac18=\frac14$.</li></ul>
+<div class="eq">$$c=0+\frac12+\frac c4\ \Rightarrow\ c=\frac23$$</div>
+<div class="eq">$$\varphi(x)=x^2+x+\frac23A(x)$$</div>
+<div class="box"><b>Sanity check:</b> $A(x)=\frac x2$ and $B(t)=\frac{3t}{4}$ satisfy all conditions. Then $\varphi=x^2+\frac{4x}{3}$, and substituting into the equation gives $x^2+x+\frac x3$ ✓</div>`},
+{ch:1,pre:R`<p>Let $g(x)=\sin\!\left(xe^{-x^2}\right)$, and let $A(x)$ be continuous on $[0,1]$. Find the conditions on $A(x)$ under which the equation below has <b>infinitely many</b> solutions $y$. Can such an $A$ exist?</p>`,q:R`$$y(x)=\sin\!\left(xe^{-x^2}\right)+\int_0^1A(x)\,y(t)\,dt$$`,hint:R`The kernel is $A(x)\cdot1$, so $y=g+cA$ with $c=\int_0^1y\,dt$. Substitute into the definition of $c$ and get an equation of the form $(1-a)c=G$. When does it have infinitely many solutions $c$? Then decide whether $G$ can be $0$.`,sol:R`<p>The kernel is $A(x)\cdot1$, so</p>
+<div class="eq">$$y(x)=g(x)+cA(x),\qquad c=\int_0^1y(t)\,dt$$</div>
+<p>Let $a=\int_0^1A\,dt$ and $G=\int_0^1g\,dt$. Substituting into the definition of $c$:</p>
+<div class="eq">$$c=G+ca\ \Rightarrow\ (1-a)\,c=G$$</div>
+<ul><li>If $a\ne1$: exactly one $c=\frac{G}{1-a}$, so a <b>unique</b> solution.</li>
+<li>If $a=1$ and $G\ne0$: the equation reads $0=G$, so <b>no</b> solution.</li>
+<li>If $a=1$ and $G=0$: every $c$ works. Since $a=1$ means $A\not\equiv0$, different $c$ give different $y=g+cA$, so there are <b>infinitely many</b> solutions.</li></ul>
+<p>So the conditions are $\int_0^1A\,dt=1$ <b>and</b> $\int_0^1g\,dt=0$.</p>
+<p><b>The second condition never holds.</b> For $t\in(0,1]$ let $u=te^{-t^2}$. Since $e^{-t^2}\le1$, we have $0\lt u\le t\le1\lt\pi$, so $\sin u\gt0$. The integrand of $G$ is continuous and strictly positive on $(0,1]$, so $G\gt0$.</p>
+<div class="box"><b>Conclusion.</b> $G\ne0$, so the case $a=1$, $G=0$ can never occur. For every $A$ the equation has either exactly one solution ($\int_0^1A\ne1$) or none ($\int_0^1A=1$). No choice of $A$ gives infinitely many solutions.</div>`}],
+ms:[
+{pre:R`<p>Solve the equation by the solve-first method, and hence find the exact sum</p><div class="eq">$$S=\sum_{k=0}^{\infty}\frac{1}{(2k+1)!\,(2k+3)}$$</div>`,q:R`$$u(x)=1+\int_0^1\sinh(x)\,t\,u(t)\,dt$$`,hint:R`Let $C=\int_0^1t\,u(t)\,dt$, so $u=1+C\sinh x$. You need $\int_0^1t\sinh t\,dt$. Then expand $\sinh x$ and integrate $t\cdot t^{2k+1}$.`,sol:R`<p><b>Step 1.</b> $u(x)=1+C\sinh x$ with $C=\int_0^1t\,u\,dt$. Since $\int_0^1t\,dt=\frac12$ and $\int_0^1t\sinh t\,dt=[t\cosh t]_0^1-\int_0^1\cosh t\,dt=\cosh1-\sinh1=e^{-1}$,</p>
+<div class="eq">$$C=\tfrac12+Ce^{-1}\ \Rightarrow\ C=\frac{e}{2(e-1)},\qquad\frac1{2C}=1-e^{-1}$$</div>
+<p><b>Step 2.</b> $\sinh x=\sum\frac{x^{2k+1}}{(2k+1)!}$, and $\int_0^1t^{2k+2}\,dt=\frac1{2k+3}$, so</p>
+<div class="eq">$$C=\frac12+C\sum_{k=0}^{\infty}\frac1{(2k+1)!\,(2k+3)}=\frac12+CS\ \Rightarrow\ S=1-\frac1{2C}$$</div>
+<div class="eq">$$S=1-\left(1-e^{-1}\right)=\frac1e$$</div>
+<div class="box"><b>Check:</b> $\frac13+\frac1{30}+\frac1{840}+\cdots\approx0.36786$ and $\frac1e\approx0.36788$ ✓</div>`},
+{pre:R`<p>Solve the equation by the solve-first method, and hence find the exact sum</p><div class="eq">$$S=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k+1)!\,(2k+2)}$$</div>`,q:R`$$u(x)=1+\int_0^1\sin(x)\,u(t)\,dt$$`,hint:R`Here $w=1$. Let $C=\int_0^1u\,dt$, so $u=1+C\sin x$ and $C=1+C\int_0^1\sin t\,dt$.`,sol:R`<p><b>Step 1.</b> $u(x)=1+C\sin x$ with $C=\int_0^1u\,dt$:</p>
+<div class="eq">$$C=1+C\left(1-\cos1\right)\ \Rightarrow\ C\cos1=1\ \Rightarrow\ C=\frac1{\cos1}$$</div>
+<p><b>Step 2.</b> $\sin x=\sum\frac{(-1)^kx^{2k+1}}{(2k+1)!}$ and $\int_0^1t^{2k+1}\,dt=\frac1{2k+2}$, so $C=1+CS$ and $S=1-\frac1C$.</p>
+<div class="eq">$$S=1-\cos1$$</div>
+<div class="box"><b>Check:</b> $\frac12-\frac1{24}+\frac1{720}-\cdots\approx0.4597$ and $1-\cos1\approx0.4597$ ✓</div>`},
+{pre:R`<p>Solve the equation by the solve-first method, and hence find the exact sum</p><div class="eq">$$S=\sum_{k=0}^{\infty}\frac{(-1)^k}{k!\,(k+2)}$$</div>`,q:R`$$u(x)=1+\int_0^1e^{-x}\,t\,u(t)\,dt$$`,hint:R`Let $C=\int_0^1t\,u\,dt$, so $u=1+Ce^{-x}$. You need $\int_0^1te^{-t}\,dt=1-2e^{-1}$.`,sol:R`<p><b>Step 1.</b> $u(x)=1+Ce^{-x}$ with $C=\int_0^1t\,u\,dt$. By parts, $\int_0^1te^{-t}\,dt=\left[-te^{-t}\right]_0^1+\int_0^1e^{-t}\,dt=1-2e^{-1}$, so</p>
+<div class="eq">$$C=\tfrac12+C\left(1-2e^{-1}\right)\ \Rightarrow\ 2Ce^{-1}=\tfrac12\ \Rightarrow\ C=\frac e4$$</div>
+<p><b>Step 2.</b> $e^{-x}=\sum\frac{(-1)^kx^k}{k!}$ and $\int_0^1t^{k+1}\,dt=\frac1{k+2}$, so $C=\frac12+CS$ and $S=1-\frac1{2C}$.</p>
+<div class="eq">$$S=1-\frac2e$$</div>
+<div class="box"><b>Check:</b> $\frac12-\frac13+\frac18-\frac1{30}+\cdots\approx0.2642$ and $1-\frac2e\approx0.2642$ ✓</div>`},
+{pre:R`<p>Solve the equation by the solve-first method, and hence find the exact sum</p><div class="eq">$$S=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k+1)!\,(2k+4)}$$</div>`,q:R`$$u(x)=1+\int_0^1\sin(x)\,t^2\,u(t)\,dt$$`,hint:R`Let $C=\int_0^1t^2u\,dt$, so $u=1+C\sin x$. Integrate $t^2\sin t$ by parts twice, or use the antiderivative $-t^2\cos t+2t\sin t+2\cos t$.`,sol:R`<p><b>Step 1.</b> $u(x)=1+C\sin x$ with $C=\int_0^1t^2u\,dt$. We have $\int_0^1t^2\,dt=\frac13$ and</p>
+<div class="eq">$$\int_0^1t^2\sin t\,dt=\left[-t^2\cos t+2t\sin t+2\cos t\right]_0^1=2\sin1+\cos1-2$$</div>
+<div class="eq">$$C=\tfrac13+C\left(2\sin1+\cos1-2\right)\ \Rightarrow\ C=\frac{1}{3\left(3-2\sin1-\cos1\right)}$$</div>
+<p><b>Step 2.</b> $\int_0^1t^2\cdot t^{2k+1}\,dt=\frac1{2k+4}$, so $C=\frac13+CS$ and $S=1-\frac1{3C}$.</p>
+<div class="eq">$$S=1-\left(3-2\sin1-\cos1\right)=2\sin1+\cos1-2$$</div>
+<div class="box"><b>Check:</b> $\frac14-\frac1{36}+\frac1{960}-\cdots\approx0.2232$ and $2\sin1+\cos1-2\approx0.2232$ ✓</div>`}],
+m2:[
+{pre:R`<p>Find the one-term and the two-term Maclaurin approximations.</p>`,q:R`$$\varphi(x)=x+\int_0^1\sin(xt)\,\varphi(t)\,dt$$`,hint:R`First $\sin(xt)\approx xt$, then $\sin(xt)\approx xt-\frac{x^3t^3}{6}$.`,sol:R`<p><b>One term:</b> $\varphi=x(1+c)$ with $c=\int_0^1t\varphi\,dt=\frac{1+c}{3}$, so $c=\frac12$ and $\varphi\approx\frac{3x}{2}$.</p>
+<p><b>Two terms:</b> $\varphi=(1+c_1)x-\frac{c_2}{6}x^3$ with $c_1=\int_0^1t\varphi\,dt$ and $c_2=\int_0^1t^3\varphi\,dt$:</p>
+<div class="eq">$$\begin{aligned}\tfrac23c_1+\tfrac1{30}c_2&=\tfrac13\\ -\tfrac15c_1+\tfrac{43}{42}c_2&=\tfrac15\end{aligned}$$</div>
+<p>$c_1\approx0.4855$ and $c_2\approx0.2902$.</p>
+<div class="eq">$$\varphi(x)\approx1.4855x-0.0484x^3$$</div>`},
+{pre:R`<p>Use $\sin(xt)\approx xt$ and estimate $\varphi(1)$.</p>`,q:R`$$\varphi(x)=2+\int_0^1\sin(xt)\,\varphi(t)\,dt$$`,hint:R`Let $c=\int_0^1t\varphi\,dt$, so $\varphi=2+cx$.`,sol:R`<div class="eq">$$c=\int_0^1t(2+ct)\,dt=1+\frac c3\ \Rightarrow\ c=\frac32$$</div><div class="eq">$$\varphi(x)\approx2+1.5x,\qquad\varphi(1)\approx3.5$$</div>`},
+{pre:R`<p>Replace $\sin(xt)$ by its first two Maclaurin terms and find an approximate solution.</p>`,q:R`$$\varphi(x)=x^2+\int_0^1\sin(xt)\,\varphi(t)\,dt$$`,hint:R`Use $\sin(xt)\approx xt-\frac{x^3t^3}{6}$. Then $\varphi=x^2+c_1x-\frac{c_2}{6}x^3$ with $c_1=\int_0^1t\varphi\,dt$ and $c_2=\int_0^1t^3\varphi\,dt$.`,sol:R`<p>The needed integrals are $\int_0^1t\cdot t^2\,dt=\frac14$, $\int_0^1t^3\cdot t^2\,dt=\frac16$, and $\int_0^1t^{k}\,dt=\frac1{k+1}$ for the rest.</p>
+<div class="eq">$$\begin{aligned}c_1&=\tfrac14+\tfrac{c_1}{3}-\tfrac{c_2}{30}\ \Rightarrow\ \tfrac23c_1+\tfrac1{30}c_2=\tfrac14\\ c_2&=\tfrac16+\tfrac{c_1}{5}-\tfrac{c_2}{42}\ \Rightarrow\ -\tfrac15c_1+\tfrac{43}{42}c_2=\tfrac16\end{aligned}$$</div>
+<p>Solving: $c_1=\frac{3155}{8684}\approx0.3633$ and $c_2=\frac{1015}{4342}\approx0.2338$.</p>
+<div class="eq">$$\varphi(x)\approx x^2+0.3633x-0.0390x^3$$</div>
+<p>With one term only, $c=\frac14+\frac c3$ gives $c=\frac38$ and $\varphi\approx x^2+\frac38x$.</p>
+<div class="box">A numerical solution of the exact equation gives $\varphi(1)\approx1.3260$. The two-term answer gives $1.3244$.</div>`,src:R`modelled on Exercise Set 6, Problem 10, METU ME540 (<a href="https://users.metu.edu.tr/tarman/ME540/ExerciseSet06.pdf" target="_blank" rel="noopener">PDF</a>).`},
+{pre:R`<p>Replace $\cos(xt)$ by its first two terms and find an approximate solution.</p>`,q:R`$$\varphi(x)=x-\int_0^1\cos(xt)\,\varphi(t)\,dt$$`,hint:R`$\cos(xt)\approx1-\frac{x^2t^2}{2}$, so the kernel in $-\cos(xt)$ is $-1\cdot1+\frac{x^2}{2}\cdot t^2$. Let $c_1=\int_0^1\varphi\,dt$ and $c_2=\int_0^1t^2\varphi\,dt$.`,sol:R`<p>$\varphi(x)=x-c_1+\frac{c_2}{2}x^2$ with $c_1=\int_0^1\varphi\,dt$ and $c_2=\int_0^1t^2\varphi\,dt$.</p>
+<div class="eq">$$\begin{aligned}c_1&=\tfrac12-c_1+\tfrac{c_2}{6}\ \Rightarrow\ 2c_1-\tfrac16c_2=\tfrac12\\ c_2&=\tfrac14-\tfrac{c_1}{3}+\tfrac{c_2}{10}\ \Rightarrow\ \tfrac13c_1+\tfrac{9}{10}c_2=\tfrac14\end{aligned}$$</div>
+<p>Solving: $c_1=\frac{177}{668}$ and $c_2=\frac{30}{167}$.</p>
+<div class="eq">$$\varphi(x)\approx x-\frac{177}{668}+\frac{15}{167}x^2\approx-0.265+x+0.090x^2$$</div>
+<div class="box">With the single term $\cos(xt)\approx1$ you get $c=\frac12-c$, so $\varphi\approx x-\frac14$. A numerical solution of the exact equation has $\varphi(0)\approx-0.2644$ and $\varphi(1)\approx0.8200$; the two-term answer gives $-0.2650$ and $0.8249$.</div>`},
+{pre:R`<p>Use $K_N(x,t)=\sum_{k=0}^{N}\frac{(xt)^k}{k!}$ with $N=1$ and $N=2$. Compare the two answers at $x=1$.</p>`,q:R`$$\varphi(x)=1+\int_0^1e^{xt}\,\varphi(t)\,dt$$`,hint:R`For $N=1$ the kernel is $1\cdot1+x\cdot t$, so $\varphi=1+c_1+c_2x$ with $c_1=\int_0^1\varphi\,dt$ and $c_2=\int_0^1t\varphi\,dt$.`,sol:R`<p><b>$N=1$.</b> The first equation $c_1=1+c_1+\frac{c_2}{2}$ forces $c_2=-2$. The second, $c_2=\frac{1+c_1}{2}+\frac{c_2}{3}$, then gives $c_1=-\frac{11}{3}$.</p>
+<div class="eq">$$\varphi(x)\approx-\frac83-2x,\qquad\varphi(1)\approx-4.667$$</div>
+<p><b>$N=2$.</b> Add the term $\frac{x^2}{2}\cdot t^2$ and a third constant $c_3=\int_0^1t^2\varphi\,dt$. Solving the $3\times3$ system gives</p>
+<div class="eq">$$\varphi(x)\approx-\frac{2457}{1312}-\frac{531}{328}x-\frac{375}{656}x^2,\qquad\varphi(1)\approx-4.063$$</div>
+<div class="box">Values of $\varphi(1)$ for $N=1,2,3,4$ are $-4.667$, $-4.063$, $-4.002$, $-3.997$. A numerical solution of the exact equation gives $-3.9974$. The sequence converges quickly, and the change from $N=3$ to $N=4$ is already below $0.005$.</div>`},
+{pre:R`<p>Use $e^{xt}\approx1+xt+\frac{x^2t^2}{2}$ and find an approximate solution. Use symmetry to decide which constants are zero before solving.</p>`,q:R`$$\varphi(x)=x^2+\int_{-1}^{1}e^{xt}\,\varphi(t)\,dt$$`,hint:R`Let $c_k=\int_{-1}^{1}t^k\varphi(t)\,dt$ for $k=0,1,2$, so $\varphi=x^2+c_0+c_1x+\tfrac{c_2}{2}x^2$. The equation has an even $f$, so $\varphi$ should be even.`,sol:R`<p>$\varphi=x^2+c_0+c_1x+\frac{c_2}{2}x^2$. Over $[-1,1]$ the integrand of $c_1$ is $t\varphi$, and $\varphi$ is even, so $c_1=0$. (Check: $c_1=c_1\int_{-1}^{1}t^2\,dt=\frac23c_1$, hence $c_1=0$.)</p>
+<div class="eq">$$\begin{aligned}c_0&=\tfrac23+2c_0+\tfrac{c_2}{3}\ \Rightarrow\ c_0+\tfrac13c_2=-\tfrac23\\ c_2&=\tfrac25+\tfrac23c_0+\tfrac15c_2\ \Rightarrow\ -\tfrac23c_0+\tfrac45c_2=\tfrac25\end{aligned}$$</div>
+<p>Solving: $c_0=-\frac{15}{23}$ and $c_2=-\frac1{23}$.</p>
+<div class="eq">$$\varphi(x)\approx\frac{45}{46}x^2-\frac{15}{23}$$</div>
+<div class="box">A numerical solution of the exact equation has $\varphi(0)\approx-0.6525$ and $\varphi(1)\approx0.3266$; the approximation gives $-0.6522$ and $0.3261$. Here the missing term $\frac{x^4t^4}{24}$ of $\cosh(xt)$ is tiny, and the odd terms drop out by symmetry.</div>`},
+{pre:R`<p>Use the first three terms of the series of $e^{xt}-1$ and find an approximate solution. Give the one-term answer too and compare both at $x=1$.</p>`,q:R`$$\varphi(x)=e^x-x+\int_0^1x\left(e^{xt}-1\right)\varphi(t)\,dt$$`,hint:R`$x\left(e^{xt}-1\right)=x^2t+\frac{x^3t^2}{2}+\frac{x^4t^3}{6}+\cdots$. Let $c_k=\int_0^1t^k\varphi\,dt$ for $k=1,2,3$. You will need $\int_0^1t^ke^t\,dt$.`,sol:R`<p>With three terms, $\varphi(x)=e^x-x+c_1x^2+\frac{c_2}{2}x^3+\frac{c_3}{6}x^4$.</p>
+<p><b>One term</b> (keep only $x^2t$): $c_1=\int_0^1t\left(e^t-t+c_1t^2\right)dt=1-\frac13+\frac{c_1}{4}$, so $c_1=\frac89$ and $\varphi\approx e^x-x+\frac89x^2$, giving $\varphi(1)\approx2.607$.</p>
+<p><b>Three terms.</b> The $3\times3$ system involves $\int_0^1t^ke^t\,dt$ for $k=1,\dots,3$. Solving numerically gives $c_1\approx1.0106$, $c_2\approx0.7469$ and $c_3\approx0.5977$:</p>
+<div class="eq">$$\varphi(x)\approx e^x-x+1.0106x^2+0.3734x^3+0.0996x^4$$</div>
+<div class="box">$\varphi(1)\approx3.202$ with three terms, $3.230$ with four, and the exact value is $\approx3.2356$. The one-term answer $2.607$ is poor, which shows how much the higher terms contribute here.</div>`,src:R`modelled on Exercise Set 6, Problem 11, METU ME540 (<a href="https://users.metu.edu.tr/tarman/ME540/ExerciseSet06.pdf" target="_blank" rel="noopener">PDF</a>).`},
+{ch:1,pre:R`<p>Try $\cos(xt)\approx1$ first, then $\cos(xt)\approx1-\frac{x^2t^2}{2}$. What goes wrong, and how does the second attempt fix it?</p>`,q:R`$$\varphi(x)=x+\int_0^1\cos(xt)\,\varphi(t)\,dt$$`,hint:R`With $\cos(xt)\approx1$ the kernel is $1\cdot1$, so $\varphi=x+c$ with $c=\int_0^1\varphi\,dt$. Substitute and look at the equation for $c$.`,sol:R`<p><b>One term.</b> $\varphi=x+c$ and $c=\int_0^1(t+c)\,dt=\frac12+c$. This says $0=\frac12$, so the truncated equation has <b>no solution</b>. The coefficient of $c$ on the right is $\int_0^1dt=1$, so $c$ cancels from both sides.</p>
+<p><b>Two terms.</b> $\varphi=x+c_1-\frac{c_2}{2}x^2$ with $c_1=\int_0^1\varphi\,dt$, $c_2=\int_0^1t^2\varphi\,dt$:</p>
+<div class="eq">$$\begin{aligned}c_1&=\tfrac12+c_1-\tfrac{c_2}{6}\ \Rightarrow\ c_2=3\\ c_2&=\tfrac14+\tfrac{c_1}{3}-\tfrac{c_2}{10}\ \Rightarrow\ c_1=\tfrac{183}{20}\end{aligned}$$</div>
+<div class="eq">$$\varphi(x)\approx\frac{183}{20}+x-\frac32x^2$$</div>
+<div class="box">The true kernel is close to this borderline case: the coefficient that multiplies the unknown constants is only about $0.05$ away from making the system singular, so the solution is large. Exactly, $\varphi(0)\approx9.416$, against $9.15$ for two terms and $9.42$ for three. When that coefficient is near $1$, expect a big solution.</div>`}]};
+
+S.seen=S.seen||{};
+const P={check:'<path d="M20 6 9 17l-5-5"/>',book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',pen:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',quiz:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',award:'<circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/>',home:'<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/>',next:'<path d="M5 12h14M13 6l6 6-6 6"/>',prev:'<path d="M19 12H5M11 6l-6 6 6 6"/>',lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',chev:'<path d="m9 6 6 6-6 6"/>'};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const key=(mi,k)=>MODS[mi].id+'_'+k;
+const isDone=(mi,k)=>k==='quiz'?!!S.done[MODS[mi].id]:!!S.seen[key(mi,k)];
+const items=mi=>[...MODS[mi].lessons.map((_,i)=>({k:i,t:'lesson'})),{k:'hw',t:'hw'},{k:'quiz',t:'quiz'}];
+const label=(mi,x)=>x.t==='lesson'?MODS[mi].lessons[x.k].t:x.t==='hw'?'Homework':'Module quiz';
+const ICON={lesson:'book',hw:'pen',quiz:'quiz'},KIND={lesson:'Lesson',hw:'Practice',quiz:'Quiz'};
+const pct=()=>{let a=0,b=0;MODS.forEach((m,i)=>items(i).forEach(x=>{b++;if(isDone(i,x.k))a++}));return Math.round(a/b*100)};
+const nxt=()=>{for(let i=0;i<MODS.length;i++)for(const x of items(i))if(!isDone(i,x.k))return{mi:i,x};return null};
+const short=t=>t.replace(/^Module \d+ – /,'').replace(/ \(no λ\)/,'');
+const mark=(mi,k)=>{S.seen[key(mi,k)]=1;save()};
+function go(mi,k){k=/^\d+$/.test(k)?+k:k;k==='hw'?hw(mi):k==='quiz'?quiz(mi):lesson(mi,k)}
+function crumbs(a){return `<div class="crumbs">`+a.map((x,i)=>(i?ic('chev'):'')+(x[1]?`<a href="#" onclick="${x[1]};return false">${x[0]}</a>`:`<span>${x[0]}</span>`)).join('')+`</div>`}
+function side(c){const all=certOK();
+$('#gp').textContent=pct()+'% complete';$('#tn1').className=c.v==='home'?'on':'';$('#tn2').className=c.v==='cert'?'on':'';
+$('#nav').innerHTML=`<a class="nv ${c.v==='home'?'on':''}" href="#" onclick="home();return false"><span class="st">${ic('home')}</span><span>Course home</span></a>`+
+MODS.map((m,mi)=>{const its=items(mi),d=its.filter(x=>isDone(mi,x.k)).length;
+return `<details class="mg" ${c.mi===mi?'open':''}><summary><span class="mt">${m.title.replace(/ \(no λ\)/,'')}</span><span class="mp">${d}/${its.length}</span></summary>`+
+its.map(x=>`<a class="nv ${c.mi===mi&&c.k===x.k?'on':''} ${isDone(mi,x.k)?'dn':''}" href="#" onclick="go(${mi},'${x.k}');return false"><span class="st">${isDone(mi,x.k)?ic('check'):ic(ICON[x.t])}</span><span>${label(mi,x)}</span></a>`).join('')+`</details>`}).join('')+
+`<a class="nv ${c.v==='exam'?'on':''} ${examPassed()?'dn':''}" href="#" onclick="exam();return false"><span class="st">${examPassed()?ic('check'):ic(examOK?'quiz':'lock')}</span><span>Final exam</span></a>`+
+`<a class="nv ${c.v==='cert'?'on':''} ${all?'':'lock'}" href="#" onclick="${all?'cert()':'home()'};return false"><span class="st">${ic(all?'award':'lock')}</span><span>Certificate</span></a>`}
+function frame(c,h){if(c.v!=='exam')clearInterval(window._et);side(c);app.innerHTML=c.v==='home'?h:'<div class="pw">'+h+'</div>';document.body.classList.remove('nav-open');window.scrollTo(0,0);typeset()}
+function stepper(mi,cur){return `<div class="steps">`+items(mi).map(x=>`<i class="${x.k===cur?'c':isDone(mi,x.k)?'d':''}"></i>`).join('')+`</div>`}
+function resetAll(){S={done:{},seen:{},name:'',exam:null};examOK=false;save();home()}
+function certGo(){certOK()?cert():modsDone()?exam():home()}
+function home(){const n=MODS.filter(m=>S.done[m.id]).length,p=pct(),nx=nxt(),
+nl=MODS.reduce((a,m)=>a+m.lessons.length,0),nh=MODS.reduce((a,m)=>a+HW[m.id].length,0);
+frame({v:'home'},`<section class="hero"><h1>Integral Equations</h1><div class="sline">Fredholm equations of the second kind</div>
+<div class="setpill">$\\{\\,x\\in$ Unit 1 $\\mid\\;x$ is solved by a separable kernel$\\,\\}$</div>
+<p class="lead">${MODS.length} modules, ${nl} lessons and ${nh} practice problems on separable kernels, summing series with integral equations, and Maclaurin approximation.</p>
+<div>${nx?`<button class="btn" onclick="go(${nx.mi},'${nx.x.k}')">${p?'Continue':'Start'}: ${label(nx.mi,nx.x)} ${ic('next')}</button>`:examPassed()?`<button class="btn" onclick="cert()">${ic('award')} Get your certificate</button>`:`<button class="btn" onclick="exam()">${ic('lock')} Take the final exam</button>`}</div>
+<div class="prog"><div class="bar"><div style="width:${p}%"></div></div>${p}% complete. Pass each quiz with 75%, then pass the password-protected final exam to earn your verified certificate.</div></section>
+<div class="trunk"></div><div class="mods" style="--n:${MODS.length}">`+MODS.map((m,mi)=>`<div class="card mcard"><div class="mhead"><div><div class="mn">Module ${mi+1}</div><h2>${short(m.title)}</h2></div>${S.done[m.id]?'<span class="tag ok">Quiz passed</span>':'<span class="tag">In progress</span>'}</div>
+<div class="rows">`+items(mi).map(x=>`<a class="row ${isDone(mi,x.k)?'dn':''}" href="#" onclick="go(${mi},'${x.k}');return false"><span class="st">${isDone(mi,x.k)?ic('check'):ic(ICON[x.t])}</span><span>${label(mi,x)}</span><span class="meta">${x.t==='hw'?HW[m.id].length+' problems':KIND[x.t]}</span></a>`).join('')+`</div></div>`).join('')+`</div>
+<div class="card mhead" style="align-items:center;margin-top:28px"><div><h2 style="font-size:1.2rem">Final exam</h2><span class="sub">${examPassed()?'Passed with '+S.exam.score+'/'+S.exam.total+'.':'Password protected. 30 marks, 75 minutes. Required for the verified certificate.'}</span></div><button class="btn" onclick="exam()">${ic(examPassed()?'check':'lock')} ${examPassed()?'Retake exam':'Take final exam'}</button></div>
+<div class="card mhead" style="align-items:center;margin-top:16px"><div><h2 style="font-size:1.2rem">Verified certificate</h2><span class="sub">${certOK()?'Unlocked. Add your name and print it.':'Pass all three module quizzes and the final exam to unlock.'}</span></div><button class="btn" ${certOK()?'':'disabled'} onclick="cert()">${ic(certOK()?'award':'lock')} Get certificate</button></div>
+<p class="sub" style="font-size:.85rem">Progress is saved in this browser. <a href="#" onclick="resetAll();return false">Reset progress</a></p>`)}
+function lesson(mi,li){const m=MODS[mi],L=m.lessons[li],last=li===m.lessons.length-1;mark(mi,li);
+frame({v:'lesson',mi,k:li},crumbs([['Course','home()'],[short(m.title)]])+
+`<div class="pageh"><div class="lab">Lesson ${li+1} of ${m.lessons.length}</div><h1>${L.t}</h1></div>${stepper(mi,li)}
+<div class="card prose">${L.h.replace(/<p><b>(Step[^<]*)<\/b>/g,'<p class="step"><b>$1</b>')}</div>
+<div class="nav"><button class="btn ghost" ${li?'':'disabled'} onclick="lesson(${mi},${li-1})">${ic('prev')} Previous</button>
+<button class="btn" onclick="${last?`hw(${mi})`:`lesson(${mi},${li+1})`}">${last?'Go to practice problems':'Next lesson'} ${ic('next')}</button></div>`)}
+function hw(mi){const m=MODS[mi],Ps=HW[m.id];mark(mi,'hw');
+frame({v:'hw',mi,k:'hw'},crumbs([['Course','home()'],[short(m.title),`lesson(${mi},0)`],['Homework']])+
+`<div class="pageh"><div class="lab">${short(m.title)}</div><h1>Homework</h1></div>${stepper(mi,'hw')}
+<p class="sub">Try each problem on paper first. Open the hint if you are stuck, then compare your work with the full solution.</p>`+
+Ps.map((p,i)=>`<div class="card prob"><div class="ph"><b>Problem ${i+1}</b>${p.ch?'<span class="tag ch">Challenge</span>':''}</div><div class="pb prose">${p.pre||''}<div class="eq q">${p.q}</div><details><summary>Hint</summary><p>${p.hint}</p></details><details><summary>Show solution</summary>${p.sol}</details>${p.src?`<p class="src">Source: ${p.src}</p>`:''}</div></div>`).join('')+
+`<div class="nav"><button class="btn ghost" onclick="lesson(${mi},${m.lessons.length-1})">${ic('prev')} Back to lessons</button><button class="btn" onclick="quiz(${mi})">Take the quiz ${ic('next')}</button></div>`)}
+let Q=[];
+function qcount(){const n=Q.filter((_,i)=>document.querySelector(`input[name=q${i}]:checked`)).length;const e=$('#qc');if(e)e.textContent=n+' of '+Q.length+' answered'}
+function quiz(mi){const m=MODS[mi];Q=shuf(m.quiz).slice(0,4).map(f=>f());
+frame({v:'quiz',mi,k:'quiz'},crumbs([['Course','home()'],[short(m.title),`lesson(${mi},0)`],['Quiz']])+
+`<div class="pageh"><div class="lab">${short(m.title)}</div><h1>Check your understanding</h1></div>${stepper(mi,'quiz')}
+<div class="qinfo"><span class="tag">${Q.length} questions</span><span class="tag">Pass mark 75%</span><span class="tag">Unlimited retries</span><span class="tag" id="qc">0 of ${Q.length} answered</span></div><div oninput="qcount()">`+
+Q.map((q,i)=>`<div class="card"><div class="qn"><span>${i+1}</span><span>${q.q}</span></div>`+q.opts.map((o,j)=>`<label class="o" id="o${i}_${j}"><input type="radio" name="q${i}" value="${j}"><span class="lt">${'ABCD'[j]}</span><span>${o}</span></label>`).join('')+`<div class="fb" id="fb${i}"></div></div>`).join('')+
+`</div><div id="res"></div><button class="btn" id="sb" onclick="grade(${mi})">Submit answers</button>`)}
+function grade(mi){let s=0;
+Q.forEach((q,i)=>{const c=document.querySelector(`input[name=q${i}]:checked`);const v=c?+c.value:-1;
+if(v===q.a)s++;$('#o'+i+'_'+q.a).classList.add('right');
+if(v>=0&&v!==q.a)$('#o'+i+'_'+v).classList.add('wrong');
+const f=$('#fb'+i);f.className='fb show '+(v===q.a?'ok':'bad');f.innerHTML=`<b>${v===q.a?'Correct.':v<0?'Not answered.':'Not quite.'}</b> `;f.append(q.why);
+document.querySelectorAll(`input[name=q${i}]`).forEach(r=>r.disabled=true)});
+const ok=s>=Math.ceil(.75*Q.length);if(ok){S.done[MODS[mi].id]=true;save()}
+side({v:'quiz',mi,k:'quiz'});$('#sb').remove();
+const more=mi<MODS.length-1,all=modsDone();
+$('#res').innerHTML=`<div class="card"><div class="res"><div class="ring" style="--p:${s/Q.length*100};--c:${ok?'var(--ok)':'var(--bad)'}"><b>${s}/${Q.length}</b></div>
+<div style="flex:1;min-width:200px"><h2 style="font-size:1.4rem">${ok?'Module passed':'Not yet. Keep going!'}</h2><p class="sub" style="margin:6px 0 0">${ok?(all?'You have completed every module. Take the final exam to unlock your verified certificate.':'Nice work. Move on when you are ready.'):'Review the lessons and try again. The numbers change every attempt.'}</p></div></div>
+<div class="nav"><button class="btn ghost" onclick="lesson(${mi},0)">Review lessons</button><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" onclick="quiz(${mi})">Retry quiz</button>
+<button class="btn" onclick="${ok&&all?'exam()':ok&&more?`lesson(${mi+1},0)`:'home()'}">${ok&&all?'Go to final exam':ok&&more?'Next module':'Course home'} ${ic('next')}</button></span></div></div>`;
+$('#res').scrollIntoView({behavior:'smooth',block:'center'});typeset()}
+function cert(){if(!certOK()){modsDone()?exam():home();return}frame({v:'cert'},crumbs([['Course','home()'],['Certificate']])+
+`<div class="pageh"><h1>Your certificate</h1></div><p class="sub">Enter your name as it should appear.</p>
+<input type="text" id="nm" value="${(S.name||'').replace(/"/g,'&quot;')}" placeholder="Full name" oninput="draw()"><div id="cv" style="margin-top:18px"></div>`);draw()}
+function draw(){const nm=($('#nm').value||'Your Name').replace(/[<>&]/g,'');S.name=$('#nm').value;save();
+let h=0;for(const c of nm+'IE1'+(S.exam?S.exam.score:''))h=(h*31+c.charCodeAt(0))>>>0;
+const id='IE1-'+h.toString(36).toUpperCase().padStart(7,'0');
+const d=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+$('#cv').innerHTML=`<div class="cert"><div class="sub" style="letter-spacing:.2em">VERIFIED CERTIFICATE OF COMPLETION</div><p>This certifies that</p><div class="nm">${nm}</div>
+<p>has successfully completed<br><b>Integral Equations – Unit 1</b><br>Fredholm Integral Equations of the Second Kind<br><span class="sub">Separable kernels · Series sums · Maclaurin approximation</span></p>
+<p class="sub">Final exam: ${S.exam.score}/${S.exam.total} · Verified</p><p class="sub">${d} · Certificate ID: ${id}</p></div><p><button class="btn" onclick="window.print()">Print / Save as PDF</button></p>`}
+let tp=Promise.resolve();function typeset(){tp=tp.then(()=>window.MathJax&&MathJax.typesetPromise?MathJax.typesetPromise():0).catch(()=>{})}
+document.addEventListener('toggle',typeset,true);
+try{const t=localStorage.getItem('ie1th');if(t)document.documentElement.dataset.theme=t}catch(e){}
+$('#th').onclick=()=>{const r=document.documentElement,dk=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches),t=dk?'light':'dark';r.dataset.theme=t;try{localStorage.setItem('ie1th',t)}catch(e){}};
+/* ===== FINAL EXAM (password protected) ===== */
+const EXAM_PASS=0.75,EXAM_MIN=75,EXAM_HASH='ubruk-abblru';
+const exH=s=>{let h=5381,g=52711;for(const c of 'MHS-IE1|'+s){const k=c.charCodeAt(0);h=((h*33)^k)>>>0;g=((g*31)+k*7)>>>0}return h.toString(36)+'-'+g.toString(36)};
+let examOK=false,EX=[];
+const modsDone=()=>MODS.every(m=>S.done[m.id]);
+const examPassed=()=>!!(S.exam&&S.exam.passed);
+const certOK=()=>modsDone()&&examPassed();
+function ex(marks,part,q,right,wrong,why,o){o=o||{};const opts=o.fixed?[right,...wrong]:shuf([right,...wrong]);return{marks,part,q,opts,a:opts.indexOf(right),why,pre:o.pre,sub:o.sub}}
+function buildExam(){
+const A='Part A',B='Part B',C='Part C';
+return[
+ex(2,A,'Why may we integrate the Maclaurin series term by term on $[0,1]$?','Because the series converges uniformly in that range',['Because the kernel is separable','Because the integral has fixed limits','Because the separable kernel evaluates to a constant'],R`Uniform convergence is exactly what justifies swapping the sum and the integral.`),
+ex(2,A,R`For $u(x)=1+\int_0^1e^{-x}u(t)\,dt$, the value of $C$ in the solution $u(x)=1+e^{-x}C$ is:`,M('e'),[M('e^{-1}'),M('e-1'),M('1+e')],R`$C=\int_0^1u\,dt=1+C(1-e^{-1})$, so $Ce^{-1}=1$ and $C=e$.`),
+ex(2,A,R`Which kernel is separable on $[0,1]$?`,M('xt+x^2t^2'),[M('\\sin(xt)'),M('|x-t|'),M('e^{xt}')],R`Only $xt+x^2t^2$ is a finite sum of products of a function of $x$ and a function of $t$.`),
+ex(2,A,R`The solution to $\varphi(x)=1+\int_0^1A(x)\,t\,\varphi(t)\,dt$ is $\varphi(x)=1+\frac23x^2$. Which of the following could be $A(x)$?`,M('x^2'),[M('x^3'),M('2x^2'),M('2x')],R`$\varphi=1+cA(x)$ with $c=\int_0^1t\varphi\,dt$. For $A=x^2$: $c=\frac12+\frac c4$, so $c=\frac23$ ✓.`),
+ex(2,A,R`Given $u(x)=1+\int_0^1\big(\sin(x)\,t+\sin(2x)\,t^2+\cdots+\sin(5x)\,t^5\big)u(t)\,dt$, which of the following series <b>cannot</b> be deduced?
+<br>I. $\displaystyle\sum_{n=0}^\infty\frac{(-1)^n5^{2n+1}}{(2n+3)!\,(2n+1)}$
+<br>II. $\displaystyle\sum_{n=0}^\infty\frac{(-1)^n3^{2n+1}}{(2n+1)!\,(2n+5)}$
+<br>III. $\displaystyle\sum_{n=0}^\infty\frac{(-1)^n}{(2n+1)!\,(2n+3)}$`,'I only',['I and II only','II and III only','I, II, and III'],R`$\int_0^1t^k\sin(jt)\,dt=\sum\frac{(-1)^nj^{2n+1}}{(2n+1)!\,(2n+k+2)}$. II is $j=3,k=3$ and III is $j=1,k=1$. In I the factorial and the linear factor are swapped, which never occurs.`,{fixed:1}),
+ex(5,B,R`Let $f(x)=x\arctan(x^{-2})$ and let $A(x)$ be continuous on $[-1,1]$. For $y(x)=f(x)+\int_{-1}^{1}A(x)\,y(t)\,dt$ to have <b>infinitely many</b> solutions we need:`,M('\\int_{-1}^{1}A(x)\\,dx=1'),[M('\\int_{-1}^{1}A(x)\\,dx=0'),M('\\int_{-1}^{1}A(x)\\,dx\\ne1'),M('\\int_{-1}^{1}A(x)\\,dx=\\tfrac12')],R`$y=f+cA$ and $(1-a)c=G$, where $a=\int_{-1}^1A$ and $G=\int_{-1}^1f$. Since $f$ is odd, $G=0$ automatically. Then every $c$ works exactly when $a=1$.`),
+ex(5,B,R`Using the first two Maclaurin terms of $\sin x$, an approximate solution of $\varphi(x)=x^2+\int_0^1\sin(xt)\,\varphi(t)\,dt$ is:`,M('x^2+0.3633x-0.0390x^3'),[M('x^2+0.375x'),M('x^2+0.3633x+0.0390x^3'),M('x^2+0.2338x-0.0606x^3')],R`With $\sin(xt)\approx xt-\frac{x^3t^3}{6}$: $\frac23c_1+\frac1{30}c_2=\frac14$ and $-\frac15c_1+\frac{43}{42}c_2=\frac16$, giving $c_1\approx0.3633$, $c_2\approx0.2338$ and $\varphi=x^2+c_1x-\frac{c_2}{6}x^3$.`),
+ex(4,C,R`<b>(i)</b> The solution of $u$ is:`,M('x-\\frac{x\\,e^{1-x^2}}{e+1}'),[M('x-\\frac{x\\,e^{1-x^2}}{e-1}'),M('x+\\frac{x\\,e^{1-x^2}}{e+1}'),M('x-\\frac{e^{1-x^2}}{e+1}')],R`$u=x-Cxe^{1-x^2}$ with $C=\int_0^1u\,dt=\frac12-C\cdot\frac{e-1}{2}$, so $C=\frac1{e+1}$.`,{pre:R`<p>Solve $\;u(x)=x-\int_0^1x\,e^{1-x^2}\,u(t)\,dt\;$ and hence deduce the sums of the series in (ii) and (iii).</p>`}),
+ex(3,C,R`<b>(ii)</b> $\displaystyle\sum_{k=0}^{\infty}\frac{1}{(k+1)!}=$`,M('e-1'),[M('e'),M('e+1'),M('\\frac1{e-1}')],R`$\int_0^1x(1-x^2)^k\,dx=\frac1{2(k+1)}$, so $\int_0^1xe^{1-x^2}dx=\frac12\sum\frac1{(k+1)!}$. Also it equals $\frac{e-1}{2}$.`),
+ex(3,C,R`<b>(iii)</b> $\displaystyle\sum_{k=0}^{\infty}\frac{(-1)^k}{(k+1)!}=$`,M('\\frac{e-1}{e}'),[M('\\frac1e'),M('1+\\frac1e'),M('\\frac1{e-1}')],R`Use $e^{1-x^2}=e\cdot e^{-x^2}$: $\int_0^1xe^{-x^2}dx=\frac{1-e^{-1}}{2}=\frac12\sum\frac{(-1)^k}{(k+1)!}$, so the sum is $1-\frac1e$.`)
+]}
+function exam(){examOK?examStart():examGate()}
+function examGate(msg){frame({v:'exam'},crumbs([['Course','home()'],['Final exam']])+
+`<div class="pageh"><div class="lab">Final exam</div><h1>Password required</h1></div>
+<div class="card" style="max-width:520px"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="st">${ic('lock')}</span><b>This exam is locked</b></div>
+<p class="sub">Enter the exam password given by your instructor. You must pass this exam to receive your verified certificate.</p>
+<input type="password" id="xp" placeholder="Exam password" autocomplete="off" onkeydown="if(event.key==='Enter')examUnlock()" style="font:inherit;padding:11px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);width:100%;max-width:360px">
+<div id="xe" style="color:var(--bad);margin:10px 0 0;min-height:1.4em;font-weight:600">${msg||''}</div>
+<p style="margin-top:10px"><button class="btn" onclick="examUnlock()">Unlock exam ${ic('next')}</button></p></div>`);
+setTimeout(()=>{const e=$('#xp');e&&e.focus()},50)}
+function examUnlock(){const v=$('#xp').value;if(exH(v)===EXAM_HASH){examOK=true;examStart()}else{$('#xe').textContent='Incorrect password. Try again.';$('#xp').value='';$('#xp').focus()}}
+let exEnd=0;
+function examStart(){EX=buildExam();exEnd=Date.now()+EXAM_MIN*60000;
+let part='';const body=EX.map((q,i)=>{let h='';if(q.part!==part){part=q.part;h+=`<h2 style="margin:26px 0 4px;font-size:1.15rem">${part}</h2>`}
+if(q.pre)h+=`<div class="card prose" style="margin-top:12px">${q.pre}</div>`;
+return h+`<div class="card"><div class="qn"><span>${i+1}</span><span>${q.q}</span></div><div class="sub" style="margin:2px 0 6px">${q.marks} mark${q.marks>1?'s':''}</div>`+q.opts.map((o,j)=>`<label class="o" id="eo${i}_${j}"><input type="radio" name="eq${i}" value="${j}"><span class="lt">${'ABCD'[j]}</span><span>${o}</span></label>`).join('')+`<div class="fb" id="efb${i}"></div></div>`}).join('');
+frame({v:'exam'},crumbs([['Course','home()'],['Final exam']])+
+`<div class="pageh"><div class="lab">Integral Equations &amp; Transform Techniques</div><h1>Final exam</h1></div>
+<div class="qinfo"><span class="tag">30 marks</span><span class="tag">Pass mark ${EXAM_PASS*100}%</span><span class="tag">${EXAM_MIN} minutes</span><span class="tag" id="ec">0 of ${EX.length} answered</span><span class="tag" id="et">${EXAM_MIN}:00</span></div>
+<div oninput="examCount()">${body}</div><div id="eres"></div><button class="btn" id="esb" onclick="examGrade()" style="margin-top:16px">Submit exam</button>`);
+clearInterval(window._et);window._et=setInterval(()=>{const e=$('#et');if(!e){clearInterval(window._et);return}
+const s=Math.max(0,Math.round((exEnd-Date.now())/1000));e.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+if(s<=0){clearInterval(window._et);examGrade(true)}},1000)}
+function examCount(){const n=EX.filter((_,i)=>document.querySelector(`input[name=eq${i}]:checked`)).length;const e=$('#ec');if(e)e.textContent=n+' of '+EX.length+' answered'}
+function examGrade(auto){if(!$('#esb'))return;clearInterval(window._et);let sc=0;
+EX.forEach((q,i)=>{const c=document.querySelector(`input[name=eq${i}]:checked`),v=c?+c.value:-1;if(v===q.a)sc+=q.marks;
+$('#eo'+i+'_'+q.a).classList.add('right');if(v>=0&&v!==q.a)$('#eo'+i+'_'+v).classList.add('wrong');
+const f=$('#efb'+i);f.className='fb show '+(v===q.a?'ok':'bad');f.innerHTML=`<b>${v===q.a?'Correct.':v<0?'Not answered.':'Not quite.'}</b> `;f.append(q.why);
+document.querySelectorAll(`input[name=eq${i}]`).forEach(r=>r.disabled=true)});
+const tot=EX.reduce((a,q)=>a+q.marks,0),ok=sc>=Math.ceil(EXAM_PASS*tot);
+if(ok){if(!examPassed()||sc>S.exam.score)S.exam={passed:true,score:sc,total:tot,date:new Date().toISOString()};save()}
+side({v:'exam'});$('#esb').remove();
+$('#eres').innerHTML=`<div class="card"><div class="res"><div class="ring" style="--p:${sc/tot*100};--c:${ok?'var(--ok)':'var(--bad)'}"><b>${sc}/${tot}</b></div>
+<div style="flex:1;min-width:200px"><h2 style="font-size:1.4rem">${ok?'Exam passed':'Not yet. Keep going!'}</h2><p class="sub" style="margin:6px 0 0">${auto?'Time ran out and your answers were submitted. ':''}${ok?'Your verified certificate is ready.':`You need ${Math.ceil(EXAM_PASS*tot)} of ${tot} to pass. Review the lessons and try again.`}</p></div></div>
+<div class="nav"><button class="btn ghost" onclick="home()">Course home</button><span style="display:flex;gap:8px;flex-wrap:wrap">${ok?'':`<button class="btn ghost" onclick="examStart()">Retake exam</button>`}${ok?`<button class="btn" onclick="cert()">Get certificate ${ic('next')}</button>`:''}</span></div></div>`;
+$('#eres').scrollIntoView({behavior:'smooth',block:'center'});typeset()}
+
+home();
+</script></body></html>
